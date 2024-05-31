@@ -158,28 +158,10 @@ public class SignUp extends javax.swing.JFrame {
         );
 
         SignUpLayeredPane.setLayer(whitebg, javax.swing.JLayeredPane.PALETTE_LAYER);
-        SignUpLayeredPane.setLayer(bg, javax.swing.JLayeredPane.DEFAULT_LAYER);
-
-        javax.swing.GroupLayout SignUpLayeredPaneLayout = new javax.swing.GroupLayout(SignUpLayeredPane);
-        SignUpLayeredPane.setLayout(SignUpLayeredPaneLayout);
-        SignUpLayeredPaneLayout.setHorizontalGroup(
-            SignUpLayeredPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, SignUpLayeredPaneLayout.createSequentialGroup()
-                .addGap(320, 320, 320)
-                .addComponent(whitebg, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGap(199, 199, 199)
-                .addComponent(bg)
-                .addGap(121, 121, 121))
-        );
-        SignUpLayeredPaneLayout.setVerticalGroup(
-            SignUpLayeredPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(SignUpLayeredPaneLayout.createSequentialGroup()
-                .addGap(50, 50, 50)
-                .addComponent(whitebg, javax.swing.GroupLayout.PREFERRED_SIZE, 680, Short.MAX_VALUE))
-            .addGroup(SignUpLayeredPaneLayout.createSequentialGroup()
-                .addGap(123, 123, 123)
-                .addComponent(bg))
-        );
+        SignUpLayeredPane.add(whitebg);
+        whitebg.setBounds(320, 50, 640, 680);
+        SignUpLayeredPane.add(bg);
+        bg.setBounds(1159, 123, 0, 0);
 
         getContentPane().add(SignUpLayeredPane, java.awt.BorderLayout.CENTER);
 

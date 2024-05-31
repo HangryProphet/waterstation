@@ -81,7 +81,7 @@ public class Login extends javax.swing.JFrame {
         whitebg.setBackground(new java.awt.Color(255, 255, 255));
         whitebg.setForeground(new java.awt.Color(255, 255, 255));
 
-        LoginLabel.setFont(new java.awt.Font("Arial", 1, 48)); // NOI18N
+        LoginLabel.setFont(new java.awt.Font("Tahoma", 1, 48)); // NOI18N
         LoginLabel.setText("Jentaime Water Station");
 
         PasswordLabel.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
@@ -135,27 +135,27 @@ public class Login extends javax.swing.JFrame {
                                 .addComponent(ShowPassword))))
                     .addGroup(whitebgLayout.createSequentialGroup()
                         .addGap(258, 258, 258)
-                        .addComponent(LoginButton, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(whitebgLayout.createSequentialGroup()
-                        .addGap(54, 54, 54)
-                        .addComponent(LoginLabel)))
-                .addContainerGap(55, Short.MAX_VALUE))
+                        .addComponent(LoginButton, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, whitebgLayout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
+                .addGap(0, 39, Short.MAX_VALUE)
                 .addGroup(whitebgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, whitebgLayout.createSequentialGroup()
                         .addComponent(SignUpLabel)
                         .addGap(216, 216, 216))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, whitebgLayout.createSequentialGroup()
                         .addComponent(SignUpButton)
-                        .addGap(265, 265, 265))))
+                        .addGap(265, 265, 265))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, whitebgLayout.createSequentialGroup()
+                        .addComponent(LoginLabel)
+                        .addGap(29, 29, 29))))
         );
         whitebgLayout.setVerticalGroup(
             whitebgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(whitebgLayout.createSequentialGroup()
-                .addGap(58, 58, 58)
+                .addGap(41, 41, 41)
                 .addComponent(LoginLabel)
-                .addGap(48, 48, 48)
+                .addGap(65, 65, 65)
                 .addComponent(UsernameLabel)
                 .addGap(18, 18, 18)
                 .addComponent(UsernameField, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -171,7 +171,7 @@ public class Login extends javax.swing.JFrame {
                 .addComponent(SignUpLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(SignUpButton)
-                .addContainerGap(36, Short.MAX_VALUE))
+                .addContainerGap(34, Short.MAX_VALUE))
         );
 
         LoginLayeredPane.add(whitebg);

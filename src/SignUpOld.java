@@ -1,6 +1,8 @@
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import javax.swing.JOptionPane;
 
 
 public class SignUpOld extends javax.swing.JFrame {
@@ -44,6 +46,8 @@ public class SignUpOld extends javax.swing.JFrame {
     public SignUpOld() {
         initComponents();
         setTitle("Jentaime Water Station");
+        setResizable(false);
+        setLocationRelativeTo(null);
         
     }
 
@@ -207,7 +211,31 @@ public class SignUpOld extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void SignUpButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SignUpButtonActionPerformed
-    
+        String username = SignUpUsernameField.getText();
+        String password1 = new String(SignUpPasswordField.getPassword());
+        String password2 = new String(ConfirmPassField.getPassword());
+
+        if (username.isEmpty() || password1.isEmpty() || password2.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill all fields", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        if (!password1.equals(password2)) {
+            JOptionPane.showMessageDialog(this, "Passwords do not match!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            String sql = "INSERT INTO accounts (username, password) VALUES (?, ?)";
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setString(1, username);
+                pstmt.setString(2, password1);
+                pstmt.executeUpdate();
+            }
+            JOptionPane.showMessageDialog(this, "Sign up successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_SignUpButtonActionPerformed
 
     private void ShowPassSignUpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ShowPassSignUpActionPerformed

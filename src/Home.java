@@ -32,7 +32,7 @@ public class Home extends javax.swing.JFrame {
         SalesToggle = new javax.swing.JToggleButton();
         InventoryToggle = new javax.swing.JToggleButton();
         ReportsToggle = new javax.swing.JToggleButton();
-        AccountsToggle = new javax.swing.JToggleButton();
+        CustomersToggle = new javax.swing.JToggleButton();
         jPanel2 = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
 
@@ -51,8 +51,8 @@ public class Home extends javax.swing.JFrame {
         ReportsToggle.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         ReportsToggle.setText("Reports");
 
-        AccountsToggle.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        AccountsToggle.setText("Accounts");
+        CustomersToggle.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        CustomersToggle.setText("Customers");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -64,7 +64,7 @@ public class Home extends javax.swing.JFrame {
                     .addComponent(SalesToggle, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(InventoryToggle, javax.swing.GroupLayout.DEFAULT_SIZE, 174, Short.MAX_VALUE)
                     .addComponent(ReportsToggle, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 174, Short.MAX_VALUE)
-                    .addComponent(AccountsToggle, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 174, Short.MAX_VALUE))
+                    .addComponent(CustomersToggle, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 174, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -77,7 +77,7 @@ public class Home extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(ReportsToggle, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(AccountsToggle, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(CustomersToggle, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(392, Short.MAX_VALUE))
         );
 
@@ -172,7 +172,7 @@ public class Home extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JToggleButton AccountsToggle;
+    private javax.swing.JToggleButton CustomersToggle;
     private javax.swing.JToggleButton InventoryToggle;
     private javax.swing.JToggleButton ReportsToggle;
     private javax.swing.JToggleButton SalesToggle;
