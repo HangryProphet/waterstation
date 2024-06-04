@@ -27,6 +27,18 @@ public class Inventory extends javax.swing.JPanel {
 
         jScrollPane1 = new javax.swing.JScrollPane();
         InventoryTable = new javax.swing.JTable();
+        SearchLabel = new javax.swing.JLabel();
+        Search_Field = new javax.swing.JTextField();
+        Product_Info_Panel = new javax.swing.JPanel();
+        InventoryCRUD_panel = new javax.swing.JPanel();
+        Name_Label = new javax.swing.JLabel();
+        Qty_Label = new javax.swing.JLabel();
+        Price_Label = new javax.swing.JLabel();
+        ID_Label = new javax.swing.JLabel();
+        Save_Bttn = new javax.swing.JButton();
+        Delete_Bttn = new javax.swing.JButton();
+        Modify = new javax.swing.JButton();
+        ProductInfo_Label = new javax.swing.JLabel();
 
         InventoryTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -38,27 +50,158 @@ public class Inventory extends javax.swing.JPanel {
         ));
         jScrollPane1.setViewportView(InventoryTable);
 
+        SearchLabel.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
+        SearchLabel.setText("Search: ");
+
+        Search_Field.setText("0");
+
+        Product_Info_Panel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        javax.swing.GroupLayout Product_Info_PanelLayout = new javax.swing.GroupLayout(Product_Info_Panel);
+        Product_Info_Panel.setLayout(Product_Info_PanelLayout);
+        Product_Info_PanelLayout.setHorizontalGroup(
+            Product_Info_PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+        Product_Info_PanelLayout.setVerticalGroup(
+            Product_Info_PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 122, Short.MAX_VALUE)
+        );
+
+        InventoryCRUD_panel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        Name_Label.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
+        Name_Label.setText("Name:");
+
+        Qty_Label.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
+        Qty_Label.setText("Qty:");
+
+        Price_Label.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
+        Price_Label.setText("Price:");
+
+        ID_Label.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
+        ID_Label.setText("ID:");
+
+        Save_Bttn.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
+        Save_Bttn.setText("Add");
+
+        Delete_Bttn.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
+        Delete_Bttn.setText("Delete");
+
+        Modify.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
+        Modify.setText("Modify");
+
+        ProductInfo_Label.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
+        ProductInfo_Label.setText("PRODUCT INFO");
+
+        javax.swing.GroupLayout InventoryCRUD_panelLayout = new javax.swing.GroupLayout(InventoryCRUD_panel);
+        InventoryCRUD_panel.setLayout(InventoryCRUD_panelLayout);
+        InventoryCRUD_panelLayout.setHorizontalGroup(
+            InventoryCRUD_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(InventoryCRUD_panelLayout.createSequentialGroup()
+                .addGroup(InventoryCRUD_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(InventoryCRUD_panelLayout.createSequentialGroup()
+                        .addGroup(InventoryCRUD_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(InventoryCRUD_panelLayout.createSequentialGroup()
+                                .addGap(116, 116, 116)
+                                .addComponent(Price_Label, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(InventoryCRUD_panelLayout.createSequentialGroup()
+                                .addGap(134, 134, 134)
+                                .addComponent(Qty_Label, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(InventoryCRUD_panelLayout.createSequentialGroup()
+                                .addGap(106, 106, 106)
+                                .addComponent(Name_Label, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, InventoryCRUD_panelLayout.createSequentialGroup()
+                                .addGap(146, 146, 146)
+                                .addComponent(ID_Label, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addGap(235, 235, 235))
+                    .addGroup(InventoryCRUD_panelLayout.createSequentialGroup()
+                        .addGap(33, 33, 33)
+                        .addComponent(Save_Bttn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(33, 33, 33)
+                        .addComponent(Modify, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(39, 39, 39)
+                        .addComponent(Delete_Bttn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addGap(52, 52, 52))
+            .addGroup(InventoryCRUD_panelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(ProductInfo_Label, javax.swing.GroupLayout.PREFERRED_SIZE, 460, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        InventoryCRUD_panelLayout.setVerticalGroup(
+            InventoryCRUD_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(InventoryCRUD_panelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(ProductInfo_Label)
+                .addGap(61, 61, 61)
+                .addComponent(ID_Label)
+                .addGap(30, 30, 30)
+                .addComponent(Name_Label)
+                .addGap(30, 30, 30)
+                .addComponent(Qty_Label)
+                .addGap(30, 30, 30)
+                .addComponent(Price_Label)
+                .addGap(106, 106, 106)
+                .addGroup(InventoryCRUD_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(Modify, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(Delete_Bttn, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(Save_Bttn, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(114, Short.MAX_VALUE))
+        );
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(56, 56, 56)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1084, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(81, Short.MAX_VALUE))
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(Product_Info_Panel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(InventoryCRUD_panel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jScrollPane1)
+                        .addContainerGap())
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(SearchLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 152, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(Search_Field, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(248, 248, 248))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(55, 55, 55)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(238, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(SearchLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(Product_Info_Panel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(37, 37, 37)
+                        .addComponent(Search_Field, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(InventoryCRUD_panel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1))
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton Delete_Bttn;
+    private javax.swing.JLabel ID_Label;
+    private javax.swing.JPanel InventoryCRUD_panel;
     private javax.swing.JTable InventoryTable;
+    private javax.swing.JButton Modify;
+    private javax.swing.JLabel Name_Label;
+    private javax.swing.JLabel Price_Label;
+    private javax.swing.JLabel ProductInfo_Label;
+    private javax.swing.JPanel Product_Info_Panel;
+    private javax.swing.JLabel Qty_Label;
+    private javax.swing.JButton Save_Bttn;
+    private javax.swing.JLabel SearchLabel;
+    private javax.swing.JTextField Search_Field;
     private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
 }

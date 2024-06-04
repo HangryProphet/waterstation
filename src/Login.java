@@ -177,7 +177,7 @@ public class Login extends javax.swing.JFrame {
         LoginLayeredPane.add(whitebg);
         whitebg.setBounds(310, 40, 640, 680);
 
-        Loginbg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/bg.PNG"))); // NOI18N
+        Loginbg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/bg.PNG"))); // NOI18N
         LoginLayeredPane.add(Loginbg);
         Loginbg.setBounds(0, 0, 1280, 720);
 
@@ -253,7 +253,7 @@ public class Login extends javax.swing.JFrame {
         this.dispose();
     }
     private void redirectToSignUpPage() {
-        SignUpOld SignUpForm = new SignUpOld();
+        SignUp SignUpForm = new SignUp();
         SignUpForm.setVisible(true);
         this.dispose();
     }
