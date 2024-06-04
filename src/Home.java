@@ -161,6 +161,7 @@ public class Home extends javax.swing.JFrame {
     } else {
         panel_load.removeAll();
         panel_load.repaint();
+        }
     }//GEN-LAST:event_Sales_BttnActionPerformed
 
     /**
