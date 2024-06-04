@@ -9,9 +9,6 @@
     <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
       <Dimension value="[1280, 720]"/>
     </Property>
-    <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-      <Dimension value="[1280, 720]"/>
-    </Property>
   </Properties>
   <SyntheticProperties>
     <SyntheticProperty name="formSizePolicy" type="int" value="1"/>
@@ -66,13 +63,13 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Group type="102" alignment="1" attributes="0">
+              <Group type="102" alignment="0" attributes="0">
                   <EmptySpace min="-2" pref="25" max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="1" attributes="0">
-                      <Component id="Reports_Bttn" max="32767" attributes="0"/>
-                      <Component id="Customer_Bttn" max="32767" attributes="0"/>
-                      <Component id="Sales_Bttn" max="32767" attributes="0"/>
-                      <Component id="Inventory_Bttn" pref="109" max="32767" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Component id="Inventory_Bttn" max="32767" attributes="0"/>
+                      <Component id="Reports_Bttn" alignment="1" max="32767" attributes="0"/>
+                      <Component id="Customer_Bttn" alignment="1" pref="109" max="32767" attributes="0"/>
+                      <Component id="Sales_Bttn" alignment="1" max="32767" attributes="0"/>
                       <Component id="Logout_Bttn" alignment="0" max="32767" attributes="0"/>
                   </Group>
                   <EmptySpace min="-2" pref="38" max="-2" attributes="0"/>
@@ -83,11 +80,11 @@
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace min="-2" pref="21" max="-2" attributes="0"/>
-                  <Component id="Inventory_Bttn" min="-2" pref="40" max="-2" attributes="0"/>
-                  <EmptySpace type="separate" min="-2" max="-2" attributes="0"/>
                   <Component id="Sales_Bttn" min="-2" pref="40" max="-2" attributes="0"/>
                   <EmptySpace type="separate" max="-2" attributes="0"/>
                   <Component id="Customer_Bttn" min="-2" pref="40" max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
+                  <Component id="Inventory_Bttn" min="-2" pref="40" max="-2" attributes="0"/>
                   <EmptySpace type="separate" max="-2" attributes="0"/>
                   <Component id="Reports_Bttn" min="-2" pref="40" max="-2" attributes="0"/>
                   <EmptySpace pref="272" max="32767" attributes="0"/>
@@ -116,6 +113,9 @@
             </Property>
             <Property name="text" type="java.lang.String" value="Sales"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="Sales_BttnActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JToggleButton" name="Customer_Bttn">
           <Properties>

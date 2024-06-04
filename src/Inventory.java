@@ -1,3 +1,11 @@
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import javax.swing.table.DefaultTableModel;
+
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
@@ -9,11 +17,45 @@
  */
 public class Inventory extends javax.swing.JPanel {
 
-    /**
-     * Creates new form Inventory
-     */
+    public class DatabaseConnection {
+    // Database URL, username, and password
+    private static final String URL = "jdbc:mysql://localhost:3306/waterstation";
+    private static final String USER = "root";
+    private static final String PASSWORD = "";
+
+    // Method to establish a connection to the database
+    public static Connection getConnection() {
+        Connection connection = null;
+        try {
+            // Register the JDBC driver
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            // Open a connection
+            connection = DriverManager.getConnection(URL, USER, PASSWORD);
+            System.out.println("Database connected successfully.");
+        } catch (ClassNotFoundException e) {
+            System.out.println("MySQL JDBC Driver not found.");
+            e.printStackTrace();
+        } catch (SQLException e) {
+            System.out.println("Failed to connect to the database.");
+            e.printStackTrace();
+        }
+        return connection;
+    }
+    public static void closeConnection(Connection connection) {
+        if (connection != null) {
+            try {
+                connection.close();
+                System.out.println("Database connection closed.");
+            } catch (SQLException e) {
+                System.out.println("Failed to close the database connection.");
+                e.printStackTrace();
+            }
+        }
+    }
+ }
     public Inventory() {
         initComponents();
+        loadInventoryTable();
     }
 
     /**
@@ -27,19 +69,22 @@ public class Inventory extends javax.swing.JPanel {
 
         jScrollPane1 = new javax.swing.JScrollPane();
         InventoryTable = new javax.swing.JTable();
-        SearchLabel = new javax.swing.JLabel();
-        Search_Field = new javax.swing.JTextField();
         Product_Info_Panel = new javax.swing.JPanel();
+        Inventory_Label = new javax.swing.JLabel();
         InventoryCRUD_panel = new javax.swing.JPanel();
         Name_Label = new javax.swing.JLabel();
         Qty_Label = new javax.swing.JLabel();
         Price_Label = new javax.swing.JLabel();
-        ID_Label = new javax.swing.JLabel();
-        Save_Bttn = new javax.swing.JButton();
-        Delete_Bttn = new javax.swing.JButton();
-        Modify = new javax.swing.JButton();
+        Add_Bttn = new javax.swing.JButton();
         ProductInfo_Label = new javax.swing.JLabel();
+        Name_field = new javax.swing.JTextField();
+        Qty_field = new javax.swing.JTextField();
+        Price_field = new javax.swing.JTextField();
+        jPanel1 = new javax.swing.JPanel();
+        Modify = new javax.swing.JButton();
+        Delete_Bttn = new javax.swing.JButton();
 
+        InventoryTable.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         InventoryTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
@@ -50,22 +95,26 @@ public class Inventory extends javax.swing.JPanel {
         ));
         jScrollPane1.setViewportView(InventoryTable);
 
-        SearchLabel.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
-        SearchLabel.setText("Search: ");
-
-        Search_Field.setText("0");
-
         Product_Info_Panel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        Inventory_Label.setFont(new java.awt.Font("Tahoma", 1, 48)); // NOI18N
+        Inventory_Label.setText("INVENTORY");
 
         javax.swing.GroupLayout Product_Info_PanelLayout = new javax.swing.GroupLayout(Product_Info_Panel);
         Product_Info_Panel.setLayout(Product_Info_PanelLayout);
         Product_Info_PanelLayout.setHorizontalGroup(
             Product_Info_PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
+            .addGroup(Product_Info_PanelLayout.createSequentialGroup()
+                .addGap(89, 89, 89)
+                .addComponent(Inventory_Label, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(91, 91, 91))
         );
         Product_Info_PanelLayout.setVerticalGroup(
             Product_Info_PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 122, Short.MAX_VALUE)
+            .addGroup(Product_Info_PanelLayout.createSequentialGroup()
+                .addGap(26, 26, 26)
+                .addComponent(Inventory_Label, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(31, 31, 31))
         );
 
         InventoryCRUD_panel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -79,20 +128,24 @@ public class Inventory extends javax.swing.JPanel {
         Price_Label.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
         Price_Label.setText("Price:");
 
-        ID_Label.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
-        ID_Label.setText("ID:");
-
-        Save_Bttn.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
-        Save_Bttn.setText("Add");
-
-        Delete_Bttn.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
-        Delete_Bttn.setText("Delete");
-
-        Modify.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
-        Modify.setText("Modify");
+        Add_Bttn.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
+        Add_Bttn.setText("Add Product");
+        Add_Bttn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Add_BttnActionPerformed(evt);
+            }
+        });
 
         ProductInfo_Label.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
         ProductInfo_Label.setText("PRODUCT INFO");
+
+        Name_field.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+
+        Qty_field.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        Qty_field.setText("0");
+
+        Price_field.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        Price_field.setText("0");
 
         javax.swing.GroupLayout InventoryCRUD_panelLayout = new javax.swing.GroupLayout(InventoryCRUD_panel);
         InventoryCRUD_panel.setLayout(InventoryCRUD_panelLayout);
@@ -101,52 +154,80 @@ public class Inventory extends javax.swing.JPanel {
             .addGroup(InventoryCRUD_panelLayout.createSequentialGroup()
                 .addGroup(InventoryCRUD_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(InventoryCRUD_panelLayout.createSequentialGroup()
+                        .addGap(33, 33, 33)
                         .addGroup(InventoryCRUD_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(InventoryCRUD_panelLayout.createSequentialGroup()
-                                .addGap(116, 116, 116)
-                                .addComponent(Price_Label, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addGroup(InventoryCRUD_panelLayout.createSequentialGroup()
-                                .addGap(134, 134, 134)
-                                .addComponent(Qty_Label, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addGroup(InventoryCRUD_panelLayout.createSequentialGroup()
-                                .addGap(106, 106, 106)
-                                .addComponent(Name_Label, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, InventoryCRUD_panelLayout.createSequentialGroup()
-                                .addGap(146, 146, 146)
-                                .addComponent(ID_Label, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                        .addGap(235, 235, 235))
+                            .addComponent(Qty_Label)
+                            .addComponent(Name_Label))
+                        .addGap(22, 22, 22)
+                        .addComponent(Name_field, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(InventoryCRUD_panelLayout.createSequentialGroup()
-                        .addGap(33, 33, 33)
-                        .addComponent(Save_Bttn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGap(33, 33, 33)
-                        .addComponent(Modify, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGap(39, 39, 39)
-                        .addComponent(Delete_Bttn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addGap(52, 52, 52))
-            .addGroup(InventoryCRUD_panelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(ProductInfo_Label, javax.swing.GroupLayout.PREFERRED_SIZE, 460, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(Price_Label)
+                        .addGap(26, 26, 26)
+                        .addGroup(InventoryCRUD_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(Price_field, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(Qty_field, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(Add_Bttn))))
+                .addContainerGap(118, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, InventoryCRUD_panelLayout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(ProductInfo_Label)
+                .addGap(278, 278, 278))
         );
         InventoryCRUD_panelLayout.setVerticalGroup(
             InventoryCRUD_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(InventoryCRUD_panelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(ProductInfo_Label)
-                .addGap(61, 61, 61)
-                .addComponent(ID_Label)
-                .addGap(30, 30, 30)
-                .addComponent(Name_Label)
-                .addGap(30, 30, 30)
-                .addComponent(Qty_Label)
-                .addGap(30, 30, 30)
-                .addComponent(Price_Label)
-                .addGap(106, 106, 106)
+                .addGap(49, 49, 49)
                 .addGroup(InventoryCRUD_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(Modify, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(Name_Label)
+                    .addComponent(Name_field, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(32, 32, 32)
+                .addGroup(InventoryCRUD_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(Qty_Label)
+                    .addComponent(Qty_field, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(38, 38, 38)
+                .addGroup(InventoryCRUD_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(Price_field, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(Price_Label))
+                .addGap(74, 74, 74)
+                .addComponent(Add_Bttn, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(41, Short.MAX_VALUE))
+        );
+
+        jPanel1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        Modify.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
+        Modify.setText("Modify");
+
+        Delete_Bttn.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
+        Delete_Bttn.setText("Delete");
+        Delete_Bttn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Delete_BttnActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(26, 26, 26)
+                .addComponent(Modify, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(34, 34, 34)
+                .addComponent(Delete_Bttn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(34, 34, 34))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(32, 32, 32)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(Delete_Bttn, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(Save_Bttn, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(114, Short.MAX_VALUE))
+                    .addComponent(Modify, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(44, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -155,53 +236,152 @@ public class Inventory extends javax.swing.JPanel {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(Product_Info_Panel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(InventoryCRUD_panel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(InventoryCRUD_panel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane1)
-                        .addContainerGap())
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(SearchLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 152, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(Search_Field, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(248, 248, 248))))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 600, Short.MAX_VALUE)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(SearchLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(Product_Info_Panel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(37, 37, 37)
-                        .addComponent(Search_Field, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addComponent(Product_Info_Panel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(13, 13, 13)
+                .addComponent(InventoryCRUD_panel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(InventoryCRUD_panel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jScrollPane1))
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane1)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void Add_BttnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Add_BttnActionPerformed
+         String name = Name_field.getText();
+        String price = Price_field.getText();
+        String qty = Qty_field.getText();
+
+        // Add to database
+        int id = addProductToDatabase(name, price, qty);
+
+        // Add to InventoryTable
+        DefaultTableModel model = (DefaultTableModel) InventoryTable.getModel();
+        model.addRow(new Object[]{id, name, price, qty});
+
+        // Clear input fields
+        Name_field.setText("");
+        Price_field.setText("");
+        Qty_field.setText("");
+    }//GEN-LAST:event_Add_BttnActionPerformed
+
+    private void Delete_BttnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Delete_BttnActionPerformed
+        
+    }//GEN-LAST:event_Delete_BttnActionPerformed
+  private int addProductToDatabase(String name, String price, String qty) {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        int productId = -1;
+
+        try {
+            connection = DatabaseConnection.getConnection();
+            String query = "INSERT INTO inventory (productname, qty, price) VALUES (?, ?, ?)";
+            preparedStatement = connection.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS);
+            preparedStatement.setString(1, name);
+            preparedStatement.setString(2, qty);
+            preparedStatement.setString(3, price);
+
+            preparedStatement.executeUpdate();
+            resultSet = preparedStatement.getGeneratedKeys();
+
+            if (resultSet.next()) {
+                productId = resultSet.getInt(1);
+            }
+
+            System.out.println("Product added to database with ID: " + productId);
+        } catch (SQLException e) {
+            System.out.println("Failed to add product to database.");
+            e.printStackTrace();
+        } finally {
+            if (resultSet != null) {
+                try {
+                    resultSet.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            DatabaseConnection.closeConnection(connection);
+        }
+        return productId;
+ }
+     private void loadInventoryTable() {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+
+        try {
+            connection = DatabaseConnection.getConnection();
+            String query = "SELECT * FROM inventory";
+            preparedStatement = connection.prepareStatement(query);
+            resultSet = preparedStatement.executeQuery();
+
+            DefaultTableModel model = (DefaultTableModel) InventoryTable.getModel();
+
+            while (resultSet.next()) {
+                int id = resultSet.getInt("productid");
+                String name = resultSet.getString("productname");
+                String price = resultSet.getString("price");
+                String qty = resultSet.getString("qty");
+                model.addRow(new Object[]{id, name, price, qty});
+            }
+        } catch (SQLException e) {
+            System.out.println("Failed to load inventory from database.");
+            e.printStackTrace();
+        } finally {
+            if (resultSet != null) {
+                try {
+                    resultSet.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            DatabaseConnection.closeConnection(connection);
+        }
+     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton Add_Bttn;
     private javax.swing.JButton Delete_Bttn;
-    private javax.swing.JLabel ID_Label;
     private javax.swing.JPanel InventoryCRUD_panel;
     private javax.swing.JTable InventoryTable;
+    private javax.swing.JLabel Inventory_Label;
     private javax.swing.JButton Modify;
     private javax.swing.JLabel Name_Label;
+    private javax.swing.JTextField Name_field;
     private javax.swing.JLabel Price_Label;
+    private javax.swing.JTextField Price_field;
     private javax.swing.JLabel ProductInfo_Label;
     private javax.swing.JPanel Product_Info_Panel;
     private javax.swing.JLabel Qty_Label;
-    private javax.swing.JButton Save_Bttn;
-    private javax.swing.JLabel SearchLabel;
-    private javax.swing.JTextField Search_Field;
+    private javax.swing.JTextField Qty_field;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
 }
