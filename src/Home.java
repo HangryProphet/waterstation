@@ -1,5 +1,5 @@
-
 import javax.swing.JFrame;
+import javax.swing.JButton;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -11,14 +11,15 @@ import javax.swing.JFrame;
  * @author ADMIN
  */
 public class Home extends javax.swing.JFrame {
+   
     JpanelLoader jpload = new JpanelLoader();
-
-    /**
-     * Creates new form Home
-     */
+    private JButton lastSelectedButton;
+    
     public Home() {
         initComponents();
         setLocationRelativeTo(null);
+        
+        
     }
     
     @SuppressWarnings("unchecked")
@@ -26,11 +27,11 @@ public class Home extends javax.swing.JFrame {
     private void initComponents() {
 
         jPanel2 = new javax.swing.JPanel();
-        Inventory_Bttn = new javax.swing.JToggleButton();
-        Sales_Bttn = new javax.swing.JToggleButton();
-        Customer_Bttn = new javax.swing.JToggleButton();
-        Reports_Bttn = new javax.swing.JToggleButton();
-        Logout_Bttn = new javax.swing.JToggleButton();
+        Logout_Bttn = new javax.swing.JButton();
+        SalesBttn = new javax.swing.JButton();
+        CustomerBttn = new javax.swing.JButton();
+        InventoryBttn = new javax.swing.JButton();
+        ReportsBttn = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         panel_load = new javax.swing.JPanel();
 
@@ -40,30 +41,45 @@ public class Home extends javax.swing.JFrame {
 
         jPanel2.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        Inventory_Bttn.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        Inventory_Bttn.setText("Inventory");
-        Inventory_Bttn.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                Inventory_BttnActionPerformed(evt);
-            }
-        });
-
-        Sales_Bttn.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        Sales_Bttn.setText("Sales");
-        Sales_Bttn.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                Sales_BttnActionPerformed(evt);
-            }
-        });
-
-        Customer_Bttn.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        Customer_Bttn.setText("Customer");
-
-        Reports_Bttn.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        Reports_Bttn.setText("Reports");
-
         Logout_Bttn.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         Logout_Bttn.setText("Logout");
+        Logout_Bttn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Logout_BttnActionPerformed(evt);
+            }
+        });
+
+        SalesBttn.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        SalesBttn.setText("Sales");
+        SalesBttn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                SalesBttnActionPerformed(evt);
+            }
+        });
+
+        CustomerBttn.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        CustomerBttn.setText("Customer");
+        CustomerBttn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                CustomerBttnActionPerformed(evt);
+            }
+        });
+
+        InventoryBttn.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        InventoryBttn.setText("Inventory");
+        InventoryBttn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                InventoryBttnActionPerformed(evt);
+            }
+        });
+
+        ReportsBttn.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        ReportsBttn.setText("Reports");
+        ReportsBttn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ReportsBttnActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -72,27 +88,27 @@ public class Home extends javax.swing.JFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGap(25, 25, 25)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(Inventory_Bttn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(Reports_Bttn, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(Customer_Bttn, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 109, Short.MAX_VALUE)
-                    .addComponent(Sales_Bttn, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(Logout_Bttn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(InventoryBttn, javax.swing.GroupLayout.DEFAULT_SIZE, 109, Short.MAX_VALUE)
+                    .addComponent(SalesBttn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(Logout_Bttn, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(CustomerBttn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(ReportsBttn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(38, 38, 38))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(21, 21, 21)
-                .addComponent(Sales_Bttn, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(23, 23, 23)
+                .addComponent(SalesBttn, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(Customer_Bttn, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(CustomerBttn, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(Inventory_Bttn, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(InventoryBttn, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(Reports_Bttn, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 272, Short.MAX_VALUE)
+                .addComponent(ReportsBttn, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 273, Short.MAX_VALUE)
                 .addComponent(Logout_Bttn, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(46, 46, 46))
+                .addGap(43, 43, 43))
         );
 
         jPanel1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -138,35 +154,54 @@ public class Home extends javax.swing.JFrame {
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addComponent(panel_load, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(panel_load, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void Inventory_BttnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Inventory_BttnActionPerformed
-         if (Inventory_Bttn.isSelected()) {
-        Inventory inv = new Inventory();
-        jpload.jPanelLoader(panel_load, inv);
-    } else {
-        panel_load.removeAll();
-        panel_load.repaint();
+    private void Logout_BttnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Logout_BttnActionPerformed
+        redirectToLogInPage();
+    }//GEN-LAST:event_Logout_BttnActionPerformed
+
+    private void SalesBttnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SalesBttnActionPerformed
+        handleButtonSelection(SalesBttn, new Sales());
+    }//GEN-LAST:event_SalesBttnActionPerformed
+
+    private void CustomerBttnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CustomerBttnActionPerformed
+         handleButtonSelection(CustomerBttn, new Customer());
+    }//GEN-LAST:event_CustomerBttnActionPerformed
+
+    private void InventoryBttnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_InventoryBttnActionPerformed
+        handleButtonSelection(InventoryBttn, new Inventory());
+    }//GEN-LAST:event_InventoryBttnActionPerformed
+
+    private void ReportsBttnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ReportsBttnActionPerformed
+        handleButtonSelection(ReportsBttn, new Reports());
+    }//GEN-LAST:event_ReportsBttnActionPerformed
+    private void redirectToLogInPage() {
+        Login LoginForm = new Login();
+        LoginForm.setVisible(true);
+        this.dispose();
     }
-    }//GEN-LAST:event_Inventory_BttnActionPerformed
-
-    private void Sales_BttnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Sales_BttnActionPerformed
-        if (Sales_Bttn.isSelected()) {
-        Sales sale = new Sales();
-        jpload.jPanelLoader(panel_load, sale);
-    } else {
-        panel_load.removeAll();
-        panel_load.repaint();
+      
+    private void handleButtonSelection(JButton selectedButton, javax.swing.JPanel panel) {
+        if (lastSelectedButton != null && lastSelectedButton == selectedButton) {
+            // Same button clicked, hide the panel
+            panel_load.removeAll();
+            panel_load.revalidate();
+            panel_load.repaint();
+            lastSelectedButton = null; // Reset the last selected button
+        } else {
+            // Different button clicked, show the corresponding panel
+            jpload.jPanelLoader(panel_load, panel);
+            lastSelectedButton = selectedButton; // Update the last selected button
         }
-    }//GEN-LAST:event_Sales_BttnActionPerformed
-
-    /**
-     * @param args the command line arguments
-     */
+    }
+ 
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -200,11 +235,11 @@ public class Home extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JToggleButton Customer_Bttn;
-    private javax.swing.JToggleButton Inventory_Bttn;
-    private javax.swing.JToggleButton Logout_Bttn;
-    private javax.swing.JToggleButton Reports_Bttn;
-    private javax.swing.JToggleButton Sales_Bttn;
+    private javax.swing.JButton CustomerBttn;
+    private javax.swing.JButton InventoryBttn;
+    private javax.swing.JButton Logout_Bttn;
+    private javax.swing.JButton ReportsBttn;
+    private javax.swing.JButton SalesBttn;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel panel_load;
