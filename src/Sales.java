@@ -20,16 +20,18 @@ public class Sales extends javax.swing.JPanel {
     /**
      * Creates new form Sales
      */
-    public class DatabaseConnection {
-        // Database URL, username, and password
+public class DatabaseConnection {
+    // Database URL, username, and password
+    private static final String URL = "jdbc:mysql://localhost:3306/waterstation";
+    private static final String USER = "root";
+    private static final String PASSWORD = "";
 
-        private static final String URL = "jdbc:mysql://localhost:3306/waterstation";
-        private static final String USER = "root";
-        private static final String PASSWORD = "";
+    // Single instance of the connection
+    private static Connection connection = null;
 
-        // Method to establish a connection to the database
-        public static Connection getConnection() {
-            Connection connection = null;
+    // Method to establish a connection to the database
+    public static Connection getConnection() {
+        if (connection == null) {
             try {
                 // Register the JDBC driver
                 Class.forName("com.mysql.cj.jdbc.Driver");
@@ -43,21 +45,30 @@ public class Sales extends javax.swing.JPanel {
                 System.out.println("Failed to connect to the database.");
                 e.printStackTrace();
             }
-            return connection;
         }
+        return connection;
+    }
 
-        public static void closeConnection(Connection connection) {
-            if (connection != null) {
-                try {
-                    connection.close();
-                    System.out.println("Database connection closed.");
-                } catch (SQLException e) {
-                    System.out.println("Failed to close the database connection.");
-                    e.printStackTrace();
-                }
+    // Method to close the connection (if needed)
+    public static void closeConnection() {
+        if (connection!= null) {
+            try {
+                connection.close();
+                connection = null;
+                System.out.println("Database connection closed.");
+            } catch (SQLException e) {
+                System.out.println("Failed to close the database connection.");
+                e.printStackTrace();
             }
         }
     }
+
+    // Method to manually reconnect if needed
+    public static void reconnect() {
+        closeConnection();
+        getConnection();
+    }
+}
 
     private void loadCartTable() {
         Connection connection = null;
@@ -97,7 +108,6 @@ public class Sales extends javax.swing.JPanel {
                     e.printStackTrace();
                 }
             }
-            DatabaseConnection.closeConnection(connection);
         }
     }
 
@@ -149,7 +159,6 @@ public class Sales extends javax.swing.JPanel {
                     e.printStackTrace();
                 }
             }
-            Inventory.DatabaseConnection.closeConnection(connection);
         }
     }
 
@@ -487,7 +496,6 @@ public class Sales extends javax.swing.JPanel {
                         e.printStackTrace();
                     }
                 }
-                DatabaseConnection.closeConnection(connection);
             }
         }
     }//GEN-LAST:event_ClearCartButtonActionPerformed
@@ -520,18 +528,18 @@ public class Sales extends javax.swing.JPanel {
                     connection.setAutoCommit(false);
 
                     if (connection != null) {
-                        String deleteQuery = "DELETE FROM carttable WHERE productname =? AND qty =? AND price =?";
+                        String deleteQuery = "DELETE FROM carttable WHERE productname = ? AND qty = ? AND price = ?";
                         deleteStatement = connection.prepareStatement(deleteQuery);
 
-                        String updateInventoryQuery = "UPDATE inventory SET qty = qty +? WHERE productname =?";
+                        String updateInventoryQuery = "UPDATE inventory SET qty = qty + ? WHERE productname = ?";
                         updateInventoryStatement = connection.prepareStatement(updateInventoryQuery);
 
                         // Check if the connection is established
                         if (!connection.isClosed()) {
                             for (int row : selectedRows) {
                                 String name = (String) cartModel.getValueAt(row, 0);
-                                int qty = (int) cartModel.getValueAt(row, 1);
-                                double price = (double) cartModel.getValueAt(row, 2);
+                                int qty = Integer.parseInt(cartModel.getValueAt(row, 1).toString()); // Convert to Integer
+                                double price = Double.parseDouble(cartModel.getValueAt(row, 2).toString()); // Convert to Double
 
                                 // Set parameters for the prepared statement
                                 deleteStatement.setString(1, name);
@@ -549,10 +557,12 @@ public class Sales extends javax.swing.JPanel {
 
                             connection.commit();
 
-                            // Remove the selected rows from the table
-                            for (int row : selectedRows) {
-                                cartModel.removeRow(row);
+                            // Remove the selected rows from the table (in reverse order to avoid index issues)
+                            for (int i = selectedRows.length - 1; i >= 0; i--) {
+                                cartModel.removeRow(selectedRows[i]);
                             }
+
+                            JOptionPane.showMessageDialog(this, "Selected items removed from cart successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                         } else {
                             System.out.println("Failed to establish database connection.");
                         }
@@ -584,7 +594,6 @@ public class Sales extends javax.swing.JPanel {
                             e.printStackTrace();
                         }
                     }
-                    DatabaseConnection.closeConnection(connection);
                 }
             }
         } else {
@@ -628,50 +637,85 @@ public class Sales extends javax.swing.JPanel {
 
                     // Check if the quantity to add is valid (positive) and available
                     if (qtyToAdd > 0 && qtyToAdd <= availableStock) {
-                        if (productInCart) {
-                            // Update the quantity in the cart table
-                            int currentQty = (int) cartModel.getValueAt(cartRowIndex, 1);
-                            cartModel.setValueAt(currentQty + qtyToAdd, cartRowIndex, 1);
+                        Connection connection = null;
+                        PreparedStatement updateCartStatement = null;
+                        PreparedStatement insertCartStatement = null;
+                        PreparedStatement updateInventoryStatement = null;
 
-                            // Update the quantity in the carttable database table
-                            try (Connection connection = DatabaseConnection.getConnection(); PreparedStatement updateStatement = connection.prepareStatement("UPDATE carttable SET qty = qty + ? WHERE productname = ?")) {
-                                updateStatement.setInt(1, qtyToAdd);
-                                updateStatement.setString(2, name);
-                                updateStatement.executeUpdate();
-                            } catch (SQLException e) {
-                                JOptionPane.showMessageDialog(this, "Failed to execute SQL query: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                                e.printStackTrace();
+                        try {
+                            connection = DatabaseConnection.getConnection();
+                            connection.setAutoCommit(false); // Start transaction
+
+                            if (productInCart) {
+                                // Update the quantity in the cart table
+                                int currentQty = Integer.parseInt(cartModel.getValueAt(cartRowIndex, 1).toString());
+                                cartModel.setValueAt(currentQty + qtyToAdd, cartRowIndex, 1);
+
+                                // Update the quantity in the carttable database table
+                                String updateCartQuery = "UPDATE carttable SET qty = qty + ? WHERE productname = ?";
+                                updateCartStatement = connection.prepareStatement(updateCartQuery);
+                                updateCartStatement.setInt(1, qtyToAdd);
+                                updateCartStatement.setString(2, name);
+                                updateCartStatement.executeUpdate();
+                            } else {
+                                // Add the product to the CartTable
+                                cartModel.addRow(new Object[]{name, qtyToAdd, price});
+
+                                // Insert the product into the carttable database table
+                                String insertCartQuery = "INSERT INTO carttable (productname, qty, price) VALUES (?, ?, ?)";
+                                insertCartStatement = connection.prepareStatement(insertCartQuery);
+                                insertCartStatement.setString(1, name);
+                                insertCartStatement.setInt(2, qtyToAdd);
+                                insertCartStatement.setDouble(3, price);
+                                insertCartStatement.executeUpdate();
                             }
-                        } else {
-                            // Add the product to the CartTable
-                            cartModel.addRow(new Object[]{name, qtyToAdd, price});
 
-                            // Insert the product into the carttable database table
-                            try (Connection connection = DatabaseConnection.getConnection(); PreparedStatement insertStatement = connection.prepareStatement("INSERT INTO carttable (productname, qty, price) VALUES (?, ?, ?)")) {
-                                insertStatement.setString(1, name);
-                                insertStatement.setInt(2, qtyToAdd);
-                                insertStatement.setDouble(3, price);
-                                insertStatement.executeUpdate();
-                            } catch (SQLException e) {
-                                JOptionPane.showMessageDialog(this, "Failed to execute SQL query: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                                e.printStackTrace();
-                            }
-                        }
+                            // Update inventory
+                            String updateInventoryQuery = "UPDATE inventory SET qty = qty - ? WHERE productname = ?";
+                            updateInventoryStatement = connection.prepareStatement(updateInventoryQuery);
+                            updateInventoryStatement.setInt(1, qtyToAdd);
+                            updateInventoryStatement.setString(2, name);
+                            updateInventoryStatement.executeUpdate();
 
-                        // Update inventory
-                        try (Connection connection = DatabaseConnection.getConnection(); PreparedStatement updateStatement = connection.prepareStatement("UPDATE inventory SET qty = qty - ? WHERE productname = ?")) {
-                            updateStatement.setInt(1, qtyToAdd);
-                            updateStatement.setString(2, name);
-                            updateStatement.executeUpdate();
+                            connection.commit(); // Commit transaction
+
+                            // Inform the user about the stock update
+                            JOptionPane.showMessageDialog(this, qtyToAdd + " units of " + name + " added to the cart.", "Stock Added", JOptionPane.INFORMATION_MESSAGE);
+                            // Refresh the product table to reflect the updated stock
+                            loadProductTable();
                         } catch (SQLException e) {
+                            if (connection != null) {
+                                try {
+                                    connection.rollback();
+                                } catch (SQLException ex) {
+                                    ex.printStackTrace();
+                                }
+                            }
                             JOptionPane.showMessageDialog(this, "Failed to execute SQL query: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                             e.printStackTrace();
+                        } finally {
+                            if (updateCartStatement != null) {
+                                try {
+                                    updateCartStatement.close();
+                                } catch (SQLException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            if (insertCartStatement != null) {
+                                try {
+                                    insertCartStatement.close();
+                                } catch (SQLException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            if (updateInventoryStatement != null) {
+                                try {
+                                    updateInventoryStatement.close();
+                                } catch (SQLException e) {
+                                    e.printStackTrace();
+                                }
+                            }
                         }
-
-                        // Inform the user about the stock update
-                        JOptionPane.showMessageDialog(this, qtyToAdd + " units of " + name + " added to the cart.", "Stock Added", JOptionPane.INFORMATION_MESSAGE);
-                        // Refresh the product table to reflect the updated stock
-                        loadProductTable();
                     } else if (qtyToAdd <= 0) {
                         JOptionPane.showMessageDialog(this, "Please enter a valid positive quantity.", "Error", JOptionPane.ERROR_MESSAGE);
                     } else {
@@ -684,7 +728,6 @@ public class Sales extends javax.swing.JPanel {
         } else {
             JOptionPane.showMessageDialog(this, "No product selected to add.", "Error", JOptionPane.ERROR_MESSAGE);
         }
-
     }//GEN-LAST:event_AddToCartButtonActionPerformed
 
 
