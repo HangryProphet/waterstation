@@ -4,13 +4,13 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
  */
-
 /**
  *
  * @author ADMIN
@@ -18,41 +18,45 @@ import javax.swing.table.DefaultTableModel;
 public class Inventory extends javax.swing.JPanel {
 
     public class DatabaseConnection {
-    // Database URL, username, and password
-    private static final String URL = "jdbc:mysql://localhost:3306/waterstation";
-    private static final String USER = "root";
-    private static final String PASSWORD = "";
+        // Database URL, username, and password
 
-    // Method to establish a connection to the database
-    public static Connection getConnection() {
-        Connection connection = null;
-        try {
-            // Register the JDBC driver
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            // Open a connection
-            connection = DriverManager.getConnection(URL, USER, PASSWORD);
-            System.out.println("Database connected successfully.");
-        } catch (ClassNotFoundException e) {
-            System.out.println("MySQL JDBC Driver not found.");
-            e.printStackTrace();
-        } catch (SQLException e) {
-            System.out.println("Failed to connect to the database.");
-            e.printStackTrace();
-        }
-        return connection;
-    }
-    public static void closeConnection(Connection connection) {
-        if (connection != null) {
+        private static final String URL = "jdbc:mysql://localhost:3306/waterstation";
+        private static final String USER = "root";
+        private static final String PASSWORD = "";
+
+        // Method to establish a connection to the database
+        public static Connection getConnection() {
+            Connection connection = null;
             try {
-                connection.close();
-                System.out.println("Database connection closed.");
-            } catch (SQLException e) {
-                System.out.println("Failed to close the database connection.");
+                // Register the JDBC driver
+                Class.forName("com.mysql.cj.jdbc.Driver");
+                // Open a connection
+                connection = DriverManager.getConnection(URL, USER, PASSWORD);
+                System.out.println("Database connected successfully.");
+            } catch (ClassNotFoundException e) {
+                System.out.println("MySQL JDBC Driver not found.");
                 e.printStackTrace();
+            } catch (SQLException e) {
+                System.out.println("Failed to connect to the database.");
+                e.printStackTrace();
+            }
+            return connection;
+        }
+
+        public static void closeConnection(Connection connection) {
+            if (connection != null) {
+                try {
+                    connection.close();
+                    System.out.println("Database connection closed.");
+                } catch (SQLException e) {
+                    System.out.println("Failed to close the database connection.");
+                    e.printStackTrace();
+                }
             }
         }
     }
- }
+
+    //Load inventory
     public Inventory() {
         initComponents();
         loadInventoryTable();
@@ -260,7 +264,7 @@ public class Inventory extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void Add_BttnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Add_BttnActionPerformed
-         String name = Name_field.getText();
+        String name = Name_field.getText();
         String price = Price_field.getText();
         String qty = Qty_field.getText();
 
@@ -278,9 +282,63 @@ public class Inventory extends javax.swing.JPanel {
     }//GEN-LAST:event_Add_BttnActionPerformed
 
     private void Delete_BttnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Delete_BttnActionPerformed
-        
+        // Get the selected row from the InventoryTable
+        int selectedRow = InventoryTable.getSelectedRow();
+
+        if (selectedRow != -1) {
+            // Retrieve product details from the selected row
+            DefaultTableModel inventoryModel = (DefaultTableModel) InventoryTable.getModel();
+            String name = (String) inventoryModel.getValueAt(selectedRow, 1); // Assuming column 1 is product name
+            int qtyToRemove = (int) inventoryModel.getValueAt(selectedRow, 2); // Assuming column 2 is quantity
+
+            // Confirm deletion with user
+            int choice = JOptionPane.showConfirmDialog(this, "Are you sure you want to remove " + qtyToRemove + " units of " + name + " from inventory?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
+            if (choice == JOptionPane.YES_OPTION) {
+                // Remove the selected product from the InventoryTable
+                inventoryModel.removeRow(selectedRow);
+
+                // Update the inventory table
+                Connection connection = null;
+                PreparedStatement preparedStatement = null;
+
+                try {
+                    connection = DatabaseConnection.getConnection();
+                    if (connection != null) {
+                        String updateQuery = "DELETE FROM inventory WHERE productname = ?";
+                        preparedStatement = connection.prepareStatement(updateQuery);
+                        preparedStatement.setString(1, name);
+
+                        int rowsAffected = preparedStatement.executeUpdate();
+
+                        // Check if the deletion was successful
+                        if (rowsAffected > 0) {
+                            JOptionPane.showMessageDialog(this, qtyToRemove + " units of " + name + " removed from inventory.", "Inventory Updated", JOptionPane.INFORMATION_MESSAGE);
+                        } else {
+                            JOptionPane.showMessageDialog(this, "Failed to update inventory.", "Error", JOptionPane.ERROR_MESSAGE);
+                        }
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Failed to establish database connection.", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                } catch (SQLException e) {
+                    JOptionPane.showMessageDialog(this, "Failed to execute SQL query: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    e.printStackTrace();
+                } finally {
+                    // Close database resources
+                    if (preparedStatement != null) {
+                        try {
+                            preparedStatement.close();
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    DatabaseConnection.closeConnection(connection);
+                }
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "No product selected to remove from inventory.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_Delete_BttnActionPerformed
-  private int addProductToDatabase(String name, String price, String qty) {
+    private int addProductToDatabase(String name, String price, String qty) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -323,8 +381,9 @@ public class Inventory extends javax.swing.JPanel {
             DatabaseConnection.closeConnection(connection);
         }
         return productId;
- }
-     private void loadInventoryTable() {
+    }
+
+    private void loadInventoryTable() {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -340,8 +399,9 @@ public class Inventory extends javax.swing.JPanel {
             while (resultSet.next()) {
                 int id = resultSet.getInt("productid");
                 String name = resultSet.getString("productname");
-                String price = resultSet.getString("price");
                 String qty = resultSet.getString("qty");
+                String price = resultSet.getString("price");
+
                 model.addRow(new Object[]{id, name, price, qty});
             }
         } catch (SQLException e) {
@@ -364,7 +424,7 @@ public class Inventory extends javax.swing.JPanel {
             }
             DatabaseConnection.closeConnection(connection);
         }
-     }
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton Add_Bttn;
