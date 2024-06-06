@@ -101,8 +101,23 @@ public class Inventory extends javax.swing.JPanel {
             new String [] {
                 "Product ID", "Product Name", "Qty.", "Price"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        InventoryTable.getTableHeader().setReorderingAllowed(false);
         jScrollPane1.setViewportView(InventoryTable);
+        if (InventoryTable.getColumnModel().getColumnCount() > 0) {
+            InventoryTable.getColumnModel().getColumn(0).setResizable(false);
+            InventoryTable.getColumnModel().getColumn(1).setResizable(false);
+            InventoryTable.getColumnModel().getColumn(2).setResizable(false);
+            InventoryTable.getColumnModel().getColumn(3).setResizable(false);
+        }
 
         Product_Info_Panel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
@@ -268,6 +283,10 @@ public class Inventory extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    // PLEASE TRY TO AVOID CLOSE CONNECTION ON EVERY METHODS ONLY PUT IF IT WONT BREAK ANYTHING
+    // THIS PART SHOULD BE DONE PLEASE DO SOME TEST
+    // PLEASE TRY TO AVOID CLOSE CONNECTION ON EVERY METHODS ONLY PUT IF IT WONT BREAK ANYTHING
+
     private void Add_BttnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Add_BttnActionPerformed
         String name = Name_field.getText().trim();
         String qty = Qty_field.getText().trim();
@@ -301,7 +320,65 @@ public class Inventory extends javax.swing.JPanel {
     }//GEN-LAST:event_Add_BttnActionPerformed
 
     private void Delete_BttnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Delete_BttnActionPerformed
+        int selectedRow = InventoryTable.getSelectedRow();
 
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "No product selected to remove from inventory.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        DefaultTableModel inventoryModel = (DefaultTableModel) InventoryTable.getModel();
+
+        // Assuming column 0 is product ID, column 1 is product name, column 2 is quantity, and column 3 is price
+        int id = (int) inventoryModel.getValueAt(selectedRow, 0);
+        String name = inventoryModel.getValueAt(selectedRow, 1).toString();
+        int currentQty = Integer.parseInt(inventoryModel.getValueAt(selectedRow, 2).toString());
+        double price = Double.parseDouble(inventoryModel.getValueAt(selectedRow, 3).toString());
+
+        int choice = JOptionPane.showConfirmDialog(this, "Are you sure you want to remove " + currentQty + " units of " + name + " at Php" + price + " each from inventory?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
+
+        if (choice == JOptionPane.YES_OPTION) {
+            Connection connection = DatabaseConnection.getConnection(); // Get the existing connection
+            PreparedStatement deleteStatement = null;
+
+            try {
+                connection.setAutoCommit(false);
+
+                deleteStatement = connection.prepareStatement("DELETE FROM inventory WHERE productid =?");
+                deleteStatement.setInt(1, id);
+
+                int rowsAffected = deleteStatement.executeUpdate();
+
+                if (rowsAffected > 0) {
+                    connection.commit();
+                    inventoryModel.removeRow(selectedRow); // remove the row from the table model
+                    JOptionPane.showMessageDialog(this, currentQty + " units of " + name + " removed from inventory.", "Inventory Updated", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    connection.rollback();
+                    JOptionPane.showMessageDialog(this, "Failed to update inventory.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (SQLException e) {
+                try {
+                    if (connection != null) {
+                        connection.rollback();
+                    }
+                } catch (SQLException ex) {
+                    System.out.println("Failed to rollback: " + ex.getMessage());
+                    ex.printStackTrace();
+                }
+                System.out.println("Failed to remove item(s) from inventory: " + e.getMessage());
+                e.printStackTrace();
+            } finally {
+                if (deleteStatement != null) {
+                    try {
+                        deleteStatement.close();
+                    } catch (SQLException e) {
+                        System.out.println("Failed to close prepared statement: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
     }//GEN-LAST:event_Delete_BttnActionPerformed
 
     private int addProductToDatabase(String name, String qty, String price) {
@@ -360,6 +437,7 @@ public class Inventory extends javax.swing.JPanel {
             resultSet = preparedStatement.executeQuery();
 
             DefaultTableModel model = (DefaultTableModel) InventoryTable.getModel();
+            model.setRowCount(0); // Clear the table model before loading new data
 
             while (resultSet.next()) {
                 int id = resultSet.getInt("productid");
@@ -372,21 +450,6 @@ public class Inventory extends javax.swing.JPanel {
         } catch (SQLException e) {
             System.out.println("Failed to load inventory from database.");
             e.printStackTrace();
-        } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
         }
     }
 

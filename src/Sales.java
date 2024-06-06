@@ -5,6 +5,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 
 /*
@@ -16,59 +18,61 @@ import javax.swing.table.DefaultTableModel;
  * @author ADMIN
  */
 public class Sales extends javax.swing.JPanel {
+    
 
     /**
      * Creates new form Sales
      */
-public class DatabaseConnection {
-    // Database URL, username, and password
-    private static final String URL = "jdbc:mysql://localhost:3306/waterstation";
-    private static final String USER = "root";
-    private static final String PASSWORD = "";
+    public class DatabaseConnection {
+        // Database URL, username, and password
 
-    // Single instance of the connection
-    private static Connection connection = null;
+        private static final String URL = "jdbc:mysql://localhost:3306/waterstation";
+        private static final String USER = "root";
+        private static final String PASSWORD = "";
 
-    // Method to establish a connection to the database
-    public static Connection getConnection() {
-        if (connection == null) {
-            try {
-                // Register the JDBC driver
-                Class.forName("com.mysql.cj.jdbc.Driver");
-                // Open a connection
-                connection = DriverManager.getConnection(URL, USER, PASSWORD);
-                System.out.println("Database connected successfully.");
-            } catch (ClassNotFoundException e) {
-                System.out.println("MySQL JDBC Driver not found.");
-                e.printStackTrace();
-            } catch (SQLException e) {
-                System.out.println("Failed to connect to the database.");
-                e.printStackTrace();
+        // Single instance of the connection
+        private static Connection connection = null;
+
+        // Method to establish a connection to the database
+        public static Connection getConnection() {
+            if (connection == null) {
+                try {
+                    // Register the JDBC driver
+                    Class.forName("com.mysql.cj.jdbc.Driver");
+                    // Open a connection
+                    connection = DriverManager.getConnection(URL, USER, PASSWORD);
+                    System.out.println("Database connected successfully.");
+                } catch (ClassNotFoundException e) {
+                    System.out.println("MySQL JDBC Driver not found.");
+                    e.printStackTrace();
+                } catch (SQLException e) {
+                    System.out.println("Failed to connect to the database.");
+                    e.printStackTrace();
+                }
+            }
+            return connection;
+        }
+
+        // Method to close the connection (if needed)
+        public static void closeConnection() {
+            if (connection != null) {
+                try {
+                    connection.close();
+                    connection = null;
+                    System.out.println("Database connection closed.");
+                } catch (SQLException e) {
+                    System.out.println("Failed to close the database connection.");
+                    e.printStackTrace();
+                }
             }
         }
-        return connection;
-    }
 
-    // Method to close the connection (if needed)
-    public static void closeConnection() {
-        if (connection!= null) {
-            try {
-                connection.close();
-                connection = null;
-                System.out.println("Database connection closed.");
-            } catch (SQLException e) {
-                System.out.println("Failed to close the database connection.");
-                e.printStackTrace();
-            }
+        // Method to manually reconnect if needed
+        public static void reconnect() {
+            closeConnection();
+            getConnection();
         }
     }
-
-    // Method to manually reconnect if needed
-    public static void reconnect() {
-        closeConnection();
-        getConnection();
-    }
-}
 
     private void loadCartTable() {
         Connection connection = null;
@@ -77,7 +81,7 @@ public class DatabaseConnection {
 
         try {
             connection = DatabaseConnection.getConnection();
-            String query = "SELECT * FROM carttable"; // Adjust table name as per your database
+            String query = "SELECT * FROM carttable";
             preparedStatement = connection.prepareStatement(query);
             resultSet = preparedStatement.executeQuery();
 
@@ -115,6 +119,65 @@ public class DatabaseConnection {
         initComponents();
         loadProductTable();
         loadCartTable();
+
+        // Add a TableModelListener to the CartTable model
+        CartTable.getModel().addTableModelListener(new TableModelListener() {
+            @Override
+            public void tableChanged(TableModelEvent e) {
+                updateReceiptTextArea();
+            }
+        });
+    }
+
+    public void updateProductTableQuantity(String productName, int newQty) {
+        //FOR MODIFY BUTTON
+        //THIS IS STILL BROKEN AT THE MOMENT PLEASE FIX 
+        Connection conn = DatabaseConnection.getConnection();
+
+        try (PreparedStatement pstmt = conn.prepareStatement("UPDATE productTable SET quantity =? WHERE productName =?")) {
+            pstmt.setInt(1, newQty);
+            pstmt.setString(2, productName);
+            pstmt.executeUpdate();
+            System.out.println("Quantity updated successfully.");
+        } catch (SQLException e) {
+            System.out.println("Failed to update the quantity.");
+            e.printStackTrace();
+        }
+    }
+    
+    private void updateReceiptTextArea() {
+        // FOR RECEIPT TEXT AREA ON THE SALES TABLE
+        //CREATE A TABLE FOR RECEIPT 
+        //FOR BEING ABLE TO RECORD
+        DefaultTableModel cartModel = (DefaultTableModel) CartTable.getModel();
+
+        // Calculate the total price
+        double totalPrice = 0.0;
+        StringBuilder receiptText = new StringBuilder("Receipt:\n");
+
+        for (int i = 0; i < cartModel.getRowCount(); i++) {
+            String productName = cartModel.getValueAt(i, 0).toString();
+            int qty = 0;
+            double price = 0.0;
+
+            try {
+                price = Double.parseDouble(cartModel.getValueAt(i, 2).toString());
+                qty = Integer.parseInt(cartModel.getValueAt(i, 1).toString());
+            } catch (NumberFormatException e) {
+                // Handle error, but for now, just skip this item
+                continue;
+            }
+
+            double subtotal = price * qty;
+            totalPrice += subtotal;
+
+            receiptText.append(String.format("%s x %d = ₱%.2f\n", productName, qty, subtotal));
+        }
+
+        receiptText.append(String.format("Total Price: ₱%.2f", totalPrice));
+
+        // Update the ReceiptTextArea
+        ReceiptTextArea.setText(receiptText.toString());
     }
 
     private void loadProductTable() {
@@ -216,6 +279,7 @@ public class DatabaseConnection {
                 return canEdit [columnIndex];
             }
         });
+        ProductTable.getTableHeader().setReorderingAllowed(false);
         jScrollPane1.setViewportView(ProductTable);
         if (ProductTable.getColumnModel().getColumnCount() > 0) {
             ProductTable.getColumnModel().getColumn(0).setResizable(false);
@@ -224,8 +288,10 @@ public class DatabaseConnection {
             ProductTable.getColumnModel().getColumn(3).setResizable(false);
         }
 
+        ReceiptTextArea.setEditable(false);
         ReceiptTextArea.setBackground(new java.awt.Color(204, 204, 204));
         ReceiptTextArea.setColumns(20);
+        ReceiptTextArea.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         ReceiptTextArea.setForeground(new java.awt.Color(0, 0, 0));
         ReceiptTextArea.setRows(5);
         jScrollPane2.setViewportView(ReceiptTextArea);
@@ -294,7 +360,7 @@ public class DatabaseConnection {
                 .addContainerGap())
         );
 
-        jPanel6.setBackground(new java.awt.Color(102, 102, 102));
+        jPanel6.setBackground(new java.awt.Color(153, 153, 153));
 
         SelectCustomerComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         SelectCustomerComboBox.addActionListener(new java.awt.event.ActionListener() {
@@ -330,9 +396,9 @@ public class DatabaseConnection {
                 .addContainerGap(116, Short.MAX_VALUE))
         );
 
-        jPanel7.setBackground(new java.awt.Color(102, 102, 102));
+        jPanel7.setBackground(new java.awt.Color(153, 153, 153));
 
-        ModifyCartItemPriceButton.setText("Modify Price");
+        ModifyCartItemPriceButton.setText("Modify Cart Item");
         ModifyCartItemPriceButton.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         ModifyCartItemPriceButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -398,8 +464,22 @@ public class DatabaseConnection {
             new String [] {
                 "Product Name", "Quantity", "Price"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        CartTable.getTableHeader().setReorderingAllowed(false);
         jScrollPane3.setViewportView(CartTable);
+        if (CartTable.getColumnModel().getColumnCount() > 0) {
+            CartTable.getColumnModel().getColumn(0).setResizable(false);
+            CartTable.getColumnModel().getColumn(1).setResizable(false);
+            CartTable.getColumnModel().getColumn(2).setResizable(false);
+        }
 
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
@@ -501,7 +581,81 @@ public class DatabaseConnection {
     }//GEN-LAST:event_ClearCartButtonActionPerformed
 
     private void CheckOutButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CheckOutButton1ActionPerformed
-        // TODO add your handling code here:
+        // Get the cart table model
+        DefaultTableModel cartModel = (DefaultTableModel) CartTable.getModel();
+
+        // Check if the cart is empty
+        if (cartModel.getRowCount() == 0) {
+            JOptionPane.showMessageDialog(this, "Cart is empty. Please add items to checkout.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Calculate the total price
+        double totalPrice = 0.0;
+        StringBuilder checkoutMessage = new StringBuilder("Checkout Summary:\n");
+
+        for (int i = 0; i < cartModel.getRowCount(); i++) {
+            String productName = cartModel.getValueAt(i, 0).toString();
+            int qty = 0;
+            double price = 0.0;
+
+            try {
+                price = Double.parseDouble(cartModel.getValueAt(i, 2).toString());
+                qty = Integer.parseInt(cartModel.getValueAt(i, 1).toString());
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Invalid price or quantity in cart. Please check and try again.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            double subtotal = price * qty;
+            totalPrice += subtotal;
+
+            checkoutMessage.append(String.format("%s x %d = ₱%.2f\n", productName, qty, subtotal));
+        }
+
+        checkoutMessage.append(String.format("Total Price: ₱%.2f", totalPrice));
+
+        // Display the checkout summary
+        JOptionPane.showMessageDialog(this, checkoutMessage.toString(), "Checkout", JOptionPane.INFORMATION_MESSAGE);
+
+        // Clear the cart table
+        cartModel.setRowCount(0);
+
+        // Update the database to remove all items from the cart
+        Connection connection = null;
+        PreparedStatement deleteStatement = null;
+
+        try {
+            connection = DatabaseConnection.getConnection();
+            connection.setAutoCommit(false); // Start transaction
+
+            String deleteQuery = "DELETE FROM carttable";
+            deleteStatement = connection.prepareStatement(deleteQuery);
+
+            deleteStatement.executeUpdate();
+
+            connection.commit(); // Commit transaction
+
+            JOptionPane.showMessageDialog(this, "Checkout successful. Cart is empty.", "Success", JOptionPane.INFORMATION_MESSAGE);
+        } catch (SQLException e) {
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                System.out.println("Failed to rollback: " + ex.getMessage());
+                ex.printStackTrace();
+            }
+            System.out.println("Failed to checkout: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            // Close database resources
+            if (deleteStatement != null) {
+                try {
+                    deleteStatement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }//GEN-LAST:event_CheckOutButton1ActionPerformed
 
     private void AddDiscountButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddDiscountButtonActionPerformed
@@ -525,13 +679,13 @@ public class DatabaseConnection {
                 try {
                     // Open the database connection
                     connection = DatabaseConnection.getConnection();
-                    connection.setAutoCommit(false);
+                    connection.setAutoCommit(false); // Start transaction
 
                     if (connection != null) {
-                        String deleteQuery = "DELETE FROM carttable WHERE productname = ? AND qty = ? AND price = ?";
+                        String deleteQuery = "DELETE FROM carttable WHERE productname =? AND qty =? AND price =?";
                         deleteStatement = connection.prepareStatement(deleteQuery);
 
-                        String updateInventoryQuery = "UPDATE inventory SET qty = qty + ? WHERE productname = ?";
+                        String updateInventoryQuery = "UPDATE inventory SET qty = qty +? WHERE productname =?";
                         updateInventoryStatement = connection.prepareStatement(updateInventoryQuery);
 
                         // Check if the connection is established
@@ -555,12 +709,15 @@ public class DatabaseConnection {
                                 updateInventoryStatement.executeUpdate();
                             }
 
-                            connection.commit();
+                            connection.commit(); // Commit transaction
 
                             // Remove the selected rows from the table (in reverse order to avoid index issues)
                             for (int i = selectedRows.length - 1; i >= 0; i--) {
                                 cartModel.removeRow(selectedRows[i]);
                             }
+
+                            // Refresh the ProductTable
+                            loadProductTable();
 
                             JOptionPane.showMessageDialog(this, "Selected items removed from cart successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                         } else {
@@ -730,9 +887,150 @@ public class DatabaseConnection {
         }
     }//GEN-LAST:event_AddToCartButtonActionPerformed
 
-
+ 
     private void ModifyCartItemPriceButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ModifyCartItemPriceButtonActionPerformed
-        // TODO add your handling code here:
+        //MODIFY CART ITEM IS BROKEN AT THE MOMENT
+        //PROBLEM: productTable "inventory"(database)
+        //NOT UPDATING PROPERLY
+        int selectedRow = CartTable.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a cart item to modify.");
+            return;
+        }
+
+        String productName = CartTable.getValueAt(selectedRow, 0).toString();
+        int qty = 0;
+        double price = 0.0;
+
+        try {
+            qty = Integer.parseInt(CartTable.getValueAt(selectedRow, 1).toString());
+            price = Double.parseDouble(CartTable.getValueAt(selectedRow, 2).toString());
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Invalid quantity or price format.");
+            return;
+        }
+
+        String[] options = {"Edit Quantity", "Edit Price", "Edit Both"};
+        int choice = JOptionPane.showOptionDialog(this, "What would you like to edit?", "Modify Cart Item",
+                JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
+
+        if (choice == -1) {
+            return; // User cancelled
+        }
+
+        switch (choice) {
+            case 0: // Edit Quantity
+                String newQtyInput = JOptionPane.showInputDialog(this, "Enter new quantity:");
+                if (newQtyInput == null) {
+                    return; // User cancelled
+                }
+
+                try {
+                    int newQty = Integer.parseInt(newQtyInput.trim());
+
+                    // Update the carttable database
+                    Connection conn = DatabaseConnection.getConnection();
+                    try (PreparedStatement pstmt = conn.prepareStatement("UPDATE carttable SET qty =? WHERE productName =?")) {
+                        pstmt.setInt(1, newQty);
+                        pstmt.setString(2, productName);
+                        pstmt.executeUpdate();
+                        System.out.println("Cart quantity updated successfully.");
+                    } catch (SQLException e) {
+                        System.out.println("Failed to update cart quantity.");
+                        e.printStackTrace();
+                    }
+
+                    // Update the inventory database quantity
+                    try (PreparedStatement pstmt2 = conn.prepareStatement("UPDATE inventory SET qty = qty - ? + ? WHERE productName =?")) {
+                        pstmt2.setInt(1, qty); // Subtract the old quantity
+                        pstmt2.setInt(2, newQty); // Add the new quantity
+                        pstmt2.setString(3, productName);
+                        pstmt2.executeUpdate();
+                        System.out.println("Inventory quantity updated successfully.");
+                    } catch (SQLException e) {
+                        System.out.println("Failed to update inventory quantity.");
+                        e.printStackTrace();
+                    }
+                } catch (NumberFormatException e) {
+                    JOptionPane.showMessageDialog(this, "Invalid quantity format.");
+                    return;
+                }
+                break;
+
+            case 1: // Edit Price
+                String newPriceInput = JOptionPane.showInputDialog(this, "Enter new price:");
+                if (newPriceInput == null) {
+                    return; // User cancelled
+                }
+
+                try {
+                    double newPrice = Double.parseDouble(newPriceInput.trim());
+
+                    // Update the carttable database
+                    Connection conn2 = DatabaseConnection.getConnection();
+                    try (PreparedStatement pstmt = conn2.prepareStatement("UPDATE carttable SET price =? WHERE productName =?")) {
+                        pstmt.setDouble(1, newPrice);
+                        pstmt.setString(2, productName);
+                        pstmt.executeUpdate();
+                        System.out.println("Cart price updated successfully.");
+                    } catch (SQLException e) {
+                        System.out.println("Failed to update cart price.");
+                        e.printStackTrace();
+                    }
+                } catch (NumberFormatException e) {
+                    JOptionPane.showMessageDialog(this, "Invalid price format.");
+                    return;
+                }
+                break;
+
+            case 2: // Edit Both
+                String input = JOptionPane.showInputDialog(this, "Enter new quantity and price (separated by comma):");
+                if (input == null) {
+                    return; // User cancelled
+                }
+
+                String[] parts = input.split(",");
+                if (parts.length != 2) {
+                    JOptionPane.showMessageDialog(this, "Invalid input format. Please enter quantity and price separated by comma.");
+                    return;
+                }
+
+                try {
+                    int newQty2 = Integer.parseInt(parts[0].trim());
+                    double newPrice2 = Double.parseDouble(parts[1].trim());
+
+                    // Update the carttable database
+                    Connection conn3 = DatabaseConnection.getConnection();
+                    try (PreparedStatement pstmt = conn3.prepareStatement("UPDATE carttable SET qty =?, price =? WHERE productName =?")) {
+                        pstmt.setInt(1, newQty2);
+                        pstmt.setDouble(2, newPrice2);
+                        pstmt.setString(3, productName);
+                        pstmt.executeUpdate();
+                        System.out.println("Cart quantity and price updated successfully.");
+                    } catch (SQLException e) {
+                        System.out.println("Failed to update cart quantity and price.");
+                        e.printStackTrace();
+                    }
+
+                    // Update the inventory database quantity
+                    try (PreparedStatement pstmt2 = conn3.prepareStatement("UPDATE inventory SET qty = qty - ? + ? WHERE productName =?")) {
+                        pstmt2.setInt(1, qty); // Subtract the old quantity
+                        pstmt2.setInt(2, newQty2); //Add the new quantity
+                        pstmt2.setString(3, productName);
+                        pstmt2.executeUpdate();
+                        System.out.println("Inventory quantity updated successfully.");
+                    } catch (SQLException e) {
+                        System.out.println("Failed to update inventory quantity.");
+                        e.printStackTrace();
+                    }
+                } catch (NumberFormatException e) {
+                    JOptionPane.showMessageDialog(this, "Invalid quantity or price format.");
+                    return;
+                }
+                break;
+        }
+
+        updateReceiptTextArea(); // Update the receipt text area
     }//GEN-LAST:event_ModifyCartItemPriceButtonActionPerformed
 
 

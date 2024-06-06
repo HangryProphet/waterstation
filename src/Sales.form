@@ -124,7 +124,7 @@
                   </TableColumnModel>
                 </Property>
                 <Property name="tableHeader" type="javax.swing.table.JTableHeader" editor="org.netbeans.modules.form.editors2.JTableHeaderEditor">
-                  <TableHeader reorderingAllowed="true" resizingAllowed="true"/>
+                  <TableHeader reorderingAllowed="false" resizingAllowed="true"/>
                 </Property>
               </Properties>
             </Component>
@@ -139,10 +139,14 @@
           <SubComponents>
             <Component class="javax.swing.JTextArea" name="ReceiptTextArea">
               <Properties>
+                <Property name="editable" type="boolean" value="false"/>
                 <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                   <Color blue="cc" green="cc" red="cc" type="rgb"/>
                 </Property>
                 <Property name="columns" type="int" value="20"/>
+                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                  <Font name="Tahoma" size="18" style="1"/>
+                </Property>
                 <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                   <Color blue="0" green="0" red="0" type="rgb"/>
                 </Property>
@@ -289,7 +293,7 @@
             <Container class="javax.swing.JPanel" name="jPanel6">
               <Properties>
                 <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                  <Color blue="66" green="66" red="66" type="rgb"/>
+                  <Color blue="99" green="99" red="99" type="rgb"/>
                 </Property>
               </Properties>
 
@@ -355,7 +359,7 @@
             <Container class="javax.swing.JPanel" name="jPanel7">
               <Properties>
                 <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                  <Color blue="66" green="66" red="66" type="rgb"/>
+                  <Color blue="99" green="99" red="99" type="rgb"/>
                 </Property>
               </Properties>
 
@@ -387,7 +391,7 @@
               <SubComponents>
                 <Component class="javax.swing.JButton" name="ModifyCartItemPriceButton">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="Modify Price"/>
+                    <Property name="text" type="java.lang.String" value="Modify Cart Item"/>
                     <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                       <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
                         <EtchetBorder/>
@@ -452,24 +456,24 @@
                     </Property>
                     <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
                       <Table columnCount="3" rowCount="0">
-                        <Column editable="true" title="Product Name" type="java.lang.Object"/>
-                        <Column editable="true" title="Quantity" type="java.lang.Object"/>
-                        <Column editable="true" title="Price" type="java.lang.Object"/>
+                        <Column editable="false" title="Product Name" type="java.lang.Object"/>
+                        <Column editable="false" title="Quantity" type="java.lang.Object"/>
+                        <Column editable="false" title="Price" type="java.lang.Object"/>
                       </Table>
                     </Property>
                     <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">
                       <TableColumnModel selectionModel="0">
-                        <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
+                        <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="false">
                           <Title/>
                           <Editor/>
                           <Renderer/>
                         </Column>
-                        <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
+                        <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="false">
                           <Title/>
                           <Editor/>
                           <Renderer/>
                         </Column>
-                        <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
+                        <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="false">
                           <Title/>
                           <Editor/>
                           <Renderer/>
@@ -477,7 +481,7 @@
                       </TableColumnModel>
                     </Property>
                     <Property name="tableHeader" type="javax.swing.table.JTableHeader" editor="org.netbeans.modules.form.editors2.JTableHeaderEditor">
-                      <TableHeader reorderingAllowed="true" resizingAllowed="true"/>
+                      <TableHeader reorderingAllowed="false" resizingAllowed="true"/>
                     </Property>
                   </Properties>
                 </Component>
