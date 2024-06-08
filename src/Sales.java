@@ -18,7 +18,6 @@ import javax.swing.table.DefaultTableModel;
  * @author ADMIN
  */
 public class Sales extends javax.swing.JPanel {
-    
 
     /**
      * Creates new form Sales
@@ -144,7 +143,7 @@ public class Sales extends javax.swing.JPanel {
             e.printStackTrace();
         }
     }
-    
+
     private void updateReceiptTextArea() {
         // FOR RECEIPT TEXT AREA ON THE SALES TABLE
         //CREATE A TABLE FOR RECEIPT 
@@ -183,6 +182,7 @@ public class Sales extends javax.swing.JPanel {
     private void loadProductTable() {
         DefaultTableModel model = (DefaultTableModel) ProductTable.getModel();
         // Clear existing data in the table
+        //UPDATE THE PRODUCT JTABLE
         model.setRowCount(0);
 
         Connection connection = null;
@@ -543,28 +543,56 @@ public class Sales extends javax.swing.JPanel {
 
         if (confirmed == JOptionPane.YES_OPTION) {
             DefaultTableModel cartModel = (DefaultTableModel) CartTable.getModel();
-            cartModel.setRowCount(0); // Clear the cart table
 
             // Update the carttable database
             Connection connection = null;
             PreparedStatement deleteStatement = null;
+            PreparedStatement updateInventoryStatement = null;
 
             try {
                 connection = DatabaseConnection.getConnection();
                 if (connection != null) {
+                    connection.setAutoCommit(false); // Start transaction
+
+                    String updateInventoryQuery = "UPDATE inventory SET qty = qty +? WHERE productname =?";
+                    updateInventoryStatement = connection.prepareStatement(updateInventoryQuery);
+
+                    // Update inventory for each item in the cart
+                    for (int row = 0; row < cartModel.getRowCount(); row++) {
+                        String productName = (String) cartModel.getValueAt(row, 0);
+                        int quantity = Integer.parseInt(cartModel.getValueAt(row, 1).toString()); // Convert to Integer
+
+                        updateInventoryStatement.setInt(1, quantity);
+                        updateInventoryStatement.setString(2, productName);
+                        updateInventoryStatement.executeUpdate();
+                    }
+
+                    // Clear the carttable database
                     String deleteQuery = "DELETE FROM carttable";
                     deleteStatement = connection.prepareStatement(deleteQuery);
-                    int rowsAffected = deleteStatement.executeUpdate();
+                    deleteStatement.executeUpdate();
 
-                    if (rowsAffected > 0) {
-                        System.out.println("Cart cleared successfully.");
-                    } else {
-                        System.out.println("Failed to clear cart.");
-                    }
+                    connection.commit(); // Commit transaction
+
+                    // Clear the cart table in the UI
+                    cartModel.setRowCount(0);
+
+                    // Refresh the ProductTable
+                    loadProductTable();
+
+                    JOptionPane.showMessageDialog(this, "Cart cleared successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                 } else {
                     System.out.println("Failed to establish database connection.");
                 }
             } catch (SQLException e) {
+                try {
+                    if (connection != null) {
+                        connection.rollback(); // Rollback transaction on error
+                    }
+                } catch (SQLException ex) {
+                    System.out.println("Failed to rollback: " + ex.getMessage());
+                    ex.printStackTrace();
+                }
                 System.out.println("Failed to clear cart: " + e.getMessage());
                 e.printStackTrace();
             } finally {
@@ -576,10 +604,21 @@ public class Sales extends javax.swing.JPanel {
                         e.printStackTrace();
                     }
                 }
+                if (updateInventoryStatement != null) {
+                    try {
+                        updateInventoryStatement.close();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
+        } else {
+            JOptionPane.showMessageDialog(null, "No items were removed from the cart.", "Info", JOptionPane.INFORMATION_MESSAGE);
         }
     }//GEN-LAST:event_ClearCartButtonActionPerformed
 
+    
+    // CHECK OUT BUTTON INCOMPLETE
     private void CheckOutButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CheckOutButton1ActionPerformed
         // Get the cart table model
         DefaultTableModel cartModel = (DefaultTableModel) CartTable.getModel();
@@ -658,10 +697,50 @@ public class Sales extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_CheckOutButton1ActionPerformed
 
+    
+    // DISCOUNT BUTTON INCOMPLETE
     private void AddDiscountButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddDiscountButtonActionPerformed
-        // TODO add your handling code here:
+        // Get the discount amount from the user
+        String discountInput = JOptionPane.showInputDialog("Enter discount amount (e.g. 10 for 10%):");
+        if (discountInput == null) {
+            return; // User cancelled
+        }
+        double discountAmount = 0;
+        try {
+            discountAmount = Double.parseDouble(discountInput);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Invalid discount amount. Please enter a valid number.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Calculate the discount
+        double totalPrice = getTotalPrice(); // Assume you have a method to get the total price
+        double discount = totalPrice * (discountAmount / 100);
+
+        // Update the receipt text area
+        StringBuilder receiptText = new StringBuilder(ReceiptTextArea.getText());
+        receiptText.append(String.format("Discount: -₱%.2f\n", discount));
+        receiptText.append(String.format("Total Price: ₱%.2f", totalPrice - discount));
+        ReceiptTextArea.setText(receiptText.toString());
+    }
+
+    
+    
+    private double getTotalPrice() {
+        // Calculate the total price from the cart table model
+        DefaultTableModel cartModel = (DefaultTableModel) CartTable.getModel();
+        double totalPrice = 0.0;
+        for (int i = 0; i < cartModel.getRowCount(); i++) {
+            double price = Double.parseDouble(cartModel.getValueAt(i, 2).toString());
+            int qty = Integer.parseInt(cartModel.getValueAt(i, 1).toString());
+            totalPrice += price * qty;
+        }
+        return totalPrice;
+
     }//GEN-LAST:event_AddDiscountButtonActionPerformed
 
+    
+    
     private void RemoveFromCartButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RemoveFromCartButtonActionPerformed
         // Get the selected rows from the CartTable
         int[] selectedRows = CartTable.getSelectedRows();
@@ -758,10 +837,14 @@ public class Sales extends javax.swing.JPanel {
         }
      }//GEN-LAST:event_RemoveFromCartButtonActionPerformed
 
+    
+    
     private void SelectCustomerComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SelectCustomerComboBoxActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_SelectCustomerComboBoxActionPerformed
 
+    
+  
     private void AddToCartButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddToCartButtonActionPerformed
         // Get the selected row from the ProductTable
         int selectedRow = ProductTable.getSelectedRow();
@@ -887,7 +970,8 @@ public class Sales extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_AddToCartButtonActionPerformed
 
- 
+
+    // MODIFY CART INCOMPLETE
     private void ModifyCartItemPriceButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ModifyCartItemPriceButtonActionPerformed
         //MODIFY CART ITEM IS BROKEN AT THE MOMENT
         //PROBLEM: productTable "inventory"(database)

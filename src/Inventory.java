@@ -90,7 +90,7 @@ public class Inventory extends javax.swing.JPanel {
         Qty_field = new javax.swing.JTextField();
         Price_field = new javax.swing.JTextField();
         jPanel1 = new javax.swing.JPanel();
-        Modify = new javax.swing.JButton();
+        ModifyIventoryItem = new javax.swing.JButton();
         Delete_Bttn = new javax.swing.JButton();
 
         InventoryTable.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
@@ -222,8 +222,13 @@ public class Inventory extends javax.swing.JPanel {
 
         jPanel1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        Modify.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
-        Modify.setText("Modify");
+        ModifyIventoryItem.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
+        ModifyIventoryItem.setText("Modify");
+        ModifyIventoryItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ModifyIventoryItemActionPerformed(evt);
+            }
+        });
 
         Delete_Bttn.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
         Delete_Bttn.setText("Delete");
@@ -239,7 +244,7 @@ public class Inventory extends javax.swing.JPanel {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(26, 26, 26)
-                .addComponent(Modify, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(ModifyIventoryItem, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGap(34, 34, 34)
                 .addComponent(Delete_Bttn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGap(34, 34, 34))
@@ -250,7 +255,7 @@ public class Inventory extends javax.swing.JPanel {
                 .addGap(32, 32, 32)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(Delete_Bttn, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(Modify, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(ModifyIventoryItem, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(44, Short.MAX_VALUE))
         );
 
@@ -319,6 +324,50 @@ public class Inventory extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_Add_BttnActionPerformed
 
+    private int addProductToDatabase(String name, String qty, String price) {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        int productId = -1;
+
+        try {
+            connection = DatabaseConnection.getConnection();
+            String query = "INSERT INTO inventory (productname, qty, price) VALUES (?, ?, ?)";
+            preparedStatement = connection.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS);
+            preparedStatement.setString(1, name);
+            preparedStatement.setString(2, qty);
+            preparedStatement.setString(3, price);
+
+            preparedStatement.executeUpdate();
+            resultSet = preparedStatement.getGeneratedKeys();
+
+            if (resultSet.next()) {
+                productId = resultSet.getInt(1);
+            }
+
+            System.out.println("Product added to database with ID: " + productId);
+        } catch (SQLException e) {
+            System.out.println("Failed to add product to database.");
+            e.printStackTrace();
+        } finally {
+            if (resultSet != null) {
+                try {
+                    resultSet.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return productId;
+    }
+
     private void Delete_BttnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Delete_BttnActionPerformed
         int selectedRow = InventoryTable.getSelectedRow();
 
@@ -381,49 +430,86 @@ public class Inventory extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_Delete_BttnActionPerformed
 
-    private int addProductToDatabase(String name, String qty, String price) {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        int productId = -1;
+    private void ModifyIventoryItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ModifyIventoryItemActionPerformed
+        // Get the selected row index from the InventoryTable
+        int selectedIndex = InventoryTable.getSelectedRow();
+        if (selectedIndex == -1) {
+            JOptionPane.showMessageDialog(this, "Please select an item to modify.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
-        try {
-            connection = DatabaseConnection.getConnection();
-            String query = "INSERT INTO inventory (productname, qty, price) VALUES (?, ?, ?)";
-            preparedStatement = connection.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS);
-            preparedStatement.setString(1, name);
-            preparedStatement.setString(2, qty);
-            preparedStatement.setString(3, price);
+        // Get the current values from the selected row
+        int currentProductID = Integer.parseInt(InventoryTable.getValueAt(selectedIndex, 0).toString());
+        String currentProductName = InventoryTable.getValueAt(selectedIndex, 1).toString();
+        int currentQty = Integer.parseInt(InventoryTable.getValueAt(selectedIndex, 2).toString());
+        double currentPrice = Double.parseDouble(InventoryTable.getValueAt(selectedIndex, 3).toString());
 
-            preparedStatement.executeUpdate();
-            resultSet = preparedStatement.getGeneratedKeys();
+        String newProductName = currentProductName;
+        int newQty = currentQty;
+        double newPrice = currentPrice;
 
-            if (resultSet.next()) {
-                productId = resultSet.getInt(1);
-            }
+        String[] options = {"Edit Product Name", "Edit Quantity", "Edit Price"};
+        int choice = JOptionPane.showOptionDialog(this, "What would you like to edit?", "Modify Inventory Item",
+                JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
 
-            System.out.println("Product added to database with ID: " + productId);
-        } catch (SQLException e) {
-            System.out.println("Failed to add product to database.");
-            e.printStackTrace();
-        } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
+        if (choice == -1) {
+            return; // User cancelled
+        }
+
+        switch (choice) {
+            case 0: // Edit Product Name
+                newProductName = JOptionPane.showInputDialog(this, "Enter new product name:", currentProductName);
+                if (newProductName == null || newProductName.trim().isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Product name cannot be empty.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return; // User cancelled or input is empty
                 }
-            }
-            if (preparedStatement != null) {
+                break;
+
+            case 1: // Edit Quantity
+                String newQtyInput = JOptionPane.showInputDialog(this, "Enter new quantity:", String.valueOf(currentQty));
                 try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
+                    newQty = Integer.parseInt(newQtyInput);
+                } catch (NumberFormatException e) {
+                    JOptionPane.showMessageDialog(this, "Invalid quantity. Please enter a valid number.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
                 }
+                break;
+
+            case 2: // Edit Price
+                String newPriceInput = JOptionPane.showInputDialog(this, "Enter new price:", String.valueOf(currentPrice));
+                try {
+                    newPrice = Double.parseDouble(newPriceInput);
+                } catch (NumberFormatException e) {
+                    JOptionPane.showMessageDialog(this, "Invalid price. Please enter a valid number.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                break;
+        }
+
+        // Confirm with the user before updating the database
+        int confirmUpdate = JOptionPane.showConfirmDialog(this, "Are you sure you want to update the inventory item?", "Confirm Update", JOptionPane.YES_NO_OPTION);
+        if (confirmUpdate == JOptionPane.YES_OPTION) {
+            try (PreparedStatement pstmt = DatabaseConnection.getConnection().prepareStatement("UPDATE inventory SET productname =?, qty =?, price =? WHERE productid =?")) {
+                pstmt.setString(1, newProductName);
+                pstmt.setInt(2, newQty);
+                pstmt.setDouble(3, newPrice);
+                pstmt.setInt(4, currentProductID);
+                int rowsUpdated = pstmt.executeUpdate();
+
+                if (rowsUpdated > 0) {
+                    // Update the table model
+                    InventoryTable.setValueAt(newProductName, selectedIndex, 1);
+                    InventoryTable.setValueAt(newQty, selectedIndex, 2);
+                    InventoryTable.setValueAt(newPrice, selectedIndex, 3);
+                    JOptionPane.showMessageDialog(this, "Inventory item modified successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(this, "Failed to modify inventory item.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(this, "Error modifying inventory item: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
-        return productId;
-    }
+    }//GEN-LAST:event_ModifyIventoryItemActionPerformed
 
     private void loadInventoryTable() {
         Connection connection = null;
@@ -459,7 +545,7 @@ public class Inventory extends javax.swing.JPanel {
     private javax.swing.JPanel InventoryCRUD_panel;
     private javax.swing.JTable InventoryTable;
     private javax.swing.JLabel Inventory_Label;
-    private javax.swing.JButton Modify;
+    private javax.swing.JButton ModifyIventoryItem;
     private javax.swing.JLabel Name_Label;
     private javax.swing.JTextField Name_field;
     private javax.swing.JLabel Price_Label;
