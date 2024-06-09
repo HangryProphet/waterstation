@@ -1,13 +1,18 @@
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import javax.swing.JOptionPane;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.DocumentFilter;
+import javax.swing.text.PlainDocument;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -18,10 +23,8 @@ import javax.swing.table.DefaultTableModel;
  * @author ADMIN
  */
 public class Sales extends javax.swing.JPanel {
-
-    /**
-     * Creates new form Sales
-     */
+    
+    
     public class DatabaseConnection {
         // Database URL, username, and password
 
@@ -113,24 +116,77 @@ public class Sales extends javax.swing.JPanel {
             }
         }
     }
+    public static class NumberOnlyFilter extends DocumentFilter {
+    @Override
+    public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
+        if (string == null) {
+            return;
+        }
+        String newValue = getNewValue(fb, offset, string, attr);
+        if (isNumericAndInRange(newValue)) {
+            super.insertString(fb, offset, string, attr);
+        }
+    }
+
+    @Override
+    public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
+        if (text == null) {
+            return;
+        }
+        String newValue = getNewValue(fb, offset, text, attrs);
+        if (isNumericAndInRange(newValue)) {
+            super.replace(fb, offset, length, text, attrs);
+        }
+    }
+
+    @Override
+    public void remove(FilterBypass fb, int offset, int length) throws BadLocationException {
+        String newValue = getNewValueAfterRemove(fb, offset, length);
+        super.remove(fb, offset, length);
+        if (!newValue.isEmpty() && !isNumericAndInRange(newValue)) {
+            return;
+        }
+    }
+
+    private boolean isNumericAndInRange(String text) {
+        if (text.isEmpty()) {
+            return true;
+        }
+        try {
+            int value = Integer.parseInt(text);
+            return value >= 0 && value <= 100;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    private String getNewValue(FilterBypass fb, int offset, String text, AttributeSet attr) throws BadLocationException {
+        Document doc = fb.getDocument();
+        StringBuilder sb = new StringBuilder();
+        sb.append(doc.getText(0, doc.getLength()));
+        sb.insert(offset, text);
+        return sb.toString();
+    }
+
+    private String getNewValueAfterRemove(FilterBypass fb, int offset, int length) throws BadLocationException {
+        Document doc = fb.getDocument();
+        StringBuilder sb = new StringBuilder();
+        sb.append(doc.getText(0, doc.getLength()));
+        sb.delete(offset, offset + length);
+        return sb.toString();
+    }
+}
 
     public Sales() {
         initComponents();
         loadProductTable();
         loadCartTable();
-
-        // Add a TableModelListener to the CartTable model
-        CartTable.getModel().addTableModelListener(new TableModelListener() {
-            @Override
-            public void tableChanged(TableModelEvent e) {
-                updateReceiptTextArea();
-            }
-        });
+        
+         DiscountTextField.setDocument(new PlainDocument());
+        ((AbstractDocument) DiscountTextField.getDocument()).setDocumentFilter(new NumberOnlyFilter());
     }
 
-    public void updateProductTableQuantity(String productName, int newQty) {
-        //FOR MODIFY BUTTON
-        //THIS IS STILL BROKEN AT THE MOMENT PLEASE FIX 
+     public void updateProductTableQuantity(String productName, int newQty) {
         Connection conn = DatabaseConnection.getConnection();
 
         try (PreparedStatement pstmt = conn.prepareStatement("UPDATE productTable SET quantity =? WHERE productName =?")) {
@@ -143,42 +199,7 @@ public class Sales extends javax.swing.JPanel {
             e.printStackTrace();
         }
     }
-
-    private void updateReceiptTextArea() {
-        // FOR RECEIPT TEXT AREA ON THE SALES TABLE
-        //CREATE A TABLE FOR RECEIPT 
-        //FOR BEING ABLE TO RECORD
-        DefaultTableModel cartModel = (DefaultTableModel) CartTable.getModel();
-
-        // Calculate the total price
-        double totalPrice = 0.0;
-        StringBuilder receiptText = new StringBuilder("Receipt:\n");
-
-        for (int i = 0; i < cartModel.getRowCount(); i++) {
-            String productName = cartModel.getValueAt(i, 0).toString();
-            int qty = 0;
-            double price = 0.0;
-
-            try {
-                price = Double.parseDouble(cartModel.getValueAt(i, 2).toString());
-                qty = Integer.parseInt(cartModel.getValueAt(i, 1).toString());
-            } catch (NumberFormatException e) {
-                // Handle error, but for now, just skip this item
-                continue;
-            }
-
-            double subtotal = price * qty;
-            totalPrice += subtotal;
-
-            receiptText.append(String.format("%s x %d = ₱%.2f\n", productName, qty, subtotal));
-        }
-
-        receiptText.append(String.format("Total Price: ₱%.2f", totalPrice));
-
-        // Update the ReceiptTextArea
-        ReceiptTextArea.setText(receiptText.toString());
-    }
-
+     
     private void loadProductTable() {
         DefaultTableModel model = (DefaultTableModel) ProductTable.getModel();
         // Clear existing data in the table
@@ -237,13 +258,10 @@ public class Sales extends javax.swing.JPanel {
         jPanel1 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         ProductTable = new javax.swing.JTable();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        ReceiptTextArea = new javax.swing.JTextArea();
         jPanel2 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         CheckOutButton1 = new javax.swing.JButton();
-        AddDiscountButton = new javax.swing.JButton();
         RemoveFromCartButton = new javax.swing.JButton();
         ClearCartButton = new javax.swing.JButton();
         jPanel4 = new javax.swing.JPanel();
@@ -256,6 +274,13 @@ public class Sales extends javax.swing.JPanel {
         jPanel5 = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
         CartTable = new javax.swing.JTable();
+        jPanel8 = new javax.swing.JPanel();
+        TotalPriceLabel = new javax.swing.JLabel();
+        DiscountedPriceLabel = new javax.swing.JLabel();
+        DiscountLabel = new javax.swing.JLabel();
+        TotalPrice = new javax.swing.JLabel();
+        DiscountTextField = new javax.swing.JTextField();
+        DiscountedPrice = new javax.swing.JLabel();
 
         setPreferredSize(new java.awt.Dimension(1094, 720));
         setLayout(new java.awt.BorderLayout());
@@ -288,14 +313,6 @@ public class Sales extends javax.swing.JPanel {
             ProductTable.getColumnModel().getColumn(3).setResizable(false);
         }
 
-        ReceiptTextArea.setEditable(false);
-        ReceiptTextArea.setBackground(new java.awt.Color(204, 204, 204));
-        ReceiptTextArea.setColumns(20);
-        ReceiptTextArea.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
-        ReceiptTextArea.setForeground(new java.awt.Color(0, 0, 0));
-        ReceiptTextArea.setRows(5);
-        jScrollPane2.setViewportView(ReceiptTextArea);
-
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
         jLabel1.setText("AVAILABLE PRODUCT");
         jLabel1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -306,14 +323,6 @@ public class Sales extends javax.swing.JPanel {
         CheckOutButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 CheckOutButton1ActionPerformed(evt);
-            }
-        });
-
-        AddDiscountButton.setText("Discount");
-        AddDiscountButton.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        AddDiscountButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                AddDiscountButtonActionPerformed(evt);
             }
         });
 
@@ -338,25 +347,22 @@ public class Sales extends javax.swing.JPanel {
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                .addGap(87, 87, 87)
+                .addGap(43, 43, 43)
                 .addComponent(ClearCartButton, javax.swing.GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)
-                .addGap(18, 18, 18)
+                .addGap(89, 89, 89)
                 .addComponent(RemoveFromCartButton, javax.swing.GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(AddDiscountButton, javax.swing.GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(105, 105, 105)
                 .addComponent(CheckOutButton1, javax.swing.GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)
                 .addGap(88, 88, 88))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(AddDiscountButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(ClearCartButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 61, Short.MAX_VALUE)
-                    .addComponent(RemoveFromCartButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(CheckOutButton1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(CheckOutButton1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 82, Short.MAX_VALUE)
+                    .addComponent(RemoveFromCartButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(ClearCartButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
@@ -494,8 +500,66 @@ public class Sales extends javax.swing.JPanel {
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 450, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 450, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        TotalPriceLabel.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        TotalPriceLabel.setText("Total Price:");
+
+        DiscountedPriceLabel.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        DiscountedPriceLabel.setText("Discounted Price:");
+
+        DiscountLabel.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        DiscountLabel.setText("Discount:");
+
+        TotalPrice.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        TotalPrice.setText("0");
+
+        DiscountTextField.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        DiscountTextField.setText("0");
+        DiscountTextField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                DiscountTextFieldKeyReleased(evt);
+            }
+        });
+
+        DiscountedPrice.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        DiscountedPrice.setText("0");
+
+        javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
+        jPanel8.setLayout(jPanel8Layout);
+        jPanel8Layout.setHorizontalGroup(
+            jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel8Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(DiscountedPriceLabel)
+                    .addComponent(TotalPriceLabel))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(DiscountedPrice, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(TotalPrice, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(42, 42, 42)
+                .addComponent(DiscountLabel)
+                .addGap(18, 18, 18)
+                .addComponent(DiscountTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(96, 96, 96))
+        );
+        jPanel8Layout.setVerticalGroup(
+            jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel8Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(TotalPriceLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(TotalPrice, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(37, 37, 37)
+                .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(DiscountedPriceLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(DiscountedPrice, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(DiscountLabel)
+                    .addComponent(DiscountTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(19, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -505,9 +569,9 @@ public class Sales extends javax.swing.JPanel {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane2)
                     .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -523,15 +587,15 @@ public class Sales extends javax.swing.JPanel {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 412, Short.MAX_VALUE)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                    .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane2)
+                        .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
@@ -612,134 +676,142 @@ public class Sales extends javax.swing.JPanel {
                     }
                 }
             }
+            // Update the total and discounted prices
+            updateTotalAndDiscountedPrice();
         } else {
             JOptionPane.showMessageDialog(null, "No items were removed from the cart.", "Info", JOptionPane.INFORMATION_MESSAGE);
         }
     }//GEN-LAST:event_ClearCartButtonActionPerformed
+private int generateReceiptId() {
+    // You can store the current receipt ID in a file or database to ensure uniqueness
+    // For now, let's assume the next ID is 1 greater than the maximum existing ID in the database
+    int nextId = 1; // Default to 1 if no records exist
 
-    
-    // CHECK OUT BUTTON INCOMPLETE
-    private void CheckOutButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CheckOutButton1ActionPerformed
-        // Get the cart table model
-        DefaultTableModel cartModel = (DefaultTableModel) CartTable.getModel();
+    Connection connection = null;
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
 
-        // Check if the cart is empty
-        if (cartModel.getRowCount() == 0) {
-            JOptionPane.showMessageDialog(this, "Cart is empty. Please add items to checkout.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
+    try {
+        connection = DatabaseConnection.getConnection();
+        if (connection != null) {
+            String query = "SELECT MAX(receiptid) FROM reports";
+            preparedStatement = connection.prepareStatement(query);
+            resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                nextId = resultSet.getInt(1) + 1;
+            }
+        } else {
+            System.out.println("Failed to establish database connection.");
         }
-
-        // Calculate the total price
-        double totalPrice = 0.0;
-        StringBuilder checkoutMessage = new StringBuilder("Checkout Summary:\n");
-
-        for (int i = 0; i < cartModel.getRowCount(); i++) {
-            String productName = cartModel.getValueAt(i, 0).toString();
-            int qty = 0;
-            double price = 0.0;
-
+    } catch (SQLException e) {
+        System.out.println("Failed to generate receipt ID: " + e.getMessage());
+        e.printStackTrace();
+    } finally {
+        if (resultSet != null) {
             try {
-                price = Double.parseDouble(cartModel.getValueAt(i, 2).toString());
-                qty = Integer.parseInt(cartModel.getValueAt(i, 1).toString());
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(this, "Invalid price or quantity in cart. Please check and try again.", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
+                resultSet.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
-
-            double subtotal = price * qty;
-            totalPrice += subtotal;
-
-            checkoutMessage.append(String.format("%s x %d = ₱%.2f\n", productName, qty, subtotal));
         }
-
-        checkoutMessage.append(String.format("Total Price: ₱%.2f", totalPrice));
-
-        // Display the checkout summary
-        JOptionPane.showMessageDialog(this, checkoutMessage.toString(), "Checkout", JOptionPane.INFORMATION_MESSAGE);
-
-        // Clear the cart table
-        cartModel.setRowCount(0);
-
-        // Update the database to remove all items from the cart
-        Connection connection = null;
-        PreparedStatement deleteStatement = null;
-
-        try {
-            connection = DatabaseConnection.getConnection();
-            connection.setAutoCommit(false); // Start transaction
-
-            String deleteQuery = "DELETE FROM carttable";
-            deleteStatement = connection.prepareStatement(deleteQuery);
-
-            deleteStatement.executeUpdate();
-
-            connection.commit(); // Commit transaction
-
-            JOptionPane.showMessageDialog(this, "Checkout successful. Cart is empty.", "Success", JOptionPane.INFORMATION_MESSAGE);
-        } catch (SQLException e) {
+        if (preparedStatement != null) {
             try {
-                connection.rollback();
-            } catch (SQLException ex) {
-                System.out.println("Failed to rollback: " + ex.getMessage());
-                ex.printStackTrace();
-            }
-            System.out.println("Failed to checkout: " + e.getMessage());
-            e.printStackTrace();
-        } finally {
-            // Close database resources
-            if (deleteStatement != null) {
-                try {
-                    deleteStatement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
+                preparedStatement.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         }
-    }//GEN-LAST:event_CheckOutButton1ActionPerformed
-
-    
-    // DISCOUNT BUTTON INCOMPLETE
-    private void AddDiscountButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddDiscountButtonActionPerformed
-        // Get the discount amount from the user
-        String discountInput = JOptionPane.showInputDialog("Enter discount amount (e.g. 10 for 10%):");
-        if (discountInput == null) {
-            return; // User cancelled
-        }
-        double discountAmount = 0;
-        try {
-            discountAmount = Double.parseDouble(discountInput);
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Invalid discount amount. Please enter a valid number.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        // Calculate the discount
-        double totalPrice = getTotalPrice(); // Assume you have a method to get the total price
-        double discount = totalPrice * (discountAmount / 100);
-
-        // Update the receipt text area
-        StringBuilder receiptText = new StringBuilder(ReceiptTextArea.getText());
-        receiptText.append(String.format("Discount: -₱%.2f\n", discount));
-        receiptText.append(String.format("Total Price: ₱%.2f", totalPrice - discount));
-        ReceiptTextArea.setText(receiptText.toString());
     }
 
-    
-    
-    private double getTotalPrice() {
-        // Calculate the total price from the cart table model
-        DefaultTableModel cartModel = (DefaultTableModel) CartTable.getModel();
-        double totalPrice = 0.0;
-        for (int i = 0; i < cartModel.getRowCount(); i++) {
-            double price = Double.parseDouble(cartModel.getValueAt(i, 2).toString());
-            int qty = Integer.parseInt(cartModel.getValueAt(i, 1).toString());
-            totalPrice += price * qty;
+    return nextId;
+}
+    // CHECK OUT BUTTON INCOMPLETE
+    private void CheckOutButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CheckOutButton1ActionPerformed
+     DefaultTableModel cartModel = (DefaultTableModel) CartTable.getModel();
+    int rowCount = cartModel.getRowCount();
+
+    if (rowCount == 0) {
+        JOptionPane.showMessageDialog(this, "Cart is empty.", "Checkout Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    Connection connection = null;
+    PreparedStatement insertStatement = null;
+
+    try {
+        connection = DatabaseConnection.getConnection();
+        if (connection != null) {
+            connection.setAutoCommit(false); // Start transaction
+
+            String insertQuery = "INSERT INTO reports (receiptid, productname, qty, price, discount, date, customer) VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+            insertStatement = connection.prepareStatement(insertQuery);
+
+            // Get current date and format it
+            Date now = new Date();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String currentDate = sdf.format(now);
+
+            for (int row = 0; row < rowCount; row++) {
+                String productName = (String) cartModel.getValueAt(row, 0);
+                int qty = Integer.parseInt(cartModel.getValueAt(row, 1).toString());
+                double totalPrice = Double.parseDouble(TotalPrice.getText().replace("₱", "").trim());
+                double discountedPrice = Double.parseDouble(DiscountedPrice.getText().replace("₱", "").trim());
+
+                // Set parameters for the prepared statement
+                insertStatement.setInt(1, generateReceiptId());
+                insertStatement.setString(2, productName);
+                insertStatement.setInt(3, qty);
+                insertStatement.setDouble(4, totalPrice);
+                insertStatement.setDouble(5, discountedPrice);
+                insertStatement.setString(6, currentDate);
+                insertStatement.setString(7, ""); // Leave customer blank for now
+
+                // Execute the insertion query
+                insertStatement.addBatch();
+            }
+
+            insertStatement.executeBatch();
+            connection.commit(); // Commit transaction
+
+            JOptionPane.showMessageDialog(this, "Checkout successful. Reports updated.", "Success", JOptionPane.INFORMATION_MESSAGE);
+
+            // Clear the cart table after successful checkout
+            cartModel.setRowCount(0);
+
+            // Refresh the ProductTable (if applicable)
+            loadProductTable();
+
+            // Reset total and discounted prices
+            updateTotalAndDiscountedPrice();
+        } else {
+            System.out.println("Failed to establish database connection.");
         }
-        return totalPrice;
-
-    }//GEN-LAST:event_AddDiscountButtonActionPerformed
-
-    
+    } catch (SQLException e) {
+        try {
+            if (connection != null) {
+                connection.rollback(); // Rollback transaction on error
+            }
+        } catch (SQLException ex) {
+            System.out.println("Failed to rollback: " + ex.getMessage());
+            ex.printStackTrace();
+        }
+        System.out.println("Failed to checkout: " + e.getMessage());
+        e.printStackTrace();
+    } finally {
+        // Close database resources
+        if (insertStatement != null) {
+            try {
+                insertStatement.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    }//GEN-LAST:event_CheckOutButton1ActionPerformed
+    private void addDataToReportTable () {
+    }
     
     private void RemoveFromCartButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RemoveFromCartButtonActionPerformed
         // Get the selected rows from the CartTable
@@ -832,144 +904,173 @@ public class Sales extends javax.swing.JPanel {
                     }
                 }
             }
+            // Update the total and discounted prices
+            updateTotalAndDiscountedPrice();
         } else {
             JOptionPane.showMessageDialog(null, "No item selected to remove from the cart.", "Error", JOptionPane.ERROR_MESSAGE);
         }
      }//GEN-LAST:event_RemoveFromCartButtonActionPerformed
 
-    
-    
     private void SelectCustomerComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SelectCustomerComboBoxActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_SelectCustomerComboBoxActionPerformed
 
-    
-  
     private void AddToCartButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddToCartButtonActionPerformed
-        // Get the selected row from the ProductTable
-        int selectedRow = ProductTable.getSelectedRow();
+       int selectedRow = ProductTable.getSelectedRow();
 
-        if (selectedRow != -1) {
-            // Retrieve product details from the selected row
-            DefaultTableModel productModel = (DefaultTableModel) ProductTable.getModel();
-            DefaultTableModel cartModel = (DefaultTableModel) CartTable.getModel();
+    if (selectedRow != -1) {
+        // Retrieve product details from the selected row
+        DefaultTableModel productModel = (DefaultTableModel) ProductTable.getModel();
+        DefaultTableModel cartModel = (DefaultTableModel) CartTable.getModel();
 
-            String name = (String) productModel.getValueAt(selectedRow, 1); // Assuming column 1 is product name
-            double price = Double.parseDouble(productModel.getValueAt(selectedRow, 3).toString()); // Assuming column 4 is product price
-            int availableStock = Integer.parseInt(productModel.getValueAt(selectedRow, 2).toString()); // Assuming column 3 is available stock
+        String name = (String) productModel.getValueAt(selectedRow, 1); // Assuming column 1 is product name
+        double price = Double.parseDouble(productModel.getValueAt(selectedRow, 3).toString()); // Assuming column 4 is product price
+        int availableStock = Integer.parseInt(productModel.getValueAt(selectedRow, 2).toString()); // Assuming column 3 is available stock
 
-            // Check if the product is already in the cart
-            boolean productInCart = false;
-            int cartRowIndex = -1;
-            for (int i = 0; i < cartModel.getRowCount(); i++) {
-                if (cartModel.getValueAt(i, 0).equals(name)) {
-                    productInCart = true;
-                    cartRowIndex = i;
-                    break;
-                }
+        // Check if the product is already in the cart
+        boolean productInCart = false;
+        int cartRowIndex = -1;
+        for (int i = 0; i < cartModel.getRowCount(); i++) {
+            if (cartModel.getValueAt(i, 0).equals(name)) {
+                productInCart = true;
+                cartRowIndex = i;
+                break;
             }
+        }
 
-            // Prompt the user to input the quantity of stock to add
-            String stockInput = JOptionPane.showInputDialog(this, "Enter the quantity of stock to add for " + name + ":", "Add Stock", JOptionPane.QUESTION_MESSAGE);
-            if (stockInput != null && !stockInput.isEmpty()) {
-                try {
-                    int qtyToAdd = Integer.parseInt(stockInput.trim());
+        // Prompt the user to input the quantity of stock to add
+        String stockInput = JOptionPane.showInputDialog(this, "Enter the quantity of stock to add for " + name + ":", "Add Stock", JOptionPane.QUESTION_MESSAGE);
+        if (stockInput != null && !stockInput.isEmpty()) {
+            try {
+                int qtyToAdd = Integer.parseInt(stockInput.trim());
 
-                    // Check if the quantity to add is valid (positive) and available
-                    if (qtyToAdd > 0 && qtyToAdd <= availableStock) {
-                        Connection connection = null;
-                        PreparedStatement updateCartStatement = null;
-                        PreparedStatement insertCartStatement = null;
-                        PreparedStatement updateInventoryStatement = null;
+                // Check if the quantity to add is valid (positive) and available
+                if (qtyToAdd > 0 && qtyToAdd <= availableStock) {
+                    Connection connection = null;
+                    PreparedStatement updateCartStatement = null;
+                    PreparedStatement insertCartStatement = null;
+                    PreparedStatement updateInventoryStatement = null;
 
-                        try {
-                            connection = DatabaseConnection.getConnection();
-                            connection.setAutoCommit(false); // Start transaction
+                    try {
+                        connection = DatabaseConnection.getConnection();
+                        connection.setAutoCommit(false); // Start transaction
 
-                            if (productInCart) {
-                                // Update the quantity in the cart table
-                                int currentQty = Integer.parseInt(cartModel.getValueAt(cartRowIndex, 1).toString());
-                                cartModel.setValueAt(currentQty + qtyToAdd, cartRowIndex, 1);
+                        if (productInCart) {
+                            // Update the quantity in the cart table
+                            int currentQty = Integer.parseInt(cartModel.getValueAt(cartRowIndex, 1).toString());
+                            cartModel.setValueAt(currentQty + qtyToAdd, cartRowIndex, 1);
 
-                                // Update the quantity in the carttable database table
-                                String updateCartQuery = "UPDATE carttable SET qty = qty + ? WHERE productname = ?";
-                                updateCartStatement = connection.prepareStatement(updateCartQuery);
-                                updateCartStatement.setInt(1, qtyToAdd);
-                                updateCartStatement.setString(2, name);
-                                updateCartStatement.executeUpdate();
-                            } else {
-                                // Add the product to the CartTable
-                                cartModel.addRow(new Object[]{name, qtyToAdd, price});
+                            // Update the quantity in the carttable database table
+                            String updateCartQuery = "UPDATE carttable SET qty = qty + ? WHERE productname = ?";
+                            updateCartStatement = connection.prepareStatement(updateCartQuery);
+                            updateCartStatement.setInt(1, qtyToAdd);
+                            updateCartStatement.setString(2, name);
+                            updateCartStatement.executeUpdate();
+                        } else {
+                            // Add the product to the CartTable
+                            cartModel.addRow(new Object[]{name, qtyToAdd, price});
 
-                                // Insert the product into the carttable database table
-                                String insertCartQuery = "INSERT INTO carttable (productname, qty, price) VALUES (?, ?, ?)";
-                                insertCartStatement = connection.prepareStatement(insertCartQuery);
-                                insertCartStatement.setString(1, name);
-                                insertCartStatement.setInt(2, qtyToAdd);
-                                insertCartStatement.setDouble(3, price);
-                                insertCartStatement.executeUpdate();
-                            }
+                            // Insert the product into the carttable database table
+                            String insertCartQuery = "INSERT INTO carttable (productname, qty, price) VALUES (?, ?, ?)";
+                            insertCartStatement = connection.prepareStatement(insertCartQuery);
+                            insertCartStatement.setString(1, name);
+                            insertCartStatement.setInt(2, qtyToAdd);
+                            insertCartStatement.setDouble(3, price);
+                            insertCartStatement.executeUpdate();
+                        }
 
-                            // Update inventory
-                            String updateInventoryQuery = "UPDATE inventory SET qty = qty - ? WHERE productname = ?";
-                            updateInventoryStatement = connection.prepareStatement(updateInventoryQuery);
-                            updateInventoryStatement.setInt(1, qtyToAdd);
-                            updateInventoryStatement.setString(2, name);
-                            updateInventoryStatement.executeUpdate();
+                        // Update inventory
+                        String updateInventoryQuery = "UPDATE inventory SET qty = qty - ? WHERE productname = ?";
+                        updateInventoryStatement = connection.prepareStatement(updateInventoryQuery);
+                        updateInventoryStatement.setInt(1, qtyToAdd);
+                        updateInventoryStatement.setString(2, name);
+                        updateInventoryStatement.executeUpdate();
 
-                            connection.commit(); // Commit transaction
+                        connection.commit(); // Commit transaction
 
-                            // Inform the user about the stock update
-                            JOptionPane.showMessageDialog(this, qtyToAdd + " units of " + name + " added to the cart.", "Stock Added", JOptionPane.INFORMATION_MESSAGE);
-                            // Refresh the product table to reflect the updated stock
-                            loadProductTable();
-                        } catch (SQLException e) {
-                            if (connection != null) {
-                                try {
-                                    connection.rollback();
-                                } catch (SQLException ex) {
-                                    ex.printStackTrace();
-                                }
-                            }
-                            JOptionPane.showMessageDialog(this, "Failed to execute SQL query: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                            e.printStackTrace();
-                        } finally {
-                            if (updateCartStatement != null) {
-                                try {
-                                    updateCartStatement.close();
-                                } catch (SQLException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                            if (insertCartStatement != null) {
-                                try {
-                                    insertCartStatement.close();
-                                } catch (SQLException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                            if (updateInventoryStatement != null) {
-                                try {
-                                    updateInventoryStatement.close();
-                                } catch (SQLException e) {
-                                    e.printStackTrace();
-                                }
+                        // Inform the user about the stock update
+                        JOptionPane.showMessageDialog(this, qtyToAdd + " units of " + name + " added to the cart.", "Stock Added", JOptionPane.INFORMATION_MESSAGE);
+                        // Refresh the product table to reflect the updated stock
+                        loadProductTable();
+
+                        // Update the total price and discounted price
+                        updateTotalAndDiscountedPrice();
+
+                    } catch (SQLException e) {
+                        if (connection != null) {
+                            try {
+                                connection.rollback();
+                            } catch (SQLException ex) {
+                                ex.printStackTrace();
                             }
                         }
-                    } else if (qtyToAdd <= 0) {
-                        JOptionPane.showMessageDialog(this, "Please enter a valid positive quantity.", "Error", JOptionPane.ERROR_MESSAGE);
-                    } else {
-                        JOptionPane.showMessageDialog(this, "Not enough stock available.", "Error", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(this, "Failed to execute SQL query: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                        e.printStackTrace();
+                    } finally {
+                        if (updateCartStatement != null) {
+                            try {
+                                updateCartStatement.close();
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        if (insertCartStatement != null) {
+                            try {
+                                insertCartStatement.close();
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        if (updateInventoryStatement != null) {
+                            try {
+                                updateInventoryStatement.close();
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                            }
+                        }
                     }
-                } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(this, "Invalid quantity entered.", "Error", JOptionPane.ERROR_MESSAGE);
+                } else if (qtyToAdd <= 0) {
+                    JOptionPane.showMessageDialog(this, "Please enter a valid positive quantity.", "Error", JOptionPane.ERROR_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(this, "Not enough stock available.", "Error", JOptionPane.ERROR_MESSAGE);
                 }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Invalid quantity entered.", "Error", JOptionPane.ERROR_MESSAGE);
             }
-        } else {
-            JOptionPane.showMessageDialog(this, "No product selected to add.", "Error", JOptionPane.ERROR_MESSAGE);
         }
+    } else {
+        JOptionPane.showMessageDialog(this, "No product selected to add.", "Error", JOptionPane.ERROR_MESSAGE);
+    }
     }//GEN-LAST:event_AddToCartButtonActionPerformed
 
+    private void updateTotalAndDiscountedPrice() {
+        DefaultTableModel cartModel = (DefaultTableModel) CartTable.getModel();
+    double totalPrice = 0.0;
+
+    for (int i = 0; i < cartModel.getRowCount(); i++) {
+        int qty = Integer.parseInt(cartModel.getValueAt(i, 1).toString());
+        double price = Double.parseDouble(cartModel.getValueAt(i, 2).toString());
+        totalPrice += qty * price;
+    }
+
+    TotalPrice.setText(String.format("₱%.2f", totalPrice));
+
+    if (DiscountTextField.getText().isEmpty() || Double.parseDouble(DiscountTextField.getText()) == 0) {
+        DiscountedPrice.setText("₱0.00");
+    } else {
+        double discount = 0.0;
+        try {
+            discount = Double.parseDouble(DiscountTextField.getText()) / 100.0;
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Invalid discount entered.", "Error", JOptionPane.ERROR_MESSAGE);
+            DiscountedPrice.setText("₱0.00");
+            return;
+        }
+
+        double discountedPrice = totalPrice - (totalPrice * discount);
+        DiscountedPrice.setText(String.format("₱%.2f", discountedPrice));
+    }
+}
 
     // MODIFY CART INCOMPLETE
     private void ModifyCartItemPriceButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ModifyCartItemPriceButtonActionPerformed
@@ -1113,22 +1214,28 @@ public class Sales extends javax.swing.JPanel {
                 }
                 break;
         }
-
-        updateReceiptTextArea(); // Update the receipt text area
     }//GEN-LAST:event_ModifyCartItemPriceButtonActionPerformed
+
+    private void DiscountTextFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_DiscountTextFieldKeyReleased
+           updateTotalAndDiscountedPrice();
+    }//GEN-LAST:event_DiscountTextFieldKeyReleased
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton AddDiscountButton;
     private javax.swing.JButton AddToCartButton;
     private javax.swing.JTable CartTable;
     private javax.swing.JButton CheckOutButton1;
     private javax.swing.JButton ClearCartButton;
+    private javax.swing.JLabel DiscountLabel;
+    private javax.swing.JTextField DiscountTextField;
+    private javax.swing.JLabel DiscountedPrice;
+    private javax.swing.JLabel DiscountedPriceLabel;
     private javax.swing.JButton ModifyCartItemPriceButton;
     private javax.swing.JTable ProductTable;
-    private javax.swing.JTextArea ReceiptTextArea;
     private javax.swing.JButton RemoveFromCartButton;
     private javax.swing.JComboBox<String> SelectCustomerComboBox;
+    private javax.swing.JLabel TotalPrice;
+    private javax.swing.JLabel TotalPriceLabel;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
@@ -1138,8 +1245,8 @@ public class Sales extends javax.swing.JPanel {
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
+    private javax.swing.JPanel jPanel8;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     // End of variables declaration//GEN-END:variables
 }

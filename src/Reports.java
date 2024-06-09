@@ -1,21 +1,83 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
- */
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
 
-/**
- *
- * @author ADMIN
- */
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import javax.swing.table.DefaultTableModel;
+
+;
+
 public class Reports extends javax.swing.JPanel {
+ 
+    public class DatabaseConnection {
+        // Database URL, username, and password
 
+        private static final String URL = "jdbc:mysql://localhost:3306/waterstation";
+        private static final String USER = "root";
+        private static final String PASSWORD = "";
+
+        // Single instance of the connection
+        private static Connection connection = null;
+
+        // Method to establish a connection to the database
+        public static Connection getConnection() {
+            if (connection == null) {
+                try {
+                    // Register the JDBC driver
+                    Class.forName("com.mysql.cj.jdbc.Driver");
+                    // Open a connection
+                    connection = DriverManager.getConnection(URL, USER, PASSWORD);
+                    System.out.println("Database connected successfully.");
+                } catch (ClassNotFoundException e) {
+                    System.out.println("MySQL JDBC Driver not found.");
+                    e.printStackTrace();
+                } catch (SQLException e) {
+                    System.out.println("Failed to connect to the database.");
+                    e.printStackTrace();
+                }
+            }
+            return connection;
+        }
+
+        // Method to close the connection (if needed)
+        public static void closeConnection() {
+            if (connection != null) {
+                try {
+                    connection.close();
+                    connection = null;
+                    System.out.println("Database connection closed.");
+                } catch (SQLException e) {
+                    System.out.println("Failed to close the database connection.");
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        // Method to manually reconnect if needed
+        public static void reconnect() {
+            closeConnection();
+            getConnection();
+        }
+    }
     /**
      * Creates new form Reports
      */
     public Reports() {
         initComponents();
     }
-
+    
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -25,21 +87,168 @@ public class Reports extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jScrollPane1 = new javax.swing.JScrollPane();
+        ReportTable = new javax.swing.JTable();
+        ExportPDF_Bttn = new javax.swing.JButton();
+        UpdateTable = new javax.swing.JButton();
+
         setPreferredSize(new java.awt.Dimension(1094, 720));
+
+        ReportTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null}
+            },
+            new String [] {
+                "Receipt Number", "Product", "Quantity", "Total Price", "Discounted Price", "Date/Time", "Customer"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane1.setViewportView(ReportTable);
+
+        ExportPDF_Bttn.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
+        ExportPDF_Bttn.setText("Export As PDF");
+        ExportPDF_Bttn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ExportPDF_BttnActionPerformed(evt);
+            }
+        });
+
+        UpdateTable.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        UpdateTable.setText("Refresh Table");
+        UpdateTable.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                UpdateTableActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1179, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1082, Short.MAX_VALUE)
+                .addContainerGap())
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(46, 46, 46)
+                .addComponent(UpdateTable, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(ExportPDF_Bttn)
+                .addGap(44, 44, 44))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 720, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 516, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(41, 41, 41)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(ExportPDF_Bttn, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(UpdateTable, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(79, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
+    private void updateReportTable() {
+    DefaultTableModel reportTableModel = (DefaultTableModel) ReportTable.getModel();
+    reportTableModel.setRowCount(0); // Clear the table before updating
 
+    Connection connection = null;
+    PreparedStatement selectStatement = null;
+    ResultSet resultSet = null;
+
+    try {
+        connection = DatabaseConnection.getConnection();
+        if (connection != null) {
+            String selectQuery = "SELECT * FROM reports";
+            selectStatement = connection.prepareStatement(selectQuery);
+            resultSet = selectStatement.executeQuery();
+
+            while (resultSet.next()) {
+                int receiptId = resultSet.getInt("receiptid");
+                String productName = resultSet.getString("productname");
+                int qty = resultSet.getInt("qty");
+                double price = resultSet.getDouble("price");
+                double discount = resultSet.getDouble("discount");
+                String date = resultSet.getString("date");
+                String customer = resultSet.getString("customer");
+
+                // Add the fetched data to the table model
+                reportTableModel.addRow(new Object[]{receiptId, productName, qty, price, discount, date, customer});
+            }
+        } else {
+            System.out.println("Failed to establish database connection.");
+        }
+    } catch (SQLException e) {
+        System.out.println("Failed to update ReportTable: " + e.getMessage());
+        e.printStackTrace();
+    } finally {
+        // Close database resources
+        if (resultSet != null) {
+            try {
+                resultSet.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        if (selectStatement != null) {
+            try {
+                selectStatement.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}
+
+    private void UpdateTableActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_UpdateTableActionPerformed
+        updateReportTable();
+    }//GEN-LAST:event_UpdateTableActionPerformed
+
+    private void ExportPDF_BttnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ExportPDF_BttnActionPerformed
+        exportTableDataToPDF();
+    }//GEN-LAST:event_ExportPDF_BttnActionPerformed
+   private void exportTableDataToPDF() {
+    try {
+        Document document = new Document();
+        PdfWriter.getInstance(document, new FileOutputStream("report.pdf"));
+        document.open();
+
+        // Add table headers
+        PdfPTable table = new PdfPTable(ReportTable.getColumnCount());
+        for (int i = 0; i < ReportTable.getColumnCount(); i++) {
+            table.addCell(new PdfPCell(new Paragraph(ReportTable.getColumnName(i))));
+        }
+
+        // Add table data
+        for (int i = 0; i < ReportTable.getRowCount(); i++) {
+            for (int j = 0; j < ReportTable.getColumnCount(); j++) {
+                table.addCell(new PdfPCell(new Paragraph(ReportTable.getValueAt(i, j).toString())));
+            }
+        }
+
+        document.add(table);
+        document.close();
+
+        System.out.println("PDF report generated successfully.");
+    } catch (DocumentException | FileNotFoundException e) {
+        e.printStackTrace();
+    }
+}
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton ExportPDF_Bttn;
+    private javax.swing.JTable ReportTable;
+    private javax.swing.JButton UpdateTable;
+    private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
 }

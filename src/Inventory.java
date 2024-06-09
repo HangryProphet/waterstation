@@ -1,6 +1,7 @@
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.Statement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -325,109 +326,121 @@ public class Inventory extends javax.swing.JPanel {
     }//GEN-LAST:event_Add_BttnActionPerformed
 
     private int addProductToDatabase(String name, String qty, String price) {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        int productId = -1;
+      Connection connection = null;
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+    int productId = -1;
 
-        try {
-            connection = DatabaseConnection.getConnection();
-            String query = "INSERT INTO inventory (productname, qty, price) VALUES (?, ?, ?)";
-            preparedStatement = connection.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS);
-            preparedStatement.setString(1, name);
-            preparedStatement.setString(2, qty);
-            preparedStatement.setString(3, price);
+    try {
+        connection = DatabaseConnection.getConnection();
 
-            preparedStatement.executeUpdate();
-            resultSet = preparedStatement.getGeneratedKeys();
+        // Get the current maximum product ID
+        String getMaxIdQuery = "SELECT MAX(productid) FROM inventory";
+        preparedStatement = connection.prepareStatement(getMaxIdQuery);
+        resultSet = preparedStatement.executeQuery();
+        int maxId = 0;
+        if (resultSet.next()) {
+            maxId = resultSet.getInt(1);
+        }
 
-            if (resultSet.next()) {
-                productId = resultSet.getInt(1);
-            }
+        // Insert the new product with the next sequential ID
+        String query = "INSERT INTO inventory (productid, productname, qty, price) VALUES (?,?,?,?)";
+        preparedStatement = connection.prepareStatement(query);
+        productId = maxId + 1;
+        preparedStatement.setInt(1, productId);
+        preparedStatement.setString(2, name);
+        preparedStatement.setString(3, qty);
+        preparedStatement.setString(4, price);
 
-            System.out.println("Product added to database with ID: " + productId);
-        } catch (SQLException e) {
-            System.out.println("Failed to add product to database.");
-            e.printStackTrace();
-        } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
+        preparedStatement.executeUpdate();
+        System.out.println("Product added to database with ID: " + productId);
+    } catch (SQLException e) {
+        System.out.println("Failed to add product to database.");
+        e.printStackTrace();
+    } finally {
+        if (resultSet!= null) {
+            try {
+                resultSet.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         }
-        return productId;
+        if (preparedStatement!= null) {
+            try {
+                preparedStatement.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    return productId;
     }
 
     private void Delete_BttnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Delete_BttnActionPerformed
-        int selectedRow = InventoryTable.getSelectedRow();
+         int selectedRow = InventoryTable.getSelectedRow();
 
-        if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "No product selected to remove from inventory.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+    if (selectedRow == -1) {
+        JOptionPane.showMessageDialog(this, "No product selected to remove from inventory.", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
 
-        DefaultTableModel inventoryModel = (DefaultTableModel) InventoryTable.getModel();
+    DefaultTableModel inventoryModel = (DefaultTableModel) InventoryTable.getModel();
 
-        // Assuming column 0 is product ID, column 1 is product name, column 2 is quantity, and column 3 is price
-        int id = (int) inventoryModel.getValueAt(selectedRow, 0);
-        String name = inventoryModel.getValueAt(selectedRow, 1).toString();
-        int currentQty = Integer.parseInt(inventoryModel.getValueAt(selectedRow, 2).toString());
-        double price = Double.parseDouble(inventoryModel.getValueAt(selectedRow, 3).toString());
+    int id = (int) inventoryModel.getValueAt(selectedRow, 0);
 
-        int choice = JOptionPane.showConfirmDialog(this, "Are you sure you want to remove " + currentQty + " units of " + name + " at Php" + price + " each from inventory?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
+    int choice = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete the selected product?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
 
-        if (choice == JOptionPane.YES_OPTION) {
-            Connection connection = DatabaseConnection.getConnection(); // Get the existing connection
-            PreparedStatement deleteStatement = null;
+    if (choice == JOptionPane.YES_OPTION) {
+        Connection connection = DatabaseConnection.getConnection();
+        PreparedStatement deleteStatement = null;
+        PreparedStatement updateStatement = null;
 
+        try {
+            connection.setAutoCommit(false);
+
+            deleteStatement = connection.prepareStatement("DELETE FROM inventory WHERE productid =?");
+            deleteStatement.setInt(1, id);
+            deleteStatement.executeUpdate();
+
+            // Update the remaining product IDs to be sequential
+            updateStatement = connection.prepareStatement("UPDATE inventory SET productid = productid - 1 WHERE productid >?");
+            updateStatement.setInt(1, id);
+            updateStatement.executeUpdate();
+
+            connection.commit();
+            loadInventoryTable(); // Reload the inventory table to reflect changes
+            JOptionPane.showMessageDialog(this, "Product deleted and inventory updated.", "Inventory Updated", JOptionPane.INFORMATION_MESSAGE);
+        } catch (SQLException e) {
             try {
-                connection.setAutoCommit(false);
-
-                deleteStatement = connection.prepareStatement("DELETE FROM inventory WHERE productid =?");
-                deleteStatement.setInt(1, id);
-
-                int rowsAffected = deleteStatement.executeUpdate();
-
-                if (rowsAffected > 0) {
-                    connection.commit();
-                    inventoryModel.removeRow(selectedRow); // remove the row from the table model
-                    JOptionPane.showMessageDialog(this, currentQty + " units of " + name + " removed from inventory.", "Inventory Updated", JOptionPane.INFORMATION_MESSAGE);
-                } else {
+                if (connection!= null) {
                     connection.rollback();
-                    JOptionPane.showMessageDialog(this, "Failed to update inventory.", "Error", JOptionPane.ERROR_MESSAGE);
                 }
-            } catch (SQLException e) {
+            } catch (SQLException ex) {
+                System.out.println("Failed to rollback: " + ex.getMessage());
+                ex.printStackTrace();
+            }
+            System.out.println("Failed to delete product: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            if (deleteStatement!= null) {
                 try {
-                    if (connection != null) {
-                        connection.rollback();
-                    }
-                } catch (SQLException ex) {
-                    System.out.println("Failed to rollback: " + ex.getMessage());
-                    ex.printStackTrace();
+                    deleteStatement.close();
+                } catch (SQLException e) {
+                    System.out.println("Failed to close prepared statement: " + e.getMessage());
+                    e.printStackTrace();
                 }
-                System.out.println("Failed to remove item(s) from inventory: " + e.getMessage());
-                e.printStackTrace();
-            } finally {
-                if (deleteStatement != null) {
-                    try {
-                        deleteStatement.close();
-                    } catch (SQLException e) {
-                        System.out.println("Failed to close prepared statement: " + e.getMessage());
-                        e.printStackTrace();
-                    }
+            }
+            if (updateStatement!= null) {
+                try {
+                    updateStatement.close();
+                } catch (SQLException e) {
+                    System.out.println("Failed to close update statement: " + e.getMessage());
+                    e.printStackTrace();
                 }
             }
         }
+    
+    }
     }//GEN-LAST:event_Delete_BttnActionPerformed
 
     private void ModifyIventoryItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ModifyIventoryItemActionPerformed
@@ -513,31 +526,31 @@ public class Inventory extends javax.swing.JPanel {
 
     private void loadInventoryTable() {
         Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
 
-        try {
-            connection = DatabaseConnection.getConnection();
-            String query = "SELECT * FROM inventory";
-            preparedStatement = connection.prepareStatement(query);
-            resultSet = preparedStatement.executeQuery();
+    try {
+        connection = DatabaseConnection.getConnection();
+        String query = "SELECT * FROM inventory ORDER BY productid ASC";
+        preparedStatement = connection.prepareStatement(query);
+        resultSet = preparedStatement.executeQuery();
 
-            DefaultTableModel model = (DefaultTableModel) InventoryTable.getModel();
-            model.setRowCount(0); // Clear the table model before loading new data
+        DefaultTableModel model = (DefaultTableModel) InventoryTable.getModel();
+        model.setRowCount(0);
 
-            while (resultSet.next()) {
-                int id = resultSet.getInt("productid");
-                String name = resultSet.getString("productname");
-                String qty = resultSet.getString("qty");
-                String price = resultSet.getString("price");
+        while (resultSet.next()) {
+            int id = resultSet.getInt("productid");
+            String name = resultSet.getString("productname");
+            String qty = resultSet.getString("qty");
+            String price = resultSet.getString("price");
 
-                model.addRow(new Object[]{id, name, qty, price});
-            }
-        } catch (SQLException e) {
-            System.out.println("Failed to load inventory from database.");
-            e.printStackTrace();
+            model.addRow(new Object[]{id, name, qty, price});
         }
+    } catch (SQLException e) {
+        System.out.println("Failed to load inventory from database.");
+        e.printStackTrace();
     }
+}
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton Add_Bttn;
