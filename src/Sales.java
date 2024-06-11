@@ -116,7 +116,7 @@ public class Sales extends javax.swing.JPanel {
             }
         }
     }
-    public static class NumberOnlyFilter extends DocumentFilter {
+  public static class NumberOnlyFilter extends DocumentFilter {
     @Override
     public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
         if (string == null) {
@@ -141,10 +141,10 @@ public class Sales extends javax.swing.JPanel {
 
     @Override
     public void remove(FilterBypass fb, int offset, int length) throws BadLocationException {
-        String newValue = getNewValueAfterRemove(fb, offset, length);
         super.remove(fb, offset, length);
-        if (!newValue.isEmpty() && !isNumericAndInRange(newValue)) {
-            return;
+        Document doc = fb.getDocument();
+        if (doc.getLength() == 0) {
+            fb.insertString(0, "0", null); // Set to 0 if the field is empty
         }
     }
 
@@ -167,23 +167,17 @@ public class Sales extends javax.swing.JPanel {
         sb.insert(offset, text);
         return sb.toString();
     }
-
-    private String getNewValueAfterRemove(FilterBypass fb, int offset, int length) throws BadLocationException {
-        Document doc = fb.getDocument();
-        StringBuilder sb = new StringBuilder();
-        sb.append(doc.getText(0, doc.getLength()));
-        sb.delete(offset, offset + length);
-        return sb.toString();
-    }
 }
 
     public Sales() {
         initComponents();
         loadProductTable();
         loadCartTable();
+        updateTotalAndDiscountedPrice();
         
-         DiscountTextField.setDocument(new PlainDocument());
+        DiscountTextField.setText("0");
         ((AbstractDocument) DiscountTextField.getDocument()).setDocumentFilter(new NumberOnlyFilter());
+   
     }
 
      public void updateProductTableQuantity(String productName, int newQty) {
@@ -267,9 +261,10 @@ public class Sales extends javax.swing.JPanel {
         jPanel4 = new javax.swing.JPanel();
         jPanel6 = new javax.swing.JPanel();
         SelectCustomerComboBox = new javax.swing.JComboBox<>();
-        jLabel2 = new javax.swing.JLabel();
+        CustomerLabel = new javax.swing.JLabel();
+        MethodComboBox = new javax.swing.JComboBox<>();
+        MethodLabel = new javax.swing.JLabel();
         jPanel7 = new javax.swing.JPanel();
-        ModifyCartItemPriceButton = new javax.swing.JButton();
         AddToCartButton = new javax.swing.JButton();
         jPanel5 = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
@@ -348,11 +343,11 @@ public class Sales extends javax.swing.JPanel {
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
                 .addGap(43, 43, 43)
-                .addComponent(ClearCartButton, javax.swing.GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)
+                .addComponent(ClearCartButton, javax.swing.GroupLayout.DEFAULT_SIZE, 106, Short.MAX_VALUE)
                 .addGap(89, 89, 89)
-                .addComponent(RemoveFromCartButton, javax.swing.GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)
+                .addComponent(RemoveFromCartButton, javax.swing.GroupLayout.DEFAULT_SIZE, 104, Short.MAX_VALUE)
                 .addGap(105, 105, 105)
-                .addComponent(CheckOutButton1, javax.swing.GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)
+                .addComponent(CheckOutButton1, javax.swing.GroupLayout.DEFAULT_SIZE, 107, Short.MAX_VALUE)
                 .addGap(88, 88, 88))
         );
         jPanel3Layout.setVerticalGroup(
@@ -360,7 +355,7 @@ public class Sales extends javax.swing.JPanel {
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(CheckOutButton1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 82, Short.MAX_VALUE)
+                    .addComponent(CheckOutButton1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 85, Short.MAX_VALUE)
                     .addComponent(RemoveFromCartButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(ClearCartButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
@@ -368,50 +363,60 @@ public class Sales extends javax.swing.JPanel {
 
         jPanel6.setBackground(new java.awt.Color(153, 153, 153));
 
-        SelectCustomerComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        SelectCustomerComboBox.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        SelectCustomerComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Test", "TEST", "test", " " }));
         SelectCustomerComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 SelectCustomerComboBoxActionPerformed(evt);
             }
         });
 
-        jLabel2.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
-        jLabel2.setText("Select Customer");
+        CustomerLabel.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        CustomerLabel.setText("Select Customer");
+
+        MethodComboBox.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        MethodComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Delivery", "Pick-up" }));
+
+        MethodLabel.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        MethodLabel.setText("Fullfilment Method:");
 
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
         jPanel6Layout.setHorizontalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel6Layout.createSequentialGroup()
-                .addContainerGap(54, Short.MAX_VALUE)
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
-                        .addComponent(jLabel2)
-                        .addGap(51, 51, 51))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
-                        .addComponent(SelectCustomerComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(71, 71, 71))))
+                    .addGroup(jPanel6Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(SelectCustomerComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 231, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel6Layout.createSequentialGroup()
+                        .addGap(46, 46, 46)
+                        .addComponent(CustomerLabel))
+                    .addGroup(jPanel6Layout.createSequentialGroup()
+                        .addGap(34, 34, 34)
+                        .addComponent(MethodLabel))
+                    .addGroup(jPanel6Layout.createSequentialGroup()
+                        .addGap(59, 59, 59)
+                        .addComponent(MethodComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(15, Short.MAX_VALUE))
         );
         jPanel6Layout.setVerticalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
-                .addGap(21, 21, 21)
-                .addComponent(jLabel2)
+                .addContainerGap()
+                .addComponent(CustomerLabel)
                 .addGap(18, 18, 18)
-                .addComponent(SelectCustomerComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(116, Short.MAX_VALUE))
+                .addComponent(SelectCustomerComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(29, 29, 29)
+                .addComponent(MethodLabel)
+                .addGap(18, 18, 18)
+                .addComponent(MethodComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(21, Short.MAX_VALUE))
         );
 
         jPanel7.setBackground(new java.awt.Color(153, 153, 153));
 
-        ModifyCartItemPriceButton.setText("Modify Cart Item");
-        ModifyCartItemPriceButton.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        ModifyCartItemPriceButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                ModifyCartItemPriceButtonActionPerformed(evt);
-            }
-        });
-
+        AddToCartButton.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         AddToCartButton.setText("Add To Cart");
         AddToCartButton.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         AddToCartButton.addActionListener(new java.awt.event.ActionListener() {
@@ -426,18 +431,14 @@ public class Sales extends javax.swing.JPanel {
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel7Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(AddToCartButton, javax.swing.GroupLayout.DEFAULT_SIZE, 331, Short.MAX_VALUE)
-                    .addComponent(ModifyCartItemPriceButton, javax.swing.GroupLayout.DEFAULT_SIZE, 331, Short.MAX_VALUE))
+                .addComponent(AddToCartButton, javax.swing.GroupLayout.DEFAULT_SIZE, 338, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel7Layout.setVerticalGroup(
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel7Layout.createSequentialGroup()
-                .addGap(41, 41, 41)
+            .addGroup(jPanel7Layout.createSequentialGroup()
+                .addGap(20, 20, 20)
                 .addComponent(AddToCartButton, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(38, 38, 38)
-                .addComponent(ModifyCartItemPriceButton, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -493,7 +494,7 @@ public class Sales extends javax.swing.JPanel {
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 637, Short.MAX_VALUE)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 630, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel5Layout.setVerticalGroup(
@@ -538,7 +539,7 @@ public class Sales extends javax.swing.JPanel {
                     .addComponent(TotalPriceLabel))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(DiscountedPrice, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(DiscountedPrice, javax.swing.GroupLayout.DEFAULT_SIZE, 106, Short.MAX_VALUE)
                     .addComponent(TotalPrice, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(42, 42, 42)
                 .addComponent(DiscountLabel)
@@ -575,7 +576,7 @@ public class Sales extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jScrollPane1)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 620, Short.MAX_VALUE)
                     .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
@@ -728,7 +729,7 @@ private int generateReceiptId() {
 }
     // CHECK OUT BUTTON INCOMPLETE
     private void CheckOutButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CheckOutButton1ActionPerformed
-     DefaultTableModel cartModel = (DefaultTableModel) CartTable.getModel();
+ DefaultTableModel cartModel = (DefaultTableModel) CartTable.getModel();
     int rowCount = cartModel.getRowCount();
 
     if (rowCount == 0) {
@@ -738,35 +739,43 @@ private int generateReceiptId() {
 
     Connection connection = null;
     PreparedStatement insertStatement = null;
+    PreparedStatement deleteStatement = null;
 
     try {
         connection = DatabaseConnection.getConnection();
         if (connection != null) {
             connection.setAutoCommit(false); // Start transaction
 
-            String insertQuery = "INSERT INTO reports (receiptid, productname, qty, price, discount, date, customer) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            // Delete existing cart items from the database
+            String deleteQuery = "DELETE FROM carttable";
+            deleteStatement = connection.prepareStatement(deleteQuery);
+            deleteStatement.executeUpdate();
 
+            // Insert new cart items into the database
+            String insertQuery = "INSERT INTO reports (receiptid, productname, qty, discount, price, date, customer, method) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             insertStatement = connection.prepareStatement(insertQuery);
 
             // Get current date and format it
             Date now = new Date();
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss a");
             String currentDate = sdf.format(now);
 
             for (int row = 0; row < rowCount; row++) {
                 String productName = (String) cartModel.getValueAt(row, 0);
                 int qty = Integer.parseInt(cartModel.getValueAt(row, 1).toString());
                 double totalPrice = Double.parseDouble(TotalPrice.getText().replace("₱", "").trim());
-                double discountedPrice = Double.parseDouble(DiscountedPrice.getText().replace("₱", "").trim());
+                double discount = Double.parseDouble(DiscountTextField.getText().replace("%", "").trim()) / 100.0;
+                String methods = MethodComboBox.getSelectedItem().toString();
 
                 // Set parameters for the prepared statement
                 insertStatement.setInt(1, generateReceiptId());
                 insertStatement.setString(2, productName);
                 insertStatement.setInt(3, qty);
-                insertStatement.setDouble(4, totalPrice);
-                insertStatement.setDouble(5, discountedPrice);
+                insertStatement.setDouble(4, discount);
+                insertStatement.setDouble(5, totalPrice);
                 insertStatement.setString(6, currentDate);
-                insertStatement.setString(7, ""); // Leave customer blank for now
+                insertStatement.setString(7, "");
+                insertStatement.setString(8, methods);// Leave customer blank for now
 
                 // Execute the insertion query
                 insertStatement.addBatch();
@@ -808,10 +817,15 @@ private int generateReceiptId() {
                 e.printStackTrace();
             }
         }
+        if (deleteStatement != null) {
+            try {
+                deleteStatement.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
     }//GEN-LAST:event_CheckOutButton1ActionPerformed
-    private void addDataToReportTable () {
-    }
     
     private void RemoveFromCartButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RemoveFromCartButtonActionPerformed
         // Get the selected rows from the CartTable
@@ -1043,8 +1057,8 @@ private int generateReceiptId() {
     }
     }//GEN-LAST:event_AddToCartButtonActionPerformed
 
-    private void updateTotalAndDiscountedPrice() {
-        DefaultTableModel cartModel = (DefaultTableModel) CartTable.getModel();
+   private void updateTotalAndDiscountedPrice() {
+    DefaultTableModel cartModel = (DefaultTableModel) CartTable.getModel();
     double totalPrice = 0.0;
 
     for (int i = 0; i < cartModel.getRowCount(); i++) {
@@ -1055,166 +1069,20 @@ private int generateReceiptId() {
 
     TotalPrice.setText(String.format("₱%.2f", totalPrice));
 
-    if (DiscountTextField.getText().isEmpty() || Double.parseDouble(DiscountTextField.getText()) == 0) {
-        DiscountedPrice.setText("₱0.00");
-    } else {
-        double discount = 0.0;
+    double discount = 0.0;
+    if (!DiscountTextField.getText().isEmpty()) {
         try {
             discount = Double.parseDouble(DiscountTextField.getText()) / 100.0;
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "Invalid discount entered.", "Error", JOptionPane.ERROR_MESSAGE);
-            DiscountedPrice.setText("₱0.00");
-            return;
+            DiscountTextField.setText("0");
+            discount = 0.0;
         }
-
-        double discountedPrice = totalPrice - (totalPrice * discount);
-        DiscountedPrice.setText(String.format("₱%.2f", discountedPrice));
     }
+
+    double discountedPrice = totalPrice - (totalPrice * discount);
+    DiscountedPrice.setText(String.format("₱%.2f", discountedPrice));
 }
-
-    // MODIFY CART INCOMPLETE
-    private void ModifyCartItemPriceButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ModifyCartItemPriceButtonActionPerformed
-        //MODIFY CART ITEM IS BROKEN AT THE MOMENT
-        //PROBLEM: productTable "inventory"(database)
-        //NOT UPDATING PROPERLY
-        int selectedRow = CartTable.getSelectedRow();
-        if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "Please select a cart item to modify.");
-            return;
-        }
-
-        String productName = CartTable.getValueAt(selectedRow, 0).toString();
-        int qty = 0;
-        double price = 0.0;
-
-        try {
-            qty = Integer.parseInt(CartTable.getValueAt(selectedRow, 1).toString());
-            price = Double.parseDouble(CartTable.getValueAt(selectedRow, 2).toString());
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Invalid quantity or price format.");
-            return;
-        }
-
-        String[] options = {"Edit Quantity", "Edit Price", "Edit Both"};
-        int choice = JOptionPane.showOptionDialog(this, "What would you like to edit?", "Modify Cart Item",
-                JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
-
-        if (choice == -1) {
-            return; // User cancelled
-        }
-
-        switch (choice) {
-            case 0: // Edit Quantity
-                String newQtyInput = JOptionPane.showInputDialog(this, "Enter new quantity:");
-                if (newQtyInput == null) {
-                    return; // User cancelled
-                }
-
-                try {
-                    int newQty = Integer.parseInt(newQtyInput.trim());
-
-                    // Update the carttable database
-                    Connection conn = DatabaseConnection.getConnection();
-                    try (PreparedStatement pstmt = conn.prepareStatement("UPDATE carttable SET qty =? WHERE productName =?")) {
-                        pstmt.setInt(1, newQty);
-                        pstmt.setString(2, productName);
-                        pstmt.executeUpdate();
-                        System.out.println("Cart quantity updated successfully.");
-                    } catch (SQLException e) {
-                        System.out.println("Failed to update cart quantity.");
-                        e.printStackTrace();
-                    }
-
-                    // Update the inventory database quantity
-                    try (PreparedStatement pstmt2 = conn.prepareStatement("UPDATE inventory SET qty = qty - ? + ? WHERE productName =?")) {
-                        pstmt2.setInt(1, qty); // Subtract the old quantity
-                        pstmt2.setInt(2, newQty); // Add the new quantity
-                        pstmt2.setString(3, productName);
-                        pstmt2.executeUpdate();
-                        System.out.println("Inventory quantity updated successfully.");
-                    } catch (SQLException e) {
-                        System.out.println("Failed to update inventory quantity.");
-                        e.printStackTrace();
-                    }
-                } catch (NumberFormatException e) {
-                    JOptionPane.showMessageDialog(this, "Invalid quantity format.");
-                    return;
-                }
-                break;
-
-            case 1: // Edit Price
-                String newPriceInput = JOptionPane.showInputDialog(this, "Enter new price:");
-                if (newPriceInput == null) {
-                    return; // User cancelled
-                }
-
-                try {
-                    double newPrice = Double.parseDouble(newPriceInput.trim());
-
-                    // Update the carttable database
-                    Connection conn2 = DatabaseConnection.getConnection();
-                    try (PreparedStatement pstmt = conn2.prepareStatement("UPDATE carttable SET price =? WHERE productName =?")) {
-                        pstmt.setDouble(1, newPrice);
-                        pstmt.setString(2, productName);
-                        pstmt.executeUpdate();
-                        System.out.println("Cart price updated successfully.");
-                    } catch (SQLException e) {
-                        System.out.println("Failed to update cart price.");
-                        e.printStackTrace();
-                    }
-                } catch (NumberFormatException e) {
-                    JOptionPane.showMessageDialog(this, "Invalid price format.");
-                    return;
-                }
-                break;
-
-            case 2: // Edit Both
-                String input = JOptionPane.showInputDialog(this, "Enter new quantity and price (separated by comma):");
-                if (input == null) {
-                    return; // User cancelled
-                }
-
-                String[] parts = input.split(",");
-                if (parts.length != 2) {
-                    JOptionPane.showMessageDialog(this, "Invalid input format. Please enter quantity and price separated by comma.");
-                    return;
-                }
-
-                try {
-                    int newQty2 = Integer.parseInt(parts[0].trim());
-                    double newPrice2 = Double.parseDouble(parts[1].trim());
-
-                    // Update the carttable database
-                    Connection conn3 = DatabaseConnection.getConnection();
-                    try (PreparedStatement pstmt = conn3.prepareStatement("UPDATE carttable SET qty =?, price =? WHERE productName =?")) {
-                        pstmt.setInt(1, newQty2);
-                        pstmt.setDouble(2, newPrice2);
-                        pstmt.setString(3, productName);
-                        pstmt.executeUpdate();
-                        System.out.println("Cart quantity and price updated successfully.");
-                    } catch (SQLException e) {
-                        System.out.println("Failed to update cart quantity and price.");
-                        e.printStackTrace();
-                    }
-
-                    // Update the inventory database quantity
-                    try (PreparedStatement pstmt2 = conn3.prepareStatement("UPDATE inventory SET qty = qty - ? + ? WHERE productName =?")) {
-                        pstmt2.setInt(1, qty); // Subtract the old quantity
-                        pstmt2.setInt(2, newQty2); //Add the new quantity
-                        pstmt2.setString(3, productName);
-                        pstmt2.executeUpdate();
-                        System.out.println("Inventory quantity updated successfully.");
-                    } catch (SQLException e) {
-                        System.out.println("Failed to update inventory quantity.");
-                        e.printStackTrace();
-                    }
-                } catch (NumberFormatException e) {
-                    JOptionPane.showMessageDialog(this, "Invalid quantity or price format.");
-                    return;
-                }
-                break;
-        }
-    }//GEN-LAST:event_ModifyCartItemPriceButtonActionPerformed
 
     private void DiscountTextFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_DiscountTextFieldKeyReleased
            updateTotalAndDiscountedPrice();
@@ -1226,18 +1094,19 @@ private int generateReceiptId() {
     private javax.swing.JTable CartTable;
     private javax.swing.JButton CheckOutButton1;
     private javax.swing.JButton ClearCartButton;
+    private javax.swing.JLabel CustomerLabel;
     private javax.swing.JLabel DiscountLabel;
     private javax.swing.JTextField DiscountTextField;
     private javax.swing.JLabel DiscountedPrice;
     private javax.swing.JLabel DiscountedPriceLabel;
-    private javax.swing.JButton ModifyCartItemPriceButton;
+    private javax.swing.JComboBox<String> MethodComboBox;
+    private javax.swing.JLabel MethodLabel;
     private javax.swing.JTable ProductTable;
     private javax.swing.JButton RemoveFromCartButton;
     private javax.swing.JComboBox<String> SelectCustomerComboBox;
     private javax.swing.JLabel TotalPrice;
     private javax.swing.JLabel TotalPriceLabel;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;

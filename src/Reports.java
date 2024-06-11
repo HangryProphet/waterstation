@@ -75,6 +75,7 @@ public class Reports extends javax.swing.JPanel {
      */
     public Reports() {
         initComponents();
+        loadReportTable();
     }
     
     
@@ -96,17 +97,14 @@ public class Reports extends javax.swing.JPanel {
 
         ReportTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null}
+
             },
             new String [] {
-                "Receipt Number", "Product", "Quantity", "Total Price", "Discounted Price", "Date/Time", "Customer"
+                "Receipt Number", "Product", "Quantity", "Discount", "Total Price", "Date/Time", "Customer", "Fullfillment Method"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false
+                false, false, false, false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -123,7 +121,7 @@ public class Reports extends javax.swing.JPanel {
             }
         });
 
-        UpdateTable.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        UpdateTable.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
         UpdateTable.setText("Refresh Table");
         UpdateTable.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -137,23 +135,23 @@ public class Reports extends javax.swing.JPanel {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1082, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1082, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(UpdateTable, javax.swing.GroupLayout.PREFERRED_SIZE, 209, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(30, 30, 30)
+                        .addComponent(ExportPDF_Bttn)))
                 .addContainerGap())
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(46, 46, 46)
-                .addComponent(UpdateTable, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(ExportPDF_Bttn)
-                .addGap(44, 44, 44))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 516, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(41, 41, 41)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(ExportPDF_Bttn, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 539, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(ExportPDF_Bttn, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(UpdateTable, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(79, Short.MAX_VALUE))
         );
@@ -177,13 +175,14 @@ public class Reports extends javax.swing.JPanel {
                 int receiptId = resultSet.getInt("receiptid");
                 String productName = resultSet.getString("productname");
                 int qty = resultSet.getInt("qty");
-                double price = resultSet.getDouble("price");
-                double discount = resultSet.getDouble("discount");
+                double price = resultSet.getDouble("discount");
+                double discount = resultSet.getDouble("price");
                 String date = resultSet.getString("date");
                 String customer = resultSet.getString("customer");
+                String methods = resultSet.getString("method");
 
                 // Add the fetched data to the table model
-                reportTableModel.addRow(new Object[]{receiptId, productName, qty, price, discount, date, customer});
+                reportTableModel.addRow(new Object[]{receiptId, productName, qty, price, discount, date, customer, methods});
             }
         } else {
             System.out.println("Failed to establish database connection.");
@@ -244,6 +243,54 @@ public class Reports extends javax.swing.JPanel {
         e.printStackTrace();
     }
 }
+ private void loadReportTable() {
+        DefaultTableModel model = (DefaultTableModel) ReportTable.getModel();
+        // Clear existing data in the table
+        //UPDATE THE PRODUCT JTABLE
+        model.setRowCount(0);
+
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+
+        try {
+            connection = Inventory.DatabaseConnection.getConnection();
+            String query = "SELECT * FROM reports";
+            preparedStatement = connection.prepareStatement(query);
+            resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                int id = resultSet.getInt("receiptid");
+                String name = resultSet.getString("productname");
+                String qty = resultSet.getString("qty");
+                String discount = resultSet.getString("discount");
+                String price = resultSet.getString("price");
+                String date = resultSet.getString("date");
+                String customer = resultSet.getString("customer");
+                String methods = resultSet.getString("method");
+                model.addRow(new Object[]{id, name, qty, discount, price, date, customer, methods});
+            }
+        } catch (SQLException e) {
+            System.out.println("Failed to load inventory from database.");
+            e.printStackTrace();
+        } finally {
+            // Close database resources
+            if (resultSet != null) {
+                try {
+                    resultSet.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton ExportPDF_Bttn;

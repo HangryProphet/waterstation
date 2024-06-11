@@ -7,6 +7,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DocumentFilter;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -61,11 +65,43 @@ public class Inventory extends javax.swing.JPanel {
             }
         }
     }
+    public static class NumberOnlyFilter extends DocumentFilter {
+    @Override
+    public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
+        if (string == null) {
+            return;
+        }
+        if (isNumeric(string)) {
+            super.insertString(fb, offset, string, attr);
+        }
+    }
+
+    @Override
+    public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
+        if (text == null) {
+            return;
+        }
+        if (isNumeric(text)) {
+            super.replace(fb, offset, length, text, attrs);
+        }
+    }
+
+    @Override
+    public void remove(FilterBypass fb, int offset, int length) throws BadLocationException {
+        super.remove(fb, offset, length);
+    }
+
+    private boolean isNumeric(String text) {
+        return text.matches("\\d*"); // This regex ensures only digits are allowed
+    }
+}
 
     //Load inventory
     public Inventory() {
         initComponents();
         loadInventoryTable();
+        ((AbstractDocument) Qty_field.getDocument()).setDocumentFilter(new NumberOnlyFilter());
+        ((AbstractDocument) Price_field.getDocument()).setDocumentFilter(new NumberOnlyFilter());
     }
 
     /**
@@ -167,10 +203,8 @@ public class Inventory extends javax.swing.JPanel {
         Name_field.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
 
         Qty_field.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        Qty_field.setText("0");
 
         Price_field.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        Price_field.setText("0");
 
         javax.swing.GroupLayout InventoryCRUD_panelLayout = new javax.swing.GroupLayout(InventoryCRUD_panel);
         InventoryCRUD_panel.setLayout(InventoryCRUD_panelLayout);
