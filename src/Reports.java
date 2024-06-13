@@ -4,16 +4,20 @@ import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
+import java.awt.Component;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import javax.swing.table.DefaultTableCellRenderer;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.table.DefaultTableModel;
 
 ;
@@ -63,6 +67,23 @@ public class Reports extends javax.swing.JPanel {
                 }
             }
         }
+        class CustomCellRenderer extends DefaultTableCellRenderer {
+    @Override
+    public Component getTableCellRendererComponent(JTable table, Object value,
+                                                   boolean isSelected, boolean hasFocus, int row, int column) {
+        JTextArea textArea = new JTextArea(value.toString());
+        textArea.setWrapStyleWord(true);
+        textArea.setLineWrap(true);
+        if (isSelected) {
+            textArea.setBackground(table.getSelectionBackground());
+            textArea.setForeground(table.getSelectionForeground());
+        } else {
+            textArea.setBackground(table.getBackground());
+            textArea.setForeground(table.getForeground());
+        }
+        return textArea;
+    }
+
 
         // Method to manually reconnect if needed
         public static void reconnect() {
@@ -70,12 +91,24 @@ public class Reports extends javax.swing.JPanel {
             getConnection();
         }
     }
+    }
+    
     /**
      * Creates new form Reports
      */
     public Reports() {
         initComponents();
         loadReportTable();
+        
+        ReportTable.getColumnModel().getColumn(1).setCellRenderer(new CustomCellRenderer());
+
+        // Adjust row height based on content in the "Product Name" column
+        for (int row = 0; row < ReportTable.getRowCount(); row++) {
+            int rowHeight = ReportTable.getRowHeight();
+            Component comp = ReportTable.prepareRenderer(ReportTable.getCellRenderer(row, 1), row, 1);
+            rowHeight = Math.max(rowHeight, comp.getPreferredSize().height);
+            ReportTable.setRowHeight(row, rowHeight);
+        }
     }
     
     
@@ -111,6 +144,7 @@ public class Reports extends javax.swing.JPanel {
                 return canEdit [columnIndex];
             }
         });
+        ReportTable.setRowHeight(100);
         jScrollPane1.setViewportView(ReportTable);
 
         ExportPDF_Bttn.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
@@ -289,6 +323,23 @@ public class Reports extends javax.swing.JPanel {
                     e.printStackTrace();
                 }
             }
+        }
+    }
+   class CustomCellRenderer extends DefaultTableCellRenderer {
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                                                       boolean isSelected, boolean hasFocus, int row, int column) {
+            JTextArea textArea = new JTextArea(value.toString());
+            textArea.setWrapStyleWord(true);
+            textArea.setLineWrap(true);
+            if (isSelected) {
+                textArea.setBackground(table.getSelectionBackground());
+                textArea.setForeground(table.getSelectionForeground());
+            } else {
+                textArea.setBackground(table.getBackground());
+                textArea.setForeground(table.getForeground());
+            }
+            return textArea;
         }
     }
 

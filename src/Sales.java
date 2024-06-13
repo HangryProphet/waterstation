@@ -299,6 +299,7 @@ public class Sales extends javax.swing.JPanel {
                 return canEdit [columnIndex];
             }
         });
+        ProductTable.setRowHeight(50);
         ProductTable.getTableHeader().setReorderingAllowed(false);
         jScrollPane1.setViewportView(ProductTable);
         if (ProductTable.getColumnModel().getColumnCount() > 0) {
@@ -436,10 +437,10 @@ public class Sales extends javax.swing.JPanel {
         );
         jPanel7Layout.setVerticalGroup(
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel7Layout.createSequentialGroup()
-                .addGap(20, 20, 20)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel7Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(AddToCartButton, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(80, 80, 80))
         );
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
@@ -480,6 +481,7 @@ public class Sales extends javax.swing.JPanel {
                 return canEdit [columnIndex];
             }
         });
+        CartTable.setRowHeight(50);
         CartTable.getTableHeader().setReorderingAllowed(false);
         jScrollPane3.setViewportView(CartTable);
         if (CartTable.getColumnModel().getColumnCount() > 0) {
@@ -729,7 +731,7 @@ private int generateReceiptId() {
 }
     // CHECK OUT BUTTON INCOMPLETE
     private void CheckOutButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CheckOutButton1ActionPerformed
- DefaultTableModel cartModel = (DefaultTableModel) CartTable.getModel();
+    DefaultTableModel cartModel = (DefaultTableModel) CartTable.getModel();
     int rowCount = cartModel.getRowCount();
 
     if (rowCount == 0) {
@@ -760,28 +762,34 @@ private int generateReceiptId() {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss a");
             String currentDate = sdf.format(now);
 
+            // Concatenate product names with quantities and newline character
+            StringBuilder productNamesBuilder = new StringBuilder();
+            int totalQty = 0;
+
             for (int row = 0; row < rowCount; row++) {
                 String productName = (String) cartModel.getValueAt(row, 0);
                 int qty = Integer.parseInt(cartModel.getValueAt(row, 1).toString());
-                double totalPrice = Double.parseDouble(TotalPrice.getText().replace("₱", "").trim());
-                double discount = Double.parseDouble(DiscountTextField.getText().replace("%", "").trim()) / 100.0;
-                String methods = MethodComboBox.getSelectedItem().toString();
-
-                // Set parameters for the prepared statement
-                insertStatement.setInt(1, generateReceiptId());
-                insertStatement.setString(2, productName);
-                insertStatement.setInt(3, qty);
-                insertStatement.setDouble(4, discount);
-                insertStatement.setDouble(5, totalPrice);
-                insertStatement.setString(6, currentDate);
-                insertStatement.setString(7, "");
-                insertStatement.setString(8, methods);// Leave customer blank for now
-
-                // Execute the insertion query
-                insertStatement.addBatch();
+                productNamesBuilder.append(productName).append(" (").append(qty).append(")").append("\n");
+                totalQty += qty;
             }
 
-            insertStatement.executeBatch();
+            String productNames = productNamesBuilder.toString().trim();
+            double totalPrice = Double.parseDouble(TotalPrice.getText().replace("₱", "").trim());
+            double discount = Double.parseDouble(DiscountTextField.getText().replace("%", "").trim()) / 100.0;
+            String methods = MethodComboBox.getSelectedItem().toString();
+
+            // Set parameters for the prepared statement
+            insertStatement.setInt(1, generateReceiptId());
+            insertStatement.setString(2, productNames);
+            insertStatement.setInt(3, totalQty);
+            insertStatement.setDouble(4, discount);
+            insertStatement.setDouble(5, totalPrice);
+            insertStatement.setString(6, currentDate);
+            insertStatement.setString(7, ""); // Leave customer blank for now
+            insertStatement.setString(8, methods);
+
+            // Execute the insertion query
+            insertStatement.executeUpdate();
             connection.commit(); // Commit transaction
 
             JOptionPane.showMessageDialog(this, "Checkout successful. Reports updated.", "Success", JOptionPane.INFORMATION_MESSAGE);
@@ -1072,7 +1080,7 @@ private int generateReceiptId() {
     double discount = 0.0;
     if (!DiscountTextField.getText().isEmpty()) {
         try {
-            discount = Double.parseDouble(DiscountTextField.getText()) / 100.0;
+            discount = Double.parseDouble(DiscountTextField.getText());
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "Invalid discount entered.", "Error", JOptionPane.ERROR_MESSAGE);
             DiscountTextField.setText("0");
@@ -1080,7 +1088,7 @@ private int generateReceiptId() {
         }
     }
 
-    double discountedPrice = totalPrice - (totalPrice * discount);
+    double discountedPrice = totalPrice - (totalPrice * (discount / 100.0));
     DiscountedPrice.setText(String.format("₱%.2f", discountedPrice));
 }
 

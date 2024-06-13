@@ -147,6 +147,7 @@ public class Inventory extends javax.swing.JPanel {
                 return canEdit [columnIndex];
             }
         });
+        InventoryTable.setRowHeight(50);
         InventoryTable.getTableHeader().setReorderingAllowed(false);
         jScrollPane1.setViewportView(InventoryTable);
         if (InventoryTable.getColumnModel().getColumnCount() > 0) {
