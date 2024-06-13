@@ -775,14 +775,14 @@ private int generateReceiptId() {
 
             String productNames = productNamesBuilder.toString().trim();
             double totalPrice = Double.parseDouble(TotalPrice.getText().replace("₱", "").trim());
-            double discount = Double.parseDouble(DiscountTextField.getText().replace("%", "").trim()) / 100.0;
+            double discount = Double.parseDouble(DiscountTextField.getText()); // Fetch the current number on DiscountTextField
             String methods = MethodComboBox.getSelectedItem().toString();
 
             // Set parameters for the prepared statement
             insertStatement.setInt(1, generateReceiptId());
             insertStatement.setString(2, productNames);
             insertStatement.setInt(3, totalQty);
-            insertStatement.setDouble(4, discount);
+            insertStatement.setDouble(4, discount); // Store the discount value in the database
             insertStatement.setDouble(5, totalPrice);
             insertStatement.setString(6, currentDate);
             insertStatement.setString(7, ""); // Leave customer blank for now
@@ -1066,7 +1066,7 @@ private int generateReceiptId() {
     }//GEN-LAST:event_AddToCartButtonActionPerformed
 
    private void updateTotalAndDiscountedPrice() {
-    DefaultTableModel cartModel = (DefaultTableModel) CartTable.getModel();
+        DefaultTableModel cartModel = (DefaultTableModel) CartTable.getModel();
     double totalPrice = 0.0;
 
     for (int i = 0; i < cartModel.getRowCount(); i++) {
@@ -1075,12 +1075,14 @@ private int generateReceiptId() {
         totalPrice += qty * price;
     }
 
-    TotalPrice.setText(String.format("₱%.2f", totalPrice));
-
-    double discount = 0.0;
+     double discount = 0.0;
     if (!DiscountTextField.getText().isEmpty()) {
         try {
-            discount = Double.parseDouble(DiscountTextField.getText());
+            String discountText = DiscountTextField.getText();
+            if (discountText.endsWith("%")) {
+                discountText = discountText.replace("%", "");
+            }
+            discount = Double.parseDouble(discountText) / 100.0;
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "Invalid discount entered.", "Error", JOptionPane.ERROR_MESSAGE);
             DiscountTextField.setText("0");
@@ -1088,12 +1090,19 @@ private int generateReceiptId() {
         }
     }
 
-    double discountedPrice = totalPrice - (totalPrice * (discount / 100.0));
-    DiscountedPrice.setText(String.format("₱%.2f", discountedPrice));
+    if (discount == 0.0) {
+        DiscountedPrice.setText("₱0.00");
+        TotalPrice.setText(String.format("₱%.2f", totalPrice));
+    } else {
+        double discountedPrice = totalPrice - (totalPrice * discount);
+        DiscountedPrice.setText(String.format("₱%.2f", discountedPrice));
+        TotalPrice.setText(String.format("₱%.2f", discountedPrice));
+    }
 }
 
     private void DiscountTextFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_DiscountTextFieldKeyReleased
-           updateTotalAndDiscountedPrice();
+          updateTotalAndDiscountedPrice();
+    
     }//GEN-LAST:event_DiscountTextFieldKeyReleased
 
 

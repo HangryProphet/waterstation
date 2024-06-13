@@ -5,24 +5,29 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import java.awt.Component;
-
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-
-import javax.swing.table.DefaultTableCellRenderer;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.table.DefaultTableModel;
-
+import javax.swing.RowFilter;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import java.awt.Component;
+import javax.swing.table.TableRowSorter;
 ;
 
 public class Reports extends javax.swing.JPanel {
+    private DefaultTableModel tableModel;
+    private TableRowSorter<DefaultTableModel> tableRowSorter;
+
  
     public class DatabaseConnection {
         // Database URL, username, and password
@@ -67,30 +72,13 @@ public class Reports extends javax.swing.JPanel {
                 }
             }
         }
-        class CustomCellRenderer extends DefaultTableCellRenderer {
-    @Override
-    public Component getTableCellRendererComponent(JTable table, Object value,
-                                                   boolean isSelected, boolean hasFocus, int row, int column) {
-        JTextArea textArea = new JTextArea(value.toString());
-        textArea.setWrapStyleWord(true);
-        textArea.setLineWrap(true);
-        if (isSelected) {
-            textArea.setBackground(table.getSelectionBackground());
-            textArea.setForeground(table.getSelectionForeground());
+    }
+     private void filterTable(String searchText) {
+        if (searchText.trim().length() == 0) {
+            tableRowSorter.setRowFilter(null);
         } else {
-            textArea.setBackground(table.getBackground());
-            textArea.setForeground(table.getForeground());
+            tableRowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + searchText));
         }
-        return textArea;
-    }
-
-
-        // Method to manually reconnect if needed
-        public static void reconnect() {
-            closeConnection();
-            getConnection();
-        }
-    }
     }
     
     /**
@@ -100,17 +88,37 @@ public class Reports extends javax.swing.JPanel {
         initComponents();
         loadReportTable();
         
-        ReportTable.getColumnModel().getColumn(1).setCellRenderer(new CustomCellRenderer());
+         tableModel = (DefaultTableModel) ReportTable.getModel();
+    tableRowSorter = new TableRowSorter<>(tableModel);
+    ReportTable.setRowSorter(tableRowSorter);
 
-        // Adjust row height based on content in the "Product Name" column
-        for (int row = 0; row < ReportTable.getRowCount(); row++) {
-            int rowHeight = ReportTable.getRowHeight();
-            Component comp = ReportTable.prepareRenderer(ReportTable.getCellRenderer(row, 1), row, 1);
-            rowHeight = Math.max(rowHeight, comp.getPreferredSize().height);
-            ReportTable.setRowHeight(row, rowHeight);
-        }
+    ReportTable.getColumnModel().getColumn(1).setCellRenderer(new CustomCellRenderer());
+
+    // Adjust row height based on content in the "Product Name" column
+    for (int row = 0; row < ReportTable.getRowCount(); row++) {
+        int rowHeight = ReportTable.getRowHeight();
+        Component comp = ReportTable.prepareRenderer(ReportTable.getCellRenderer(row, 1), row, 1);
+        rowHeight = Math.max(rowHeight, comp.getPreferredSize().height);
+        ReportTable.setRowHeight(row, rowHeight);
     }
-    
+
+    SearchField.getDocument().addDocumentListener(new DocumentListener() {
+        @Override
+        public void insertUpdate(DocumentEvent e) {
+            filterTable(SearchField.getText());
+        }
+
+        @Override
+        public void removeUpdate(DocumentEvent e) {
+            filterTable(SearchField.getText());
+        }
+
+        @Override
+        public void changedUpdate(DocumentEvent e) {
+            filterTable(SearchField.getText());
+        }
+    });
+    }
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -125,6 +133,9 @@ public class Reports extends javax.swing.JPanel {
         ReportTable = new javax.swing.JTable();
         ExportPDF_Bttn = new javax.swing.JButton();
         UpdateTable = new javax.swing.JButton();
+        jPanel1 = new javax.swing.JPanel();
+        SearchLabel = new javax.swing.JLabel();
+        SearchField = new javax.swing.JTextField();
 
         setPreferredSize(new java.awt.Dimension(1094, 720));
 
@@ -163,31 +174,59 @@ public class Reports extends javax.swing.JPanel {
             }
         });
 
+        SearchLabel.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
+        SearchLabel.setText("Search:");
+
+        SearchField.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(29, 29, 29)
+                .addComponent(SearchLabel)
+                .addGap(18, 18, 18)
+                .addComponent(SearchField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(27, 27, 27)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(SearchLabel)
+                    .addComponent(SearchField, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(26, Short.MAX_VALUE))
+        );
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1082, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                    .addGroup(layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(UpdateTable, javax.swing.GroupLayout.PREFERRED_SIZE, 209, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(30, 30, 30)
-                        .addComponent(ExportPDF_Bttn)))
+                        .addComponent(ExportPDF_Bttn)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(UpdateTable, javax.swing.GroupLayout.PREFERRED_SIZE, 209, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 539, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 504, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 59, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(ExportPDF_Bttn, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(UpdateTable, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(79, Short.MAX_VALUE))
+                    .addComponent(UpdateTable, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(ExportPDF_Bttn, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(24, 24, 24))
         );
     }// </editor-fold>//GEN-END:initComponents
     private void updateReportTable() {
@@ -346,7 +385,10 @@ public class Reports extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton ExportPDF_Bttn;
     private javax.swing.JTable ReportTable;
+    private javax.swing.JTextField SearchField;
+    private javax.swing.JLabel SearchLabel;
     private javax.swing.JButton UpdateTable;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
 }

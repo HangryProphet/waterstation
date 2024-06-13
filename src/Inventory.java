@@ -560,7 +560,7 @@ public class Inventory extends javax.swing.JPanel {
     }//GEN-LAST:event_ModifyIventoryItemActionPerformed
 
     private void loadInventoryTable() {
-        Connection connection = null;
+    Connection connection = null;
     PreparedStatement preparedStatement = null;
     ResultSet resultSet = null;
 
