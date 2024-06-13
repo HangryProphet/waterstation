@@ -1,3 +1,4 @@
+
 import javax.swing.JFrame;
 import javax.swing.JButton;
 
@@ -5,23 +6,21 @@ import javax.swing.JButton;
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-
 /**
  *
  * @author ADMIN
  */
 public class Home extends javax.swing.JFrame {
-   
+
     JpanelLoader jpload = new JpanelLoader();
     private JButton lastSelectedButton;
-    
+
     public Home() {
         initComponents();
         setLocationRelativeTo(null);
-        
-        
+
     }
-    
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -184,7 +183,7 @@ public class Home extends javax.swing.JFrame {
     }//GEN-LAST:event_SalesBttnActionPerformed
 
     private void CustomerBttnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CustomerBttnActionPerformed
-         handleButtonSelection(CustomerBttn, new Customer());
+        handleButtonSelection(CustomerBttn, new Customer());
     }//GEN-LAST:event_CustomerBttnActionPerformed
 
     private void InventoryBttnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_InventoryBttnActionPerformed
@@ -194,12 +193,13 @@ public class Home extends javax.swing.JFrame {
     private void ReportsBttnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ReportsBttnActionPerformed
         handleButtonSelection(ReportsBttn, new Reports());
     }//GEN-LAST:event_ReportsBttnActionPerformed
+    
     private void redirectToLogInPage() {
         Login LoginForm = new Login();
         LoginForm.setVisible(true);
         this.dispose();
     }
-      
+
     private void handleButtonSelection(JButton selectedButton, javax.swing.JPanel panel) {
         if (lastSelectedButton != null && lastSelectedButton == selectedButton) {
             // Same button clicked, hide the panel
@@ -213,7 +213,7 @@ public class Home extends javax.swing.JFrame {
             lastSelectedButton = selectedButton; // Update the last selected button
         }
     }
- 
+
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">

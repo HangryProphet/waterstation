@@ -1,3 +1,4 @@
+
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Paragraph;
@@ -22,13 +23,14 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.Component;
 import javax.swing.table.TableRowSorter;
+
 ;
 
 public class Reports extends javax.swing.JPanel {
+
     private DefaultTableModel tableModel;
     private TableRowSorter<DefaultTableModel> tableRowSorter;
 
- 
     public class DatabaseConnection {
         // Database URL, username, and password
 
@@ -73,53 +75,54 @@ public class Reports extends javax.swing.JPanel {
             }
         }
     }
-     private void filterTable(String searchText) {
+
+    private void filterTable(String searchText) {
         if (searchText.trim().length() == 0) {
             tableRowSorter.setRowFilter(null);
         } else {
             tableRowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + searchText));
         }
     }
-    
+
     /**
      * Creates new form Reports
      */
     public Reports() {
         initComponents();
         loadReportTable();
-        
-         tableModel = (DefaultTableModel) ReportTable.getModel();
-    tableRowSorter = new TableRowSorter<>(tableModel);
-    ReportTable.setRowSorter(tableRowSorter);
 
-    ReportTable.getColumnModel().getColumn(1).setCellRenderer(new CustomCellRenderer());
+        tableModel = (DefaultTableModel) ReportTable.getModel();
+        tableRowSorter = new TableRowSorter<>(tableModel);
+        ReportTable.setRowSorter(tableRowSorter);
 
-    // Adjust row height based on content in the "Product Name" column
-    for (int row = 0; row < ReportTable.getRowCount(); row++) {
-        int rowHeight = ReportTable.getRowHeight();
-        Component comp = ReportTable.prepareRenderer(ReportTable.getCellRenderer(row, 1), row, 1);
-        rowHeight = Math.max(rowHeight, comp.getPreferredSize().height);
-        ReportTable.setRowHeight(row, rowHeight);
+        ReportTable.getColumnModel().getColumn(1).setCellRenderer(new CustomCellRenderer());
+
+        // Adjust row height based on content in the "Product Name" column
+        for (int row = 0; row < ReportTable.getRowCount(); row++) {
+            int rowHeight = ReportTable.getRowHeight();
+            Component comp = ReportTable.prepareRenderer(ReportTable.getCellRenderer(row, 1), row, 1);
+            rowHeight = Math.max(rowHeight, comp.getPreferredSize().height);
+            ReportTable.setRowHeight(row, rowHeight);
+        }
+
+        SearchField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                filterTable(SearchField.getText());
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                filterTable(SearchField.getText());
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                filterTable(SearchField.getText());
+            }
+        });
     }
 
-    SearchField.getDocument().addDocumentListener(new DocumentListener() {
-        @Override
-        public void insertUpdate(DocumentEvent e) {
-            filterTable(SearchField.getText());
-        }
-
-        @Override
-        public void removeUpdate(DocumentEvent e) {
-            filterTable(SearchField.getText());
-        }
-
-        @Override
-        public void changedUpdate(DocumentEvent e) {
-            filterTable(SearchField.getText());
-        }
-    });
-    }
-    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -178,6 +181,11 @@ public class Reports extends javax.swing.JPanel {
         SearchLabel.setText("Search:");
 
         SearchField.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        SearchField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                SearchFieldActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -230,57 +238,57 @@ public class Reports extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
     private void updateReportTable() {
-    DefaultTableModel reportTableModel = (DefaultTableModel) ReportTable.getModel();
-    reportTableModel.setRowCount(0); // Clear the table before updating
+        DefaultTableModel reportTableModel = (DefaultTableModel) ReportTable.getModel();
+        reportTableModel.setRowCount(0); // Clear the table before updating
 
-    Connection connection = null;
-    PreparedStatement selectStatement = null;
-    ResultSet resultSet = null;
+        Connection connection = null;
+        PreparedStatement selectStatement = null;
+        ResultSet resultSet = null;
 
-    try {
-        connection = DatabaseConnection.getConnection();
-        if (connection != null) {
-            String selectQuery = "SELECT * FROM reports";
-            selectStatement = connection.prepareStatement(selectQuery);
-            resultSet = selectStatement.executeQuery();
+        try {
+            connection = DatabaseConnection.getConnection();
+            if (connection != null) {
+                String selectQuery = "SELECT * FROM reports";
+                selectStatement = connection.prepareStatement(selectQuery);
+                resultSet = selectStatement.executeQuery();
 
-            while (resultSet.next()) {
-                int receiptId = resultSet.getInt("receiptid");
-                String productName = resultSet.getString("productname");
-                int qty = resultSet.getInt("qty");
-                double price = resultSet.getDouble("discount");
-                double discount = resultSet.getDouble("price");
-                String date = resultSet.getString("date");
-                String customer = resultSet.getString("customer");
-                String methods = resultSet.getString("method");
+                while (resultSet.next()) {
+                    int receiptId = resultSet.getInt("receiptid");
+                    String productName = resultSet.getString("productname");
+                    int qty = resultSet.getInt("qty");
+                    double price = resultSet.getDouble("discount");
+                    double discount = resultSet.getDouble("price");
+                    String date = resultSet.getString("date");
+                    String customer = resultSet.getString("customer");
+                    String methods = resultSet.getString("method");
 
-                // Add the fetched data to the table model
-                reportTableModel.addRow(new Object[]{receiptId, productName, qty, price, discount, date, customer, methods});
+                    // Add the fetched data to the table model
+                    reportTableModel.addRow(new Object[]{receiptId, productName, qty, price, discount, date, customer, methods});
+                }
+            } else {
+                System.out.println("Failed to establish database connection.");
             }
-        } else {
-            System.out.println("Failed to establish database connection.");
-        }
-    } catch (SQLException e) {
-        System.out.println("Failed to update ReportTable: " + e.getMessage());
-        e.printStackTrace();
-    } finally {
-        // Close database resources
-        if (resultSet != null) {
-            try {
-                resultSet.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
+        } catch (SQLException e) {
+            System.out.println("Failed to update ReportTable: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            // Close database resources
+            if (resultSet != null) {
+                try {
+                    resultSet.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
-        }
-        if (selectStatement != null) {
-            try {
-                selectStatement.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
+            if (selectStatement != null) {
+                try {
+                    selectStatement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
-}
 
     private void UpdateTableActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_UpdateTableActionPerformed
         updateReportTable();
@@ -289,34 +297,40 @@ public class Reports extends javax.swing.JPanel {
     private void ExportPDF_BttnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ExportPDF_BttnActionPerformed
         exportTableDataToPDF();
     }//GEN-LAST:event_ExportPDF_BttnActionPerformed
-   private void exportTableDataToPDF() {
-    try {
-        Document document = new Document();
-        PdfWriter.getInstance(document, new FileOutputStream("report.pdf"));
-        document.open();
 
-        // Add table headers
-        PdfPTable table = new PdfPTable(ReportTable.getColumnCount());
-        for (int i = 0; i < ReportTable.getColumnCount(); i++) {
-            table.addCell(new PdfPCell(new Paragraph(ReportTable.getColumnName(i))));
-        }
+    private void SearchFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SearchFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_SearchFieldActionPerformed
 
-        // Add table data
-        for (int i = 0; i < ReportTable.getRowCount(); i++) {
-            for (int j = 0; j < ReportTable.getColumnCount(); j++) {
-                table.addCell(new PdfPCell(new Paragraph(ReportTable.getValueAt(i, j).toString())));
+    private void exportTableDataToPDF() {
+        try {
+            Document document = new Document();
+            PdfWriter.getInstance(document, new FileOutputStream("report.pdf"));
+            document.open();
+
+            // Add table headers
+            PdfPTable table = new PdfPTable(ReportTable.getColumnCount());
+            for (int i = 0; i < ReportTable.getColumnCount(); i++) {
+                table.addCell(new PdfPCell(new Paragraph(ReportTable.getColumnName(i))));
             }
+
+            // Add table data
+            for (int i = 0; i < ReportTable.getRowCount(); i++) {
+                for (int j = 0; j < ReportTable.getColumnCount(); j++) {
+                    table.addCell(new PdfPCell(new Paragraph(ReportTable.getValueAt(i, j).toString())));
+                }
+            }
+
+            document.add(table);
+            document.close();
+
+            System.out.println("PDF report generated successfully.");
+        } catch (DocumentException | FileNotFoundException e) {
+            e.printStackTrace();
         }
-
-        document.add(table);
-        document.close();
-
-        System.out.println("PDF report generated successfully.");
-    } catch (DocumentException | FileNotFoundException e) {
-        e.printStackTrace();
     }
-}
- private void loadReportTable() {
+
+    private void loadReportTable() {
         DefaultTableModel model = (DefaultTableModel) ReportTable.getModel();
         // Clear existing data in the table
         //UPDATE THE PRODUCT JTABLE
@@ -364,10 +378,12 @@ public class Reports extends javax.swing.JPanel {
             }
         }
     }
-   class CustomCellRenderer extends DefaultTableCellRenderer {
+
+    class CustomCellRenderer extends DefaultTableCellRenderer {
+
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value,
-                                                       boolean isSelected, boolean hasFocus, int row, int column) {
+                boolean isSelected, boolean hasFocus, int row, int column) {
             JTextArea textArea = new JTextArea(value.toString());
             textArea.setWrapStyleWord(true);
             textArea.setLineWrap(true);

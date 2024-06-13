@@ -65,36 +65,38 @@ public class Inventory extends javax.swing.JPanel {
             }
         }
     }
+
     public static class NumberOnlyFilter extends DocumentFilter {
-    @Override
-    public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
-        if (string == null) {
-            return;
-        }
-        if (isNumeric(string)) {
-            super.insertString(fb, offset, string, attr);
-        }
-    }
 
-    @Override
-    public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
-        if (text == null) {
-            return;
+        @Override
+        public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
+            if (string == null) {
+                return;
+            }
+            if (isNumeric(string)) {
+                super.insertString(fb, offset, string, attr);
+            }
         }
-        if (isNumeric(text)) {
-            super.replace(fb, offset, length, text, attrs);
+
+        @Override
+        public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
+            if (text == null) {
+                return;
+            }
+            if (isNumeric(text)) {
+                super.replace(fb, offset, length, text, attrs);
+            }
+        }
+
+        @Override
+        public void remove(FilterBypass fb, int offset, int length) throws BadLocationException {
+            super.remove(fb, offset, length);
+        }
+
+        private boolean isNumeric(String text) {
+            return text.matches("\\d*"); // This regex ensures only digits are allowed
         }
     }
-
-    @Override
-    public void remove(FilterBypass fb, int offset, int length) throws BadLocationException {
-        super.remove(fb, offset, length);
-    }
-
-    private boolean isNumeric(String text) {
-        return text.matches("\\d*"); // This regex ensures only digits are allowed
-    }
-}
 
     //Load inventory
     public Inventory() {
@@ -136,7 +138,7 @@ public class Inventory extends javax.swing.JPanel {
 
             },
             new String [] {
-                "Product ID", "Product Name", "Qty.", "Price"
+                "Product ID", "Product Name", "Stocks", "Price"
             }
         ) {
             boolean[] canEdit = new boolean [] {
@@ -361,121 +363,121 @@ public class Inventory extends javax.swing.JPanel {
     }//GEN-LAST:event_Add_BttnActionPerformed
 
     private int addProductToDatabase(String name, String qty, String price) {
-      Connection connection = null;
-    PreparedStatement preparedStatement = null;
-    ResultSet resultSet = null;
-    int productId = -1;
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        int productId = -1;
 
-    try {
-        connection = DatabaseConnection.getConnection();
+        try {
+            connection = DatabaseConnection.getConnection();
 
-        // Get the current maximum product ID
-        String getMaxIdQuery = "SELECT MAX(productid) FROM inventory";
-        preparedStatement = connection.prepareStatement(getMaxIdQuery);
-        resultSet = preparedStatement.executeQuery();
-        int maxId = 0;
-        if (resultSet.next()) {
-            maxId = resultSet.getInt(1);
-        }
+            // Get the current maximum product ID
+            String getMaxIdQuery = "SELECT MAX(productid) FROM inventory";
+            preparedStatement = connection.prepareStatement(getMaxIdQuery);
+            resultSet = preparedStatement.executeQuery();
+            int maxId = 0;
+            if (resultSet.next()) {
+                maxId = resultSet.getInt(1);
+            }
 
-        // Insert the new product with the next sequential ID
-        String query = "INSERT INTO inventory (productid, productname, qty, price) VALUES (?,?,?,?)";
-        preparedStatement = connection.prepareStatement(query);
-        productId = maxId + 1;
-        preparedStatement.setInt(1, productId);
-        preparedStatement.setString(2, name);
-        preparedStatement.setString(3, qty);
-        preparedStatement.setString(4, price);
+            // Insert the new product with the next sequential ID
+            String query = "INSERT INTO inventory (productid, productname, qty, price) VALUES (?,?,?,?)";
+            preparedStatement = connection.prepareStatement(query);
+            productId = maxId + 1;
+            preparedStatement.setInt(1, productId);
+            preparedStatement.setString(2, name);
+            preparedStatement.setString(3, qty);
+            preparedStatement.setString(4, price);
 
-        preparedStatement.executeUpdate();
-        System.out.println("Product added to database with ID: " + productId);
-    } catch (SQLException e) {
-        System.out.println("Failed to add product to database.");
-        e.printStackTrace();
-    } finally {
-        if (resultSet!= null) {
-            try {
-                resultSet.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
+            preparedStatement.executeUpdate();
+            System.out.println("Product added to database with ID: " + productId);
+        } catch (SQLException e) {
+            System.out.println("Failed to add product to database.");
+            e.printStackTrace();
+        } finally {
+            if (resultSet != null) {
+                try {
+                    resultSet.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
         }
-        if (preparedStatement!= null) {
-            try {
-                preparedStatement.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-    return productId;
+        return productId;
     }
 
     private void Delete_BttnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Delete_BttnActionPerformed
-         int selectedRow = InventoryTable.getSelectedRow();
+        int selectedRow = InventoryTable.getSelectedRow();
 
-    if (selectedRow == -1) {
-        JOptionPane.showMessageDialog(this, "No product selected to remove from inventory.", "Error", JOptionPane.ERROR_MESSAGE);
-        return;
-    }
-
-    DefaultTableModel inventoryModel = (DefaultTableModel) InventoryTable.getModel();
-
-    int id = (int) inventoryModel.getValueAt(selectedRow, 0);
-
-    int choice = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete the selected product?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
-
-    if (choice == JOptionPane.YES_OPTION) {
-        Connection connection = DatabaseConnection.getConnection();
-        PreparedStatement deleteStatement = null;
-        PreparedStatement updateStatement = null;
-
-        try {
-            connection.setAutoCommit(false);
-
-            deleteStatement = connection.prepareStatement("DELETE FROM inventory WHERE productid =?");
-            deleteStatement.setInt(1, id);
-            deleteStatement.executeUpdate();
-
-            // Update the remaining product IDs to be sequential
-            updateStatement = connection.prepareStatement("UPDATE inventory SET productid = productid - 1 WHERE productid >?");
-            updateStatement.setInt(1, id);
-            updateStatement.executeUpdate();
-
-            connection.commit();
-            loadInventoryTable(); // Reload the inventory table to reflect changes
-            JOptionPane.showMessageDialog(this, "Product deleted and inventory updated.", "Inventory Updated", JOptionPane.INFORMATION_MESSAGE);
-        } catch (SQLException e) {
-            try {
-                if (connection!= null) {
-                    connection.rollback();
-                }
-            } catch (SQLException ex) {
-                System.out.println("Failed to rollback: " + ex.getMessage());
-                ex.printStackTrace();
-            }
-            System.out.println("Failed to delete product: " + e.getMessage());
-            e.printStackTrace();
-        } finally {
-            if (deleteStatement!= null) {
-                try {
-                    deleteStatement.close();
-                } catch (SQLException e) {
-                    System.out.println("Failed to close prepared statement: " + e.getMessage());
-                    e.printStackTrace();
-                }
-            }
-            if (updateStatement!= null) {
-                try {
-                    updateStatement.close();
-                } catch (SQLException e) {
-                    System.out.println("Failed to close update statement: " + e.getMessage());
-                    e.printStackTrace();
-                }
-            }
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "No product selected to remove from inventory.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
-    
-    }
+
+        DefaultTableModel inventoryModel = (DefaultTableModel) InventoryTable.getModel();
+
+        int id = (int) inventoryModel.getValueAt(selectedRow, 0);
+
+        int choice = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete the selected product?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
+
+        if (choice == JOptionPane.YES_OPTION) {
+            Connection connection = DatabaseConnection.getConnection();
+            PreparedStatement deleteStatement = null;
+            PreparedStatement updateStatement = null;
+
+            try {
+                connection.setAutoCommit(false);
+
+                deleteStatement = connection.prepareStatement("DELETE FROM inventory WHERE productid =?");
+                deleteStatement.setInt(1, id);
+                deleteStatement.executeUpdate();
+
+                // Update the remaining product IDs to be sequential
+                updateStatement = connection.prepareStatement("UPDATE inventory SET productid = productid - 1 WHERE productid >?");
+                updateStatement.setInt(1, id);
+                updateStatement.executeUpdate();
+
+                connection.commit();
+                loadInventoryTable(); // Reload the inventory table to reflect changes
+                JOptionPane.showMessageDialog(this, "Product deleted and inventory updated.", "Inventory Updated", JOptionPane.INFORMATION_MESSAGE);
+            } catch (SQLException e) {
+                try {
+                    if (connection != null) {
+                        connection.rollback();
+                    }
+                } catch (SQLException ex) {
+                    System.out.println("Failed to rollback: " + ex.getMessage());
+                    ex.printStackTrace();
+                }
+                System.out.println("Failed to delete product: " + e.getMessage());
+                e.printStackTrace();
+            } finally {
+                if (deleteStatement != null) {
+                    try {
+                        deleteStatement.close();
+                    } catch (SQLException e) {
+                        System.out.println("Failed to close prepared statement: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                }
+                if (updateStatement != null) {
+                    try {
+                        updateStatement.close();
+                    } catch (SQLException e) {
+                        System.out.println("Failed to close update statement: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+        }
     }//GEN-LAST:event_Delete_BttnActionPerformed
 
     private void ModifyIventoryItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ModifyIventoryItemActionPerformed
@@ -496,7 +498,7 @@ public class Inventory extends javax.swing.JPanel {
         int newQty = currentQty;
         double newPrice = currentPrice;
 
-        String[] options = {"Edit Product Name", "Edit Quantity", "Edit Price"};
+        String[] options = {"Edit Product Name", "Edit Stocks", "Edit Price"};
         int choice = JOptionPane.showOptionDialog(this, "What would you like to edit?", "Modify Inventory Item",
                 JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
 
@@ -560,32 +562,32 @@ public class Inventory extends javax.swing.JPanel {
     }//GEN-LAST:event_ModifyIventoryItemActionPerformed
 
     private void loadInventoryTable() {
-    Connection connection = null;
-    PreparedStatement preparedStatement = null;
-    ResultSet resultSet = null;
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
 
-    try {
-        connection = DatabaseConnection.getConnection();
-        String query = "SELECT * FROM inventory ORDER BY productid ASC";
-        preparedStatement = connection.prepareStatement(query);
-        resultSet = preparedStatement.executeQuery();
+        try {
+            connection = DatabaseConnection.getConnection();
+            String query = "SELECT * FROM inventory ORDER BY productid ASC";
+            preparedStatement = connection.prepareStatement(query);
+            resultSet = preparedStatement.executeQuery();
 
-        DefaultTableModel model = (DefaultTableModel) InventoryTable.getModel();
-        model.setRowCount(0);
+            DefaultTableModel model = (DefaultTableModel) InventoryTable.getModel();
+            model.setRowCount(0);
 
-        while (resultSet.next()) {
-            int id = resultSet.getInt("productid");
-            String name = resultSet.getString("productname");
-            String qty = resultSet.getString("qty");
-            String price = resultSet.getString("price");
+            while (resultSet.next()) {
+                int id = resultSet.getInt("productid");
+                String name = resultSet.getString("productname");
+                String qty = resultSet.getString("qty");
+                String price = resultSet.getString("price");
 
-            model.addRow(new Object[]{id, name, qty, price});
+                model.addRow(new Object[]{id, name, qty, price});
+            }
+        } catch (SQLException e) {
+            System.out.println("Failed to load inventory from database.");
+            e.printStackTrace();
         }
-    } catch (SQLException e) {
-        System.out.println("Failed to load inventory from database.");
-        e.printStackTrace();
     }
-}
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton Add_Bttn;

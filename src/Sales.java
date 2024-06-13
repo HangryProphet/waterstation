@@ -1,3 +1,4 @@
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -5,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.AbstractDocument;
@@ -23,8 +25,9 @@ import javax.swing.text.PlainDocument;
  * @author ADMIN
  */
 public class Sales extends javax.swing.JPanel {
-    
-    
+
+    private Customer customerPanel;
+
     public class DatabaseConnection {
         // Database URL, username, and password
 
@@ -116,71 +119,74 @@ public class Sales extends javax.swing.JPanel {
             }
         }
     }
-  public static class NumberOnlyFilter extends DocumentFilter {
-    @Override
-    public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
-        if (string == null) {
-            return;
-        }
-        String newValue = getNewValue(fb, offset, string, attr);
-        if (isNumericAndInRange(newValue)) {
-            super.insertString(fb, offset, string, attr);
-        }
-    }
 
-    @Override
-    public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
-        if (text == null) {
-            return;
-        }
-        String newValue = getNewValue(fb, offset, text, attrs);
-        if (isNumericAndInRange(newValue)) {
-            super.replace(fb, offset, length, text, attrs);
-        }
-    }
+    public static class NumberOnlyFilter extends DocumentFilter {
 
-    @Override
-    public void remove(FilterBypass fb, int offset, int length) throws BadLocationException {
-        super.remove(fb, offset, length);
-        Document doc = fb.getDocument();
-        if (doc.getLength() == 0) {
-            fb.insertString(0, "0", null); // Set to 0 if the field is empty
+        @Override
+        public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
+            if (string == null) {
+                return;
+            }
+            String newValue = getNewValue(fb, offset, string, attr);
+            if (isNumericAndInRange(newValue)) {
+                super.insertString(fb, offset, string, attr);
+            }
         }
-    }
 
-    private boolean isNumericAndInRange(String text) {
-        if (text.isEmpty()) {
-            return true;
+        @Override
+        public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
+            if (text == null) {
+                return;
+            }
+            String newValue = getNewValue(fb, offset, text, attrs);
+            if (isNumericAndInRange(newValue)) {
+                super.replace(fb, offset, length, text, attrs);
+            }
         }
-        try {
-            int value = Integer.parseInt(text);
-            return value >= 0 && value <= 100;
-        } catch (NumberFormatException e) {
-            return false;
-        }
-    }
 
-    private String getNewValue(FilterBypass fb, int offset, String text, AttributeSet attr) throws BadLocationException {
-        Document doc = fb.getDocument();
-        StringBuilder sb = new StringBuilder();
-        sb.append(doc.getText(0, doc.getLength()));
-        sb.insert(offset, text);
-        return sb.toString();
+        @Override
+        public void remove(FilterBypass fb, int offset, int length) throws BadLocationException {
+            super.remove(fb, offset, length);
+            Document doc = fb.getDocument();
+            if (doc.getLength() == 0) {
+                fb.insertString(0, "0", null); // Set to 0 if the field is empty
+            }
+        }
+
+        private boolean isNumericAndInRange(String text) {
+            if (text.isEmpty()) {
+                return true;
+            }
+            try {
+                int value = Integer.parseInt(text);
+                return value >= 0 && value <= 100;
+            } catch (NumberFormatException e) {
+                return false;
+            }
+        }
+
+        private String getNewValue(FilterBypass fb, int offset, String text, AttributeSet attr) throws BadLocationException {
+            Document doc = fb.getDocument();
+            StringBuilder sb = new StringBuilder();
+            sb.append(doc.getText(0, doc.getLength()));
+            sb.insert(offset, text);
+            return sb.toString();
+        }
     }
-}
 
     public Sales() {
         initComponents();
         loadProductTable();
         loadCartTable();
         updateTotalAndDiscountedPrice();
-        
+        populateCustomerComboBox();
+
         DiscountTextField.setText("0");
         ((AbstractDocument) DiscountTextField.getDocument()).setDocumentFilter(new NumberOnlyFilter());
-   
+
     }
 
-     public void updateProductTableQuantity(String productName, int newQty) {
+    public void updateProductTableQuantity(String productName, int newQty) {
         Connection conn = DatabaseConnection.getConnection();
 
         try (PreparedStatement pstmt = conn.prepareStatement("UPDATE productTable SET quantity =? WHERE productName =?")) {
@@ -193,7 +199,7 @@ public class Sales extends javax.swing.JPanel {
             e.printStackTrace();
         }
     }
-     
+
     private void loadProductTable() {
         DefaultTableModel model = (DefaultTableModel) ProductTable.getModel();
         // Clear existing data in the table
@@ -685,156 +691,161 @@ public class Sales extends javax.swing.JPanel {
             JOptionPane.showMessageDialog(null, "No items were removed from the cart.", "Info", JOptionPane.INFORMATION_MESSAGE);
         }
     }//GEN-LAST:event_ClearCartButtonActionPerformed
-private int generateReceiptId() {
-    // You can store the current receipt ID in a file or database to ensure uniqueness
-    // For now, let's assume the next ID is 1 greater than the maximum existing ID in the database
-    int nextId = 1; // Default to 1 if no records exist
 
-    Connection connection = null;
-    PreparedStatement preparedStatement = null;
-    ResultSet resultSet = null;
+    private int generateReceiptId() {
+        // You can store the current receipt ID in a file or database to ensure uniqueness
+        // For now, let's assume the next ID is 1 greater than the maximum existing ID in the database
+        int nextId = 1; // Default to 1 if no records exist
 
-    try {
-        connection = DatabaseConnection.getConnection();
-        if (connection != null) {
-            String query = "SELECT MAX(receiptid) FROM reports";
-            preparedStatement = connection.prepareStatement(query);
-            resultSet = preparedStatement.executeQuery();
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
 
-            if (resultSet.next()) {
-                nextId = resultSet.getInt(1) + 1;
+        try {
+            connection = DatabaseConnection.getConnection();
+            if (connection != null) {
+                String query = "SELECT MAX(receiptid) FROM reports";
+                preparedStatement = connection.prepareStatement(query);
+                resultSet = preparedStatement.executeQuery();
+
+                if (resultSet.next()) {
+                    nextId = resultSet.getInt(1) + 1;
+                }
+            } else {
+                System.out.println("Failed to establish database connection.");
             }
-        } else {
-            System.out.println("Failed to establish database connection.");
-        }
-    } catch (SQLException e) {
-        System.out.println("Failed to generate receipt ID: " + e.getMessage());
-        e.printStackTrace();
-    } finally {
-        if (resultSet != null) {
-            try {
-                resultSet.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
+        } catch (SQLException e) {
+            System.out.println("Failed to generate receipt ID: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            if (resultSet != null) {
+                try {
+                    resultSet.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
         }
-        if (preparedStatement != null) {
-            try {
-                preparedStatement.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+
+        return nextId;
     }
 
-    return nextId;
-}
     // CHECK OUT BUTTON INCOMPLETE
     private void CheckOutButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CheckOutButton1ActionPerformed
-    DefaultTableModel cartModel = (DefaultTableModel) CartTable.getModel();
-    int rowCount = cartModel.getRowCount();
+        DefaultTableModel cartModel = (DefaultTableModel) CartTable.getModel();
+        int rowCount = cartModel.getRowCount();
 
-    if (rowCount == 0) {
-        JOptionPane.showMessageDialog(this, "Cart is empty.", "Checkout Error", JOptionPane.ERROR_MESSAGE);
-        return;
-    }
-
-    Connection connection = null;
-    PreparedStatement insertStatement = null;
-    PreparedStatement deleteStatement = null;
-
-    try {
-        connection = DatabaseConnection.getConnection();
-        if (connection != null) {
-            connection.setAutoCommit(false); // Start transaction
-
-            // Delete existing cart items from the database
-            String deleteQuery = "DELETE FROM carttable";
-            deleteStatement = connection.prepareStatement(deleteQuery);
-            deleteStatement.executeUpdate();
-
-            // Insert new cart items into the database
-            String insertQuery = "INSERT INTO reports (receiptid, productname, qty, discount, price, date, customer, method) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-            insertStatement = connection.prepareStatement(insertQuery);
-
-            // Get current date and format it
-            Date now = new Date();
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss a");
-            String currentDate = sdf.format(now);
-
-            // Concatenate product names with quantities and newline character
-            StringBuilder productNamesBuilder = new StringBuilder();
-            int totalQty = 0;
-
-            for (int row = 0; row < rowCount; row++) {
-                String productName = (String) cartModel.getValueAt(row, 0);
-                int qty = Integer.parseInt(cartModel.getValueAt(row, 1).toString());
-                productNamesBuilder.append(productName).append(" (").append(qty).append(")").append("\n");
-                totalQty += qty;
-            }
-
-            String productNames = productNamesBuilder.toString().trim();
-            double totalPrice = Double.parseDouble(TotalPrice.getText().replace("₱", "").trim());
-            double discount = Double.parseDouble(DiscountTextField.getText()); // Fetch the current number on DiscountTextField
-            String methods = MethodComboBox.getSelectedItem().toString();
-
-            // Set parameters for the prepared statement
-            insertStatement.setInt(1, generateReceiptId());
-            insertStatement.setString(2, productNames);
-            insertStatement.setInt(3, totalQty);
-            insertStatement.setDouble(4, discount); // Store the discount value in the database
-            insertStatement.setDouble(5, totalPrice);
-            insertStatement.setString(6, currentDate);
-            insertStatement.setString(7, ""); // Leave customer blank for now
-            insertStatement.setString(8, methods);
-
-            // Execute the insertion query
-            insertStatement.executeUpdate();
-            connection.commit(); // Commit transaction
-
-            JOptionPane.showMessageDialog(this, "Checkout successful. Reports updated.", "Success", JOptionPane.INFORMATION_MESSAGE);
-
-            // Clear the cart table after successful checkout
-            cartModel.setRowCount(0);
-
-            // Refresh the ProductTable (if applicable)
-            loadProductTable();
-
-            // Reset total and discounted prices
-            updateTotalAndDiscountedPrice();
-        } else {
-            System.out.println("Failed to establish database connection.");
+        if (rowCount == 0) {
+            JOptionPane.showMessageDialog(this, "Cart is empty.", "Checkout Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
-    } catch (SQLException e) {
+
+        Connection connection = null;
+        PreparedStatement insertStatement = null;
+        PreparedStatement deleteStatement = null;
+
         try {
+            connection = DatabaseConnection.getConnection();
             if (connection != null) {
-                connection.rollback(); // Rollback transaction on error
+                connection.setAutoCommit(false); // Start transaction
+
+                // Delete existing cart items from the database
+                String deleteQuery = "DELETE FROM carttable";
+                deleteStatement = connection.prepareStatement(deleteQuery);
+                deleteStatement.executeUpdate();
+
+                // Insert new cart items into the database
+                String insertQuery = "INSERT INTO reports (receiptid, productname, qty, discount, price, date, customer, method) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                insertStatement = connection.prepareStatement(insertQuery);
+
+                // Get current date and format it
+                Date now = new Date();
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss a");
+                String currentDate = sdf.format(now);
+
+                // Concatenate product names with quantities and newline character
+                StringBuilder productNamesBuilder = new StringBuilder();
+                int totalQty = 0;
+
+                for (int row = 0; row < rowCount; row++) {
+                    String productName = (String) cartModel.getValueAt(row, 0);
+                    int qty = Integer.parseInt(cartModel.getValueAt(row, 1).toString());
+                    productNamesBuilder.append(productName).append(" (").append(qty).append(")").append("\n");
+                    totalQty += qty;
+                }
+
+                String productNames = productNamesBuilder.toString().trim();
+                double totalPrice = Double.parseDouble(TotalPrice.getText().replace("₱", "").trim());
+                double discount = Double.parseDouble(DiscountTextField.getText()); // Fetch the current number on DiscountTextField
+                String methods = MethodComboBox.getSelectedItem().toString();
+
+                // Get selected customer from the combo box
+                String selectedCustomer = (String) SelectCustomerComboBox.getSelectedItem();
+
+                // Set parameters for the prepared statement
+                insertStatement.setInt(1, generateReceiptId());
+                insertStatement.setString(2, productNames);
+                insertStatement.setInt(3, totalQty);
+                insertStatement.setDouble(4, discount); // Store the discount value in the database
+                insertStatement.setDouble(5, totalPrice);
+                insertStatement.setString(6, currentDate);
+                insertStatement.setString(7, selectedCustomer); // Set selected customer
+                insertStatement.setString(8, methods);
+
+                // Execute the insertion query
+                insertStatement.executeUpdate();
+                connection.commit(); // Commit transaction
+
+                JOptionPane.showMessageDialog(this, "Checkout successful. Reports updated.", "Success", JOptionPane.INFORMATION_MESSAGE);
+
+                // Clear the cart table after successful checkout
+                cartModel.setRowCount(0);
+
+                // Refresh the ProductTable (if applicable)
+                loadProductTable();
+
+                // Reset total and discounted prices
+                updateTotalAndDiscountedPrice();
+            } else {
+                System.out.println("Failed to establish database connection.");
             }
-        } catch (SQLException ex) {
-            System.out.println("Failed to rollback: " + ex.getMessage());
-            ex.printStackTrace();
-        }
-        System.out.println("Failed to checkout: " + e.getMessage());
-        e.printStackTrace();
-    } finally {
-        // Close database resources
-        if (insertStatement != null) {
+        } catch (SQLException e) {
             try {
-                insertStatement.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
+                if (connection != null) {
+                    connection.rollback(); // Rollback transaction on error
+                }
+            } catch (SQLException ex) {
+                System.out.println("Failed to rollback: " + ex.getMessage());
+                ex.printStackTrace();
+            }
+            System.out.println("Failed to checkout: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            // Close database resources
+            if (insertStatement != null) {
+                try {
+                    insertStatement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (deleteStatement != null) {
+                try {
+                    deleteStatement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
         }
-        if (deleteStatement != null) {
-            try {
-                deleteStatement.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-    }
     }//GEN-LAST:event_CheckOutButton1ActionPerformed
-    
+
     private void RemoveFromCartButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RemoveFromCartButtonActionPerformed
         // Get the selected rows from the CartTable
         int[] selectedRows = CartTable.getSelectedRows();
@@ -934,175 +945,217 @@ private int generateReceiptId() {
      }//GEN-LAST:event_RemoveFromCartButtonActionPerformed
 
     private void SelectCustomerComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SelectCustomerComboBoxActionPerformed
-        // TODO add your handling code here:
+        String selectedCustomer = (String) SelectCustomerComboBox.getSelectedItem();
     }//GEN-LAST:event_SelectCustomerComboBoxActionPerformed
 
-    private void AddToCartButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddToCartButtonActionPerformed
-       int selectedRow = ProductTable.getSelectedRow();
+    private void populateCustomerComboBox() {
+        DefaultComboBoxModel<String> comboBoxModel = new DefaultComboBoxModel<>();
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
 
-    if (selectedRow != -1) {
-        // Retrieve product details from the selected row
-        DefaultTableModel productModel = (DefaultTableModel) ProductTable.getModel();
-        DefaultTableModel cartModel = (DefaultTableModel) CartTable.getModel();
+        try {
+            conn = DatabaseConnection.getConnection();
+            pstmt = conn.prepareStatement("SELECT customername FROM customertable");
+            rs = pstmt.executeQuery();
 
-        String name = (String) productModel.getValueAt(selectedRow, 1); // Assuming column 1 is product name
-        double price = Double.parseDouble(productModel.getValueAt(selectedRow, 3).toString()); // Assuming column 4 is product price
-        int availableStock = Integer.parseInt(productModel.getValueAt(selectedRow, 2).toString()); // Assuming column 3 is available stock
-
-        // Check if the product is already in the cart
-        boolean productInCart = false;
-        int cartRowIndex = -1;
-        for (int i = 0; i < cartModel.getRowCount(); i++) {
-            if (cartModel.getValueAt(i, 0).equals(name)) {
-                productInCart = true;
-                cartRowIndex = i;
-                break;
+            while (rs.next()) {
+                String customerName = rs.getString("customername");
+                comboBoxModel.addElement(customerName); // Add customer name to combo box model
             }
-        }
 
-        // Prompt the user to input the quantity of stock to add
-        String stockInput = JOptionPane.showInputDialog(this, "Enter the quantity of stock to add for " + name + ":", "Add Stock", JOptionPane.QUESTION_MESSAGE);
-        if (stockInput != null && !stockInput.isEmpty()) {
-            try {
-                int qtyToAdd = Integer.parseInt(stockInput.trim());
+            // Set the updated model to the combo box
+            SelectCustomerComboBox.setModel(comboBoxModel);
 
-                // Check if the quantity to add is valid (positive) and available
-                if (qtyToAdd > 0 && qtyToAdd <= availableStock) {
-                    Connection connection = null;
-                    PreparedStatement updateCartStatement = null;
-                    PreparedStatement insertCartStatement = null;
-                    PreparedStatement updateInventoryStatement = null;
-
-                    try {
-                        connection = DatabaseConnection.getConnection();
-                        connection.setAutoCommit(false); // Start transaction
-
-                        if (productInCart) {
-                            // Update the quantity in the cart table
-                            int currentQty = Integer.parseInt(cartModel.getValueAt(cartRowIndex, 1).toString());
-                            cartModel.setValueAt(currentQty + qtyToAdd, cartRowIndex, 1);
-
-                            // Update the quantity in the carttable database table
-                            String updateCartQuery = "UPDATE carttable SET qty = qty + ? WHERE productname = ?";
-                            updateCartStatement = connection.prepareStatement(updateCartQuery);
-                            updateCartStatement.setInt(1, qtyToAdd);
-                            updateCartStatement.setString(2, name);
-                            updateCartStatement.executeUpdate();
-                        } else {
-                            // Add the product to the CartTable
-                            cartModel.addRow(new Object[]{name, qtyToAdd, price});
-
-                            // Insert the product into the carttable database table
-                            String insertCartQuery = "INSERT INTO carttable (productname, qty, price) VALUES (?, ?, ?)";
-                            insertCartStatement = connection.prepareStatement(insertCartQuery);
-                            insertCartStatement.setString(1, name);
-                            insertCartStatement.setInt(2, qtyToAdd);
-                            insertCartStatement.setDouble(3, price);
-                            insertCartStatement.executeUpdate();
-                        }
-
-                        // Update inventory
-                        String updateInventoryQuery = "UPDATE inventory SET qty = qty - ? WHERE productname = ?";
-                        updateInventoryStatement = connection.prepareStatement(updateInventoryQuery);
-                        updateInventoryStatement.setInt(1, qtyToAdd);
-                        updateInventoryStatement.setString(2, name);
-                        updateInventoryStatement.executeUpdate();
-
-                        connection.commit(); // Commit transaction
-
-                        // Inform the user about the stock update
-                        JOptionPane.showMessageDialog(this, qtyToAdd + " units of " + name + " added to the cart.", "Stock Added", JOptionPane.INFORMATION_MESSAGE);
-                        // Refresh the product table to reflect the updated stock
-                        loadProductTable();
-
-                        // Update the total price and discounted price
-                        updateTotalAndDiscountedPrice();
-
-                    } catch (SQLException e) {
-                        if (connection != null) {
-                            try {
-                                connection.rollback();
-                            } catch (SQLException ex) {
-                                ex.printStackTrace();
-                            }
-                        }
-                        JOptionPane.showMessageDialog(this, "Failed to execute SQL query: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                        e.printStackTrace();
-                    } finally {
-                        if (updateCartStatement != null) {
-                            try {
-                                updateCartStatement.close();
-                            } catch (SQLException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                        if (insertCartStatement != null) {
-                            try {
-                                insertCartStatement.close();
-                            } catch (SQLException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                        if (updateInventoryStatement != null) {
-                            try {
-                                updateInventoryStatement.close();
-                            } catch (SQLException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                } else if (qtyToAdd <= 0) {
-                    JOptionPane.showMessageDialog(this, "Please enter a valid positive quantity.", "Error", JOptionPane.ERROR_MESSAGE);
-                } else {
-                    JOptionPane.showMessageDialog(this, "Not enough stock available.", "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Failed to populate customer names: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace(); // Log or handle the exception as needed
+        } finally {
+            // Close resources in the reverse order of their creation
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
                 }
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Invalid quantity entered.", "Error", JOptionPane.ERROR_MESSAGE);
             }
+            if (pstmt != null) {
+                try {
+                    pstmt.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            // Do not close the connection here; leave it open for further use
         }
-    } else {
-        JOptionPane.showMessageDialog(this, "No product selected to add.", "Error", JOptionPane.ERROR_MESSAGE);
     }
+
+    private void AddToCartButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddToCartButtonActionPerformed
+        int selectedRow = ProductTable.getSelectedRow();
+
+        if (selectedRow != -1) {
+            // Retrieve product details from the selected row
+            DefaultTableModel productModel = (DefaultTableModel) ProductTable.getModel();
+            DefaultTableModel cartModel = (DefaultTableModel) CartTable.getModel();
+
+            String name = (String) productModel.getValueAt(selectedRow, 1); // Assuming column 1 is product name
+            double price = Double.parseDouble(productModel.getValueAt(selectedRow, 3).toString()); // Assuming column 4 is product price
+            int availableStock = Integer.parseInt(productModel.getValueAt(selectedRow, 2).toString()); // Assuming column 3 is available stock
+
+            // Check if the product is already in the cart
+            boolean productInCart = false;
+            int cartRowIndex = -1;
+            for (int i = 0; i < cartModel.getRowCount(); i++) {
+                if (cartModel.getValueAt(i, 0).equals(name)) {
+                    productInCart = true;
+                    cartRowIndex = i;
+                    break;
+                }
+            }
+
+            // Prompt the user to input the quantity of stock to add
+            String stockInput = JOptionPane.showInputDialog(this, "Enter the quantity of stock to add for " + name + ":", "Add Stock", JOptionPane.QUESTION_MESSAGE);
+            if (stockInput != null && !stockInput.isEmpty()) {
+                try {
+                    int qtyToAdd = Integer.parseInt(stockInput.trim());
+
+                    // Check if the quantity to add is valid (positive) and available
+                    if (qtyToAdd > 0 && qtyToAdd <= availableStock) {
+                        Connection connection = null;
+                        PreparedStatement updateCartStatement = null;
+                        PreparedStatement insertCartStatement = null;
+                        PreparedStatement updateInventoryStatement = null;
+
+                        try {
+                            connection = DatabaseConnection.getConnection();
+                            connection.setAutoCommit(false); // Start transaction
+
+                            if (productInCart) {
+                                // Update the quantity in the cart table
+                                int currentQty = Integer.parseInt(cartModel.getValueAt(cartRowIndex, 1).toString());
+                                cartModel.setValueAt(currentQty + qtyToAdd, cartRowIndex, 1);
+
+                                // Update the quantity in the carttable database table
+                                String updateCartQuery = "UPDATE carttable SET qty = qty + ? WHERE productname = ?";
+                                updateCartStatement = connection.prepareStatement(updateCartQuery);
+                                updateCartStatement.setInt(1, qtyToAdd);
+                                updateCartStatement.setString(2, name);
+                                updateCartStatement.executeUpdate();
+                            } else {
+                                // Add the product to the CartTable
+                                cartModel.addRow(new Object[]{name, qtyToAdd, price});
+
+                                // Insert the product into the carttable database table
+                                String insertCartQuery = "INSERT INTO carttable (productname, qty, price) VALUES (?, ?, ?)";
+                                insertCartStatement = connection.prepareStatement(insertCartQuery);
+                                insertCartStatement.setString(1, name);
+                                insertCartStatement.setInt(2, qtyToAdd);
+                                insertCartStatement.setDouble(3, price);
+                                insertCartStatement.executeUpdate();
+                            }
+
+                            // Update inventory
+                            String updateInventoryQuery = "UPDATE inventory SET qty = qty - ? WHERE productname = ?";
+                            updateInventoryStatement = connection.prepareStatement(updateInventoryQuery);
+                            updateInventoryStatement.setInt(1, qtyToAdd);
+                            updateInventoryStatement.setString(2, name);
+                            updateInventoryStatement.executeUpdate();
+
+                            connection.commit(); // Commit transaction
+
+                            // Inform the user about the stock update
+                            JOptionPane.showMessageDialog(this, qtyToAdd + " units of " + name + " added to the cart.", "Stock Added", JOptionPane.INFORMATION_MESSAGE);
+                            // Refresh the product table to reflect the updated stock
+                            loadProductTable();
+
+                            // Update the total price and discounted price
+                            updateTotalAndDiscountedPrice();
+
+                        } catch (SQLException e) {
+                            if (connection != null) {
+                                try {
+                                    connection.rollback();
+                                } catch (SQLException ex) {
+                                    ex.printStackTrace();
+                                }
+                            }
+                            JOptionPane.showMessageDialog(this, "Failed to execute SQL query: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                            e.printStackTrace();
+                        } finally {
+                            if (updateCartStatement != null) {
+                                try {
+                                    updateCartStatement.close();
+                                } catch (SQLException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            if (insertCartStatement != null) {
+                                try {
+                                    insertCartStatement.close();
+                                } catch (SQLException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            if (updateInventoryStatement != null) {
+                                try {
+                                    updateInventoryStatement.close();
+                                } catch (SQLException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    } else if (qtyToAdd <= 0) {
+                        JOptionPane.showMessageDialog(this, "Please enter a valid positive quantity.", "Error", JOptionPane.ERROR_MESSAGE);
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Not enough stock available.", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(this, "Invalid quantity entered.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "No product selected to add.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_AddToCartButtonActionPerformed
 
-   private void updateTotalAndDiscountedPrice() {
+    private void updateTotalAndDiscountedPrice() {
         DefaultTableModel cartModel = (DefaultTableModel) CartTable.getModel();
-    double totalPrice = 0.0;
+        double totalPrice = 0.0;
 
-    for (int i = 0; i < cartModel.getRowCount(); i++) {
-        int qty = Integer.parseInt(cartModel.getValueAt(i, 1).toString());
-        double price = Double.parseDouble(cartModel.getValueAt(i, 2).toString());
-        totalPrice += qty * price;
-    }
+        for (int i = 0; i < cartModel.getRowCount(); i++) {
+            int qty = Integer.parseInt(cartModel.getValueAt(i, 1).toString());
+            double price = Double.parseDouble(cartModel.getValueAt(i, 2).toString());
+            totalPrice += qty * price;
+        }
 
-     double discount = 0.0;
-    if (!DiscountTextField.getText().isEmpty()) {
-        try {
-            String discountText = DiscountTextField.getText();
-            if (discountText.endsWith("%")) {
-                discountText = discountText.replace("%", "");
+        double discount = 0.0;
+        if (!DiscountTextField.getText().isEmpty()) {
+            try {
+                String discountText = DiscountTextField.getText();
+                if (discountText.endsWith("%")) {
+                    discountText = discountText.replace("%", "");
+                }
+                discount = Double.parseDouble(discountText) / 100.0;
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Invalid discount entered.", "Error", JOptionPane.ERROR_MESSAGE);
+                DiscountTextField.setText("0");
+                discount = 0.0;
             }
-            discount = Double.parseDouble(discountText) / 100.0;
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Invalid discount entered.", "Error", JOptionPane.ERROR_MESSAGE);
-            DiscountTextField.setText("0");
-            discount = 0.0;
+        }
+
+        if (discount == 0.0) {
+            DiscountedPrice.setText("₱0.00");
+            TotalPrice.setText(String.format("₱%.2f", totalPrice));
+        } else {
+            double discountedPrice = totalPrice - (totalPrice * discount);
+            DiscountedPrice.setText(String.format("₱%.2f", discountedPrice));
+            TotalPrice.setText(String.format("₱%.2f", discountedPrice));
         }
     }
 
-    if (discount == 0.0) {
-        DiscountedPrice.setText("₱0.00");
-        TotalPrice.setText(String.format("₱%.2f", totalPrice));
-    } else {
-        double discountedPrice = totalPrice - (totalPrice * discount);
-        DiscountedPrice.setText(String.format("₱%.2f", discountedPrice));
-        TotalPrice.setText(String.format("₱%.2f", discountedPrice));
-    }
-}
-
     private void DiscountTextFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_DiscountTextFieldKeyReleased
-          updateTotalAndDiscountedPrice();
-    
+        updateTotalAndDiscountedPrice();
+
     }//GEN-LAST:event_DiscountTextFieldKeyReleased
 
 
