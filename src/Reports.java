@@ -22,6 +22,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.Component;
 import javax.swing.JOptionPane;
+import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
 ;
@@ -235,12 +236,13 @@ public class Reports extends javax.swing.JPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(UpdateTable, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(ExportPDF_Bttn, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(36, 36, 36)
-                                .addComponent(TotalLabel))))
+                                .addComponent(TotalLabel))
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(UpdateTable, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(ExportPDF_Bttn, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(25, 25, 25)
                         .addComponent(TotalPriceValue, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -414,13 +416,39 @@ public class Reports extends javax.swing.JPanel {
     }
     
     private void filterTable(String searchText) {
-        if (searchText.trim().length() == 0) {
-            tableRowSorter.setRowFilter(null);
-        } else {
-            tableRowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + searchText));
+     if (tableRowSorter == null) {
+        tableRowSorter = new TableRowSorter<>(tableModel);
+        ReportTable.setRowSorter(tableRowSorter);
+    }
+
+    if (searchText.trim().length() == 0) {
+        tableRowSorter.setRowFilter(null);
+    } else {
+        tableRowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + searchText));
+    }
+}
+    public void updateTotalPriceValue(JTable table, JLabel totalPriceValueLabel) {
+    TableModel model = table.getModel();
+    TableRowSorter<TableModel> sorter = new TableRowSorter<>(model);
+    table.setRowSorter(sorter);
+
+    // Filter the rows based on your filter criteria
+    sorter.setRowFilter(RowFilter.regexFilter("yourFilterCriteriaHere"));
+
+    int columnIndex = 5; // Column index to sum
+    double sum = 0.0;
+
+    for (int i = 0; i < table.getRowCount(); i++) {
+        // Check if the row is visible after applying the filter
+        if (table.convertRowIndexToView(i) != -1) {
+            // Add the value of the column to the sum
+            sum += Double.parseDouble(model.getValueAt(i, columnIndex).toString());
         }
     }
-    
+
+    // Update the label text with the sum
+    totalPriceValueLabel.setText(String.valueOf(sum));
+}
    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
