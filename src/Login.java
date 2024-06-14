@@ -49,6 +49,7 @@ public class Login extends javax.swing.JFrame {
         setTitle("Jentaime Water Station");
         setResizable(false);
         setLocationRelativeTo(null);
+        getRootPane().setDefaultButton(LoginButton);
     }
 
     /**

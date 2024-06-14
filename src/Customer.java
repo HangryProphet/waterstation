@@ -147,7 +147,8 @@ public class Customer extends javax.swing.JPanel {
         initComponents();
         loadCustomerManagementTable();
         tableModel = (DefaultTableModel) CustomerManagementTable.getModel();
-        CustomerManagementTable.getColumnModel().getColumn(1).setCellRenderer(new CustomCellRenderer());
+        CustomerManagementTable.getColumnModel().getColumn(4).setCellRenderer(new CustomCellRenderer());
+        CustomerManagementTable.getColumnModel().getColumn(3).setCellRenderer(new CustomCellRenderer());
 
         // Adjust row height based on content in the "Customer Name" column
         for (int row = 0; row < CustomerManagementTable.getRowCount(); row++) {
@@ -228,7 +229,7 @@ public class Customer extends javax.swing.JPanel {
         jPanel1 = new javax.swing.JPanel();
         CustomerSearchLabel = new javax.swing.JLabel();
         CustomerSearchTextField = new javax.swing.JTextField();
-        BorrowedItemLabel = new javax.swing.JLabel();
+        jPanel4 = new javax.swing.JPanel();
 
         CustomerTabbedPane.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
 
@@ -537,8 +538,16 @@ public class Customer extends javax.swing.JPanel {
                 .addContainerGap(18, Short.MAX_VALUE))
         );
 
-        BorrowedItemLabel.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
-        BorrowedItemLabel.setText("Additional Button");
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 277, Short.MAX_VALUE)
+        );
 
         javax.swing.GroupLayout CustomerListPanelLayout = new javax.swing.GroupLayout(CustomerListPanel);
         CustomerListPanel.setLayout(CustomerListPanelLayout);
@@ -550,10 +559,7 @@ public class Customer extends javax.swing.JPanel {
                     .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jScrollPane3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 1082, Short.MAX_VALUE))
                 .addContainerGap())
-            .addGroup(CustomerListPanelLayout.createSequentialGroup()
-                .addGap(59, 59, 59)
-                .addComponent(BorrowedItemLabel)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         CustomerListPanelLayout.setVerticalGroup(
             CustomerListPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -562,9 +568,8 @@ public class Customer extends javax.swing.JPanel {
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 360, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(BorrowedItemLabel)
-                .addContainerGap(242, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         CustomerTabbedPane.addTab("Customer Management", CustomerListPanel);
@@ -885,7 +890,6 @@ public class Customer extends javax.swing.JPanel {
     private javax.swing.JPanel AddCustPanel2;
     private javax.swing.JLabel AddressLabel;
     private javax.swing.JTextField AddressTextField;
-    private javax.swing.JLabel BorrowedItemLabel;
     private javax.swing.JComboBox<String> BorrowedItemsComboBox;
     private javax.swing.JLabel CommentsLabel;
     private javax.swing.JLabel CommentsLabel1;
@@ -909,6 +913,7 @@ public class Customer extends javax.swing.JPanel {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     // End of variables declaration//GEN-END:variables

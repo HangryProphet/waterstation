@@ -783,7 +783,7 @@ public class Sales extends javax.swing.JPanel {
 
                 String productNames = productNamesBuilder.toString().trim();
                 double totalPrice = Double.parseDouble(TotalPrice.getText().replace("₱", "").trim());
-                double discount = Double.parseDouble(DiscountTextField.getText()); // Fetch the current number on DiscountTextField
+                int discount = Integer.parseInt(DiscountTextField.getText().trim()); // Fetch the current number on DiscountTextField
                 String methods = MethodComboBox.getSelectedItem().toString();
 
                 // Get selected customer from the combo box
@@ -793,7 +793,7 @@ public class Sales extends javax.swing.JPanel {
                 insertStatement.setInt(1, generateReceiptId());
                 insertStatement.setString(2, productNames);
                 insertStatement.setInt(3, totalQty);
-                insertStatement.setDouble(4, discount); // Store the discount value in the database
+                insertStatement.setInt(4, discount); // Store the discount value in the database
                 insertStatement.setDouble(5, totalPrice);
                 insertStatement.setString(6, currentDate);
                 insertStatement.setString(7, selectedCustomer); // Set selected customer

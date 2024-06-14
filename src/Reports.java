@@ -5,10 +5,8 @@ import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
-import java.awt.Component;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -16,12 +14,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.JTable;
+import javax.swing.JLabel;
 import javax.swing.JTextArea;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.RowFilter;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.Component;
+import javax.swing.JOptionPane;
 import javax.swing.table.TableRowSorter;
 
 ;
@@ -75,22 +75,13 @@ public class Reports extends javax.swing.JPanel {
             }
         }
     }
-
-    private void filterTable(String searchText) {
-        if (searchText.trim().length() == 0) {
-            tableRowSorter.setRowFilter(null);
-        } else {
-            tableRowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + searchText));
-        }
-    }
-
     /**
      * Creates new form Reports
      */
     public Reports() {
         initComponents();
         loadReportTable();
-
+        
         tableModel = (DefaultTableModel) ReportTable.getModel();
         tableRowSorter = new TableRowSorter<>(tableModel);
         ReportTable.setRowSorter(tableRowSorter);
@@ -121,6 +112,7 @@ public class Reports extends javax.swing.JPanel {
                 filterTable(SearchField.getText());
             }
         });
+        
     }
 
     /**
@@ -132,34 +124,17 @@ public class Reports extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jScrollPane1 = new javax.swing.JScrollPane();
-        ReportTable = new javax.swing.JTable();
         ExportPDF_Bttn = new javax.swing.JButton();
         UpdateTable = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         SearchLabel = new javax.swing.JLabel();
         SearchField = new javax.swing.JTextField();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        ReportTable = new javax.swing.JTable();
+        TotalLabel = new javax.swing.JLabel();
+        TotalPriceValue = new javax.swing.JLabel();
 
         setPreferredSize(new java.awt.Dimension(1094, 720));
-
-        ReportTable.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "Receipt Number", "Product", "Quantity", "Discount", "Total Price", "Date/Time", "Customer", "Fullfillment Method"
-            }
-        ) {
-            boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false
-            };
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
-        ReportTable.setRowHeight(100);
-        jScrollPane1.setViewportView(ReportTable);
 
         ExportPDF_Bttn.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
         ExportPDF_Bttn.setText("Export As PDF");
@@ -187,6 +162,25 @@ public class Reports extends javax.swing.JPanel {
             }
         });
 
+        ReportTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Receipt Number", "Product", "Quantity", "Discount (%)", "Total Price", "Date/Time", "Customer", "Fullfillment Method"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        ReportTable.setRowHeight(100);
+        jScrollPane1.setViewportView(ReportTable);
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -197,6 +191,10 @@ public class Reports extends javax.swing.JPanel {
                 .addGap(18, 18, 18)
                 .addComponent(SearchField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane1)
+                .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -205,8 +203,14 @@ public class Reports extends javax.swing.JPanel {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(SearchLabel)
                     .addComponent(SearchField, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(26, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 504, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
+
+        TotalLabel.setText("Total Price:");
+
+        TotalPriceValue.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -214,27 +218,33 @@ public class Reports extends javax.swing.JPanel {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1082, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(ExportPDF_Bttn)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(UpdateTable, javax.swing.GroupLayout.PREFERRED_SIZE, 209, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap())
+                .addComponent(UpdateTable, javax.swing.GroupLayout.PREFERRED_SIZE, 209, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(ExportPDF_Bttn)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 363, Short.MAX_VALUE)
+                .addComponent(TotalLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(TotalPriceValue, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(68, 68, 68))
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 504, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 59, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(UpdateTable, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(ExportPDF_Bttn, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(24, 24, 24))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(UpdateTable, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(ExportPDF_Bttn, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(36, 36, 36)
+                                .addComponent(TotalLabel))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(25, 25, 25)
+                        .addComponent(TotalPriceValue, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(33, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
     private void updateReportTable() {
@@ -256,14 +266,14 @@ public class Reports extends javax.swing.JPanel {
                     int receiptId = resultSet.getInt("receiptid");
                     String productName = resultSet.getString("productname");
                     int qty = resultSet.getInt("qty");
-                    double price = resultSet.getDouble("discount");
-                    double discount = resultSet.getDouble("price");
+                    int discount = resultSet.getInt("discount");
+                    double price = resultSet.getInt("price");
                     String date = resultSet.getString("date");
                     String customer = resultSet.getString("customer");
                     String methods = resultSet.getString("method");
 
                     // Add the fetched data to the table model
-                    reportTableModel.addRow(new Object[]{receiptId, productName, qty, price, discount, date, customer, methods});
+                    reportTableModel.addRow(new Object[]{receiptId, productName, qty, discount, price, date, customer, methods});
                 }
             } else {
                 System.out.println("Failed to establish database connection.");
@@ -303,6 +313,11 @@ public class Reports extends javax.swing.JPanel {
     }//GEN-LAST:event_SearchFieldActionPerformed
 
     private void exportTableDataToPDF() {
+         if (ReportTable.getRowCount() == 0) {
+        JOptionPane.showMessageDialog(null, "Error: The table is empty. Please add data to the table before exporting to PDF.");
+        return;
+    }
+        
         try {
             Document document = new Document();
             PdfWriter.getInstance(document, new FileOutputStream("report.pdf"));
@@ -350,7 +365,7 @@ public class Reports extends javax.swing.JPanel {
                 int id = resultSet.getInt("receiptid");
                 String name = resultSet.getString("productname");
                 String qty = resultSet.getString("qty");
-                String discount = resultSet.getString("discount");
+                int discount = resultSet.getInt("discount");
                 String price = resultSet.getString("price");
                 String date = resultSet.getString("date");
                 String customer = resultSet.getString("customer");
@@ -397,12 +412,24 @@ public class Reports extends javax.swing.JPanel {
             return textArea;
         }
     }
+    
+    private void filterTable(String searchText) {
+        if (searchText.trim().length() == 0) {
+            tableRowSorter.setRowFilter(null);
+        } else {
+            tableRowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + searchText));
+        }
+    }
+    
+   
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton ExportPDF_Bttn;
     private javax.swing.JTable ReportTable;
     private javax.swing.JTextField SearchField;
     private javax.swing.JLabel SearchLabel;
+    private javax.swing.JLabel TotalLabel;
+    private javax.swing.JLabel TotalPriceValue;
     private javax.swing.JButton UpdateTable;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
