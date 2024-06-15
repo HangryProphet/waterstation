@@ -1,6 +1,7 @@
 
 import javax.swing.JFrame;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -195,9 +196,18 @@ public class Home extends javax.swing.JFrame {
     }//GEN-LAST:event_ReportsBttnActionPerformed
     
     private void redirectToLogInPage() {
+        int confirmed = JOptionPane.showConfirmDialog(
+        null, 
+        "Are you sure you want to logout?", 
+        "Confirm Logout", 
+        JOptionPane.YES_NO_OPTION
+    );
+    
+    if (confirmed == JOptionPane.YES_OPTION) {
         Login LoginForm = new Login();
         LoginForm.setVisible(true);
         this.dispose();
+    }
     }
 
     private void handleButtonSelection(JButton selectedButton, javax.swing.JPanel panel) {

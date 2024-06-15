@@ -22,6 +22,10 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.Component;
 import javax.swing.JOptionPane;
+import javax.swing.event.RowSorterEvent;
+import javax.swing.event.RowSorterListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
@@ -31,7 +35,7 @@ public class Reports extends javax.swing.JPanel {
 
     private DefaultTableModel tableModel;
     private TableRowSorter<DefaultTableModel> tableRowSorter;
-
+           
     public class DatabaseConnection {
         // Database URL, username, and password
 
@@ -101,20 +105,33 @@ public class Reports extends javax.swing.JPanel {
             @Override
             public void insertUpdate(DocumentEvent e) {
                 filterTable(SearchField.getText());
+                updateTotalPrice(ReportTable, 4, TotalPriceValue);
+                
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
                 filterTable(SearchField.getText());
+                updateTotalPrice(ReportTable, 4, TotalPriceValue);
+                
             }
 
             @Override
             public void changedUpdate(DocumentEvent e) {
                 filterTable(SearchField.getText());
+                updateTotalPrice(ReportTable, 4, TotalPriceValue);
+                
             }
+                
         });
-        
-    }
+        tableRowSorter.addRowSorterListener(new RowSorterListener() {
+            @Override
+            public void sorterChanged(RowSorterEvent e) {
+                updateTotalPrice(ReportTable, 4, TotalPriceValue);
+        }
+    });
+   }
+            
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -315,10 +332,19 @@ public class Reports extends javax.swing.JPanel {
     }//GEN-LAST:event_SearchFieldActionPerformed
 
     private void exportTableDataToPDF() {
-         if (ReportTable.getRowCount() == 0) {
+           if (ReportTable.getRowCount() == 0) {
         JOptionPane.showMessageDialog(null, "Error: The table is empty. Please add data to the table before exporting to PDF.");
         return;
     }
+
+    int confirmed = JOptionPane.showConfirmDialog(
+        null, 
+        "Are you sure you want to export the current table to PDF?", 
+        "Confirm Export", 
+        JOptionPane.YES_NO_OPTION
+    );
+
+    if (confirmed == JOptionPane.YES_OPTION) {
         
         try {
             Document document = new Document();
@@ -345,6 +371,7 @@ public class Reports extends javax.swing.JPanel {
         } catch (DocumentException | FileNotFoundException e) {
             e.printStackTrace();
         }
+    }
     }
 
     private void loadReportTable() {
@@ -374,6 +401,7 @@ public class Reports extends javax.swing.JPanel {
                 String methods = resultSet.getString("method");
                 model.addRow(new Object[]{id, name, qty, discount, price, date, customer, methods});
             }
+            updateTotalPrice(ReportTable, 4, TotalPriceValue);
         } catch (SQLException e) {
             System.out.println("Failed to load inventory from database.");
             e.printStackTrace();
@@ -425,30 +453,31 @@ public class Reports extends javax.swing.JPanel {
         tableRowSorter.setRowFilter(null);
     } else {
         tableRowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + searchText));
+        updateTotalPrice(ReportTable, 4, TotalPriceValue);
     }
 }
-    public void updateTotalPriceValue(JTable table, JLabel totalPriceValueLabel) {
-    TableModel model = table.getModel();
-    TableRowSorter<TableModel> sorter = new TableRowSorter<>(model);
-    table.setRowSorter(sorter);
-
-    // Filter the rows based on your filter criteria
-    sorter.setRowFilter(RowFilter.regexFilter("yourFilterCriteriaHere"));
-
-    int columnIndex = 5; // Column index to sum
+    public static void updateTotalPrice(JTable table, int columnIndex, JLabel totalPriceValue) {
     double sum = 0.0;
-
-    for (int i = 0; i < table.getRowCount(); i++) {
-        // Check if the row is visible after applying the filter
-        if (table.convertRowIndexToView(i) != -1) {
-            // Add the value of the column to the sum
-            sum += Double.parseDouble(model.getValueAt(i, columnIndex).toString());
+    TableModel model = table.getModel();
+    for (int row = 0; row < model.getRowCount(); row++) {
+        if (table.convertRowIndexToView(row) != -1) { // Check if row is visible
+            Object value = model.getValueAt(row, columnIndex);
+            if (value instanceof Number) {
+                sum += ((Number) value).doubleValue();
+            } else if (value instanceof String) {
+                try {
+                    sum += Double.parseDouble((String) value);
+                } catch (NumberFormatException e) {
+                    System.err.println("Invalid number format at row " + row + ": " + value);
+                }
+            } else {
+                System.err.println("Invalid data type at row " + row + ": " + value);
+            }
         }
     }
-
-    // Update the label text with the sum
-    totalPriceValueLabel.setText(String.valueOf(sum));
+    totalPriceValue.setText(String.format("%.2f", sum));
 }
+
    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

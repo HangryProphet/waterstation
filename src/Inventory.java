@@ -1,7 +1,6 @@
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.Statement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -492,11 +491,11 @@ public class Inventory extends javax.swing.JPanel {
         int currentProductID = Integer.parseInt(InventoryTable.getValueAt(selectedIndex, 0).toString());
         String currentProductName = InventoryTable.getValueAt(selectedIndex, 1).toString();
         int currentQty = Integer.parseInt(InventoryTable.getValueAt(selectedIndex, 2).toString());
-        double currentPrice = Double.parseDouble(InventoryTable.getValueAt(selectedIndex, 3).toString());
+        int currentPrice = Integer.parseInt(InventoryTable.getValueAt(selectedIndex, 3).toString());
 
         String newProductName = currentProductName;
         int newQty = currentQty;
-        double newPrice = currentPrice;
+        int newPrice = currentPrice;
 
         String[] options = {"Edit Product Name", "Edit Stocks", "Edit Price"};
         int choice = JOptionPane.showOptionDialog(this, "What would you like to edit?", "Modify Inventory Item",
@@ -528,7 +527,7 @@ public class Inventory extends javax.swing.JPanel {
             case 2: // Edit Price
                 String newPriceInput = JOptionPane.showInputDialog(this, "Enter new price:", String.valueOf(currentPrice));
                 try {
-                    newPrice = Double.parseDouble(newPriceInput);
+                    newPrice = Integer.parseInt(newPriceInput);
                 } catch (NumberFormatException e) {
                     JOptionPane.showMessageDialog(this, "Invalid price. Please enter a valid number.", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
@@ -542,7 +541,7 @@ public class Inventory extends javax.swing.JPanel {
             try (PreparedStatement pstmt = DatabaseConnection.getConnection().prepareStatement("UPDATE inventory SET productname =?, qty =?, price =? WHERE productid =?")) {
                 pstmt.setString(1, newProductName);
                 pstmt.setInt(2, newQty);
-                pstmt.setDouble(3, newPrice);
+                pstmt.setInt(3, newPrice);
                 pstmt.setInt(4, currentProductID);
                 int rowsUpdated = pstmt.executeUpdate();
 
