@@ -14,7 +14,7 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.DocumentFilter;
-import javax.swing.text.PlainDocument;
+
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -26,7 +26,7 @@ import javax.swing.text.PlainDocument;
  */
 public class Sales extends javax.swing.JPanel {
 
-    private Customer customerPanel;
+    
 
     public class DatabaseConnection {
         // Database URL, username, and password
@@ -777,7 +777,7 @@ public class Sales extends javax.swing.JPanel {
                 for (int row = 0; row < rowCount; row++) {
                     String productName = (String) cartModel.getValueAt(row, 0);
                     int qty = Integer.parseInt(cartModel.getValueAt(row, 1).toString());
-                    productNamesBuilder.append(productName).append(" (").append(qty).append(")").append("\n");
+                    productNamesBuilder.append(productName).append("(").append(qty).append(")").append("\n");
                     totalQty += qty;
                 }
 
@@ -999,7 +999,7 @@ public class Sales extends javax.swing.JPanel {
             DefaultTableModel cartModel = (DefaultTableModel) CartTable.getModel();
 
             String name = (String) productModel.getValueAt(selectedRow, 1); // Assuming column 1 is product name
-            double price = Double.parseDouble(productModel.getValueAt(selectedRow, 3).toString()); // Assuming column 4 is product price
+            int price = Integer.parseInt(productModel.getValueAt(selectedRow, 3).toString()); // Assuming column 4 is product price
             int availableStock = Integer.parseInt(productModel.getValueAt(selectedRow, 2).toString()); // Assuming column 3 is available stock
 
             // Check if the product is already in the cart
@@ -1050,7 +1050,7 @@ public class Sales extends javax.swing.JPanel {
                                 insertCartStatement = connection.prepareStatement(insertCartQuery);
                                 insertCartStatement.setString(1, name);
                                 insertCartStatement.setInt(2, qtyToAdd);
-                                insertCartStatement.setDouble(3, price);
+                                insertCartStatement.setInt(3, price);
                                 insertCartStatement.executeUpdate();
                             }
 

@@ -21,11 +21,14 @@ import javax.swing.RowFilter;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.Component;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import javax.swing.JOptionPane;
 import javax.swing.event.RowSorterEvent;
 import javax.swing.event.RowSorterListener;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
@@ -130,6 +133,17 @@ public class Reports extends javax.swing.JPanel {
                 updateTotalPrice(ReportTable, 4, TotalPriceValue);
         }
     });
+         startDateChooser.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                startDateChooserPropertyChange(evt);
+            }
+        });
+        
+        endDateChooser.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                endDateChooserPropertyChange(evt);
+            }
+        });
    }
             
 
@@ -143,14 +157,17 @@ public class Reports extends javax.swing.JPanel {
     private void initComponents() {
 
         ExportPDF_Bttn = new javax.swing.JButton();
-        UpdateTable = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         SearchLabel = new javax.swing.JLabel();
         SearchField = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
         ReportTable = new javax.swing.JTable();
+        startDateChooser = new com.toedter.calendar.JDateChooser();
+        endDateChooser = new com.toedter.calendar.JDateChooser();
+        ClearFilter = new javax.swing.JButton();
         TotalLabel = new javax.swing.JLabel();
         TotalPriceValue = new javax.swing.JLabel();
+        ClearExportBttn = new javax.swing.JButton();
 
         setPreferredSize(new java.awt.Dimension(1094, 720));
 
@@ -159,14 +176,6 @@ public class Reports extends javax.swing.JPanel {
         ExportPDF_Bttn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 ExportPDF_BttnActionPerformed(evt);
-            }
-        });
-
-        UpdateTable.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
-        UpdateTable.setText("Refresh Table");
-        UpdateTable.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                UpdateTableActionPerformed(evt);
             }
         });
 
@@ -185,7 +194,7 @@ public class Reports extends javax.swing.JPanel {
 
             },
             new String [] {
-                "Receipt Number", "Product", "Quantity", "Discount (%)", "Total Price", "Date/Time", "Customer", "Fullfillment Method"
+                "Receipt Number", "Product", "Total Quantity", "Discount (%)", "Total Price", "Date/Time", "Customer", "Fullfillment Method"
             }
         ) {
             boolean[] canEdit = new boolean [] {
@@ -199,6 +208,25 @@ public class Reports extends javax.swing.JPanel {
         ReportTable.setRowHeight(100);
         jScrollPane1.setViewportView(ReportTable);
 
+        startDateChooser.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                startDateChooserPropertyChange(evt);
+            }
+        });
+
+        endDateChooser.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                endDateChooserPropertyChange(evt);
+            }
+        });
+
+        ClearFilter.setText("Clear Filter");
+        ClearFilter.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ClearFilterActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -208,7 +236,13 @@ public class Reports extends javax.swing.JPanel {
                 .addComponent(SearchLabel)
                 .addGap(18, 18, 18)
                 .addComponent(SearchField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(153, 153, 153)
+                .addComponent(startDateChooser, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(87, 87, 87)
+                .addComponent(endDateChooser, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 64, Short.MAX_VALUE)
+                .addComponent(ClearFilter)
+                .addGap(20, 20, 20))
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jScrollPane1)
@@ -218,9 +252,12 @@ public class Reports extends javax.swing.JPanel {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(27, 27, 27)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(SearchLabel)
-                    .addComponent(SearchField, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(SearchLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(SearchField)
+                    .addComponent(startDateChooser, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(endDateChooser, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(ClearFilter, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 504, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -230,40 +267,44 @@ public class Reports extends javax.swing.JPanel {
 
         TotalPriceValue.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
 
+        ClearExportBttn.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
+        ClearExportBttn.setText("Clear & Export");
+        ClearExportBttn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ClearExportBttnActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(UpdateTable, javax.swing.GroupLayout.PREFERRED_SIZE, 209, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(ClearExportBttn, javax.swing.GroupLayout.PREFERRED_SIZE, 222, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(28, 28, 28)
                 .addComponent(ExportPDF_Bttn)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 363, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(TotalLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(37, 37, 37)
                 .addComponent(TotalPriceValue, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(68, 68, 68))
+                .addContainerGap())
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(TotalPriceValue, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(ClearExportBttn, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(ExportPDF_Bttn, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(36, 36, 36)
-                                .addComponent(TotalLabel))
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(UpdateTable, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(ExportPDF_Bttn, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(25, 25, 25)
-                        .addComponent(TotalPriceValue, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(33, Short.MAX_VALUE))
+                        .addGap(36, 36, 36)
+                        .addComponent(TotalLabel)))
+                .addContainerGap(52, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
     private void updateReportTable() {
@@ -319,10 +360,6 @@ public class Reports extends javax.swing.JPanel {
         }
     }
 
-    private void UpdateTableActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_UpdateTableActionPerformed
-        updateReportTable();
-    }//GEN-LAST:event_UpdateTableActionPerformed
-
     private void ExportPDF_BttnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ExportPDF_BttnActionPerformed
         exportTableDataToPDF();
     }//GEN-LAST:event_ExportPDF_BttnActionPerformed
@@ -331,24 +368,50 @@ public class Reports extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_SearchFieldActionPerformed
 
+    private void startDateChooserPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_startDateChooserPropertyChange
+        filterTableByDateRange();
+    }//GEN-LAST:event_startDateChooserPropertyChange
+
+    private void endDateChooserPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_endDateChooserPropertyChange
+        filterTableByDateRange();
+    }//GEN-LAST:event_endDateChooserPropertyChange
+
+    private void ClearFilterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ClearFilterActionPerformed
+        startDateChooser.setDate(null);
+        endDateChooser.setDate(null);
+        SearchField.setText("");
+        updateTotalPrice(ReportTable, 4, TotalPriceValue);
+    }//GEN-LAST:event_ClearFilterActionPerformed
+
+    private void ClearExportBttnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ClearExportBttnActionPerformed
+        clearReportData();
+        updateTotalPrice(ReportTable, 4, TotalPriceValue);
+    }//GEN-LAST:event_ClearExportBttnActionPerformed
+
     private void exportTableDataToPDF() {
-           if (ReportTable.getRowCount() == 0) {
+         if (ReportTable.getRowCount() == 0) {
         JOptionPane.showMessageDialog(null, "Error: The table is empty. Please add data to the table before exporting to PDF.");
         return;
     }
 
     int confirmed = JOptionPane.showConfirmDialog(
-        null, 
-        "Are you sure you want to export the current table to PDF?", 
-        "Confirm Export", 
-        JOptionPane.YES_NO_OPTION
+            null,
+            "Are you sure you want to export the current table to PDF?",
+            "Confirm Export",
+            JOptionPane.YES_NO_OPTION
     );
 
     if (confirmed == JOptionPane.YES_OPTION) {
-        
+
         try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("MM dd, yyyy");
+            String timestamp = dateFormat.format(new Date());
+
+            // Specify the directory where you want to save the PDF
+            String filePath = "C:\\Users\\ADMIN\\Desktop\\Water Station Report " + timestamp + ".pdf";
+
             Document document = new Document();
-            PdfWriter.getInstance(document, new FileOutputStream("report.pdf"));
+            PdfWriter.getInstance(document, new FileOutputStream(filePath));
             document.open();
 
             // Add table headers
@@ -363,6 +426,11 @@ public class Reports extends javax.swing.JPanel {
                     table.addCell(new PdfPCell(new Paragraph(ReportTable.getValueAt(i, j).toString())));
                 }
             }
+
+            // Add total price value
+            PdfPCell totalCell = new PdfPCell(new Paragraph("Total Price: " + TotalPriceValue.getText()));
+            totalCell.setColspan(ReportTable.getColumnCount());
+            table.addCell(totalCell);
 
             document.add(table);
             document.close();
@@ -478,17 +546,121 @@ public class Reports extends javax.swing.JPanel {
     totalPriceValue.setText(String.format("%.2f", sum));
 }
 
-   
+    private void filterTableByDateRange() {
+       if (tableRowSorter == null) {
+        tableRowSorter = new TableRowSorter<>(tableModel);
+        ReportTable.setRowSorter(tableRowSorter);
+    }
+
+    Date startDate = startDateChooser.getDate();
+    Date endDate = endDateChooser.getDate();
+    String searchText = SearchField.getText();
+
+    if (startDate != null && endDate != null) {
+        RowFilter<DefaultTableModel, Object> dateFilter = new RowFilter<DefaultTableModel, Object>() {
+            @Override
+             public boolean include(Entry<? extends DefaultTableModel, ? extends Object> entry) {
+        DefaultTableModel model = entry.getModel();
+        int dateColumnIndex = 5; // Assuming the date column is at index 5
+        String dateValue = model.getValueAt((int) entry.getIdentifier(), dateColumnIndex).toString();
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            Date date = sdf.parse(dateValue);
+            // Truncate time part of startDate and endDate
+            Date truncatedStartDate = sdf.parse(sdf.format(startDate));
+            Date truncatedEndDate = sdf.parse(sdf.format(endDate));
+            // Use >= for start date and <= for end date
+            return (date.compareTo(truncatedStartDate) >= 0 && date.compareTo(truncatedEndDate) <= 0);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+        };
+
+        RowFilter<DefaultTableModel, Object> searchFilter = new RowFilter<DefaultTableModel, Object>() {
+            @Override
+            public boolean include(Entry<? extends DefaultTableModel, ? extends Object> entry) {
+                DefaultTableModel model = entry.getModel();
+                for (int i = 0; i < model.getColumnCount(); i++) {
+                    String value = model.getValueAt((int) entry.getIdentifier(), i).toString();
+                    if (value.toLowerCase().contains(searchText.toLowerCase())) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        };
+
+        java.util.List<RowFilter<DefaultTableModel, Object>> filters = new ArrayList<>();
+        filters.add(dateFilter);
+        filters.add(searchFilter);
+
+        RowFilter<DefaultTableModel, Object> combinedFilter = RowFilter.andFilter(filters);
+
+        tableRowSorter.setRowFilter(combinedFilter);
+        updateTotalPrice(ReportTable, 4, TotalPriceValue);
+    } else {
+        tableRowSorter.setRowFilter(null);
+    }
+}
+private void clearReportData() {
+    int confirmed = JOptionPane.showConfirmDialog(
+        null, 
+        "Are you sure you want to clear all data from the report and export it to PDF?", 
+        "Confirm Clear and Export", 
+        JOptionPane.YES_NO_OPTION
+    );
+
+    if (confirmed == JOptionPane.YES_OPTION) {
+        exportTableDataToPDF();
+
+        Connection connection = null;
+        PreparedStatement deleteStatement = null;
+
+        try {
+            connection = DatabaseConnection.getConnection();
+            if (connection != null) {
+                String deleteQuery = "DELETE FROM reports";
+                deleteStatement = connection.prepareStatement(deleteQuery);
+                deleteStatement.executeUpdate();
+
+                // Clear the table model
+                DefaultTableModel model = (DefaultTableModel) ReportTable.getModel();
+                model.setRowCount(0);
+
+                System.out.println("Data cleared and exported to PDF successfully.");
+            } else {
+                System.out.println("Failed to establish database connection.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Failed to clear data from the report: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            // Close database resources
+            if (deleteStatement != null) {
+                try {
+                    deleteStatement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+}
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton ClearExportBttn;
+    private javax.swing.JButton ClearFilter;
     private javax.swing.JButton ExportPDF_Bttn;
     private javax.swing.JTable ReportTable;
     private javax.swing.JTextField SearchField;
     private javax.swing.JLabel SearchLabel;
     private javax.swing.JLabel TotalLabel;
     private javax.swing.JLabel TotalPriceValue;
-    private javax.swing.JButton UpdateTable;
+    private com.toedter.calendar.JDateChooser endDateChooser;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
+    private com.toedter.calendar.JDateChooser startDateChooser;
     // End of variables declaration//GEN-END:variables
 }
