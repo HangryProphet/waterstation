@@ -73,6 +73,8 @@ public class SignUp extends javax.swing.JFrame {
         AccountReadyLabel = new javax.swing.JLabel();
         LogInRedirectButton = new javax.swing.JButton();
         ShowPassSignUp = new javax.swing.JCheckBox();
+        OTPField = new javax.swing.JPasswordField();
+        EnterOTPLabel = new javax.swing.JLabel();
         SignUpbg = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -128,6 +130,9 @@ public class SignUp extends javax.swing.JFrame {
             }
         });
 
+        EnterOTPLabel.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
+        EnterOTPLabel.setText("Enter OTP:");
+
         javax.swing.GroupLayout whitebgLayout = new javax.swing.GroupLayout(whitebg);
         whitebg.setLayout(whitebgLayout);
         whitebgLayout.setHorizontalGroup(
@@ -148,17 +153,19 @@ public class SignUp extends javax.swing.JFrame {
                         .addComponent(LogInRedirectButton))
                     .addGroup(whitebgLayout.createSequentialGroup()
                         .addGap(90, 90, 90)
-                        .addGroup(whitebgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(ShowPassSignUp)
-                            .addGroup(whitebgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(SignUpPassLabel)
-                                .addGroup(whitebgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(SignUpPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, 422, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(whitebgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addComponent(SignUpUsernameLabel)
-                                        .addComponent(SignUpUsernameField, javax.swing.GroupLayout.PREFERRED_SIZE, 422, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addComponent(ConfirmPasswordLabel)
-                                .addComponent(ConfirmPassField, javax.swing.GroupLayout.PREFERRED_SIZE, 422, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                        .addGroup(whitebgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(SignUpUsernameLabel)
+                            .addComponent(SignUpUsernameField, javax.swing.GroupLayout.PREFERRED_SIZE, 422, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(SignUpPassLabel)
+                            .addComponent(SignUpPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, 422, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(ConfirmPasswordLabel)
+                            .addComponent(OTPField, javax.swing.GroupLayout.PREFERRED_SIZE, 204, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(whitebgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, whitebgLayout.createSequentialGroup()
+                                    .addComponent(EnterOTPLabel)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(ShowPassSignUp))
+                                .addComponent(ConfirmPassField, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 422, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                 .addContainerGap(128, Short.MAX_VALUE))
         );
         whitebgLayout.setVerticalGroup(
@@ -169,24 +176,28 @@ public class SignUp extends javax.swing.JFrame {
                 .addGap(30, 30, 30)
                 .addComponent(SignUpUsernameLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(SignUpUsernameField, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(24, 24, 24)
-                .addComponent(SignUpPassLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(SignUpPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(ConfirmPasswordLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(ConfirmPassField, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(SignUpUsernameField, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(ShowPassSignUp)
-                .addGap(19, 19, 19)
+                .addComponent(SignUpPassLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(SignUpPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(ConfirmPasswordLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(ConfirmPassField, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(whitebgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(EnterOTPLabel)
+                    .addComponent(ShowPassSignUp))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(OTPField, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(40, 40, 40)
                 .addComponent(SignUpButton, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(16, 16, 16)
                 .addComponent(AccountReadyLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(LogInRedirectButton)
-                .addContainerGap(86, Short.MAX_VALUE))
+                .addContainerGap(76, Short.MAX_VALUE))
         );
 
         SignUpLayeredPane.add(whitebg);
@@ -299,8 +310,10 @@ public class SignUp extends javax.swing.JFrame {
     private javax.swing.JLabel AccountReadyLabel;
     private javax.swing.JPasswordField ConfirmPassField;
     private javax.swing.JLabel ConfirmPasswordLabel;
+    private javax.swing.JLabel EnterOTPLabel;
     private javax.swing.JButton LogInRedirectButton;
     private javax.swing.JLabel LoginLabel;
+    private javax.swing.JPasswordField OTPField;
     private javax.swing.JCheckBox ShowPassSignUp;
     private javax.swing.JButton SignUpButton;
     private javax.swing.JLayeredPane SignUpLayeredPane;

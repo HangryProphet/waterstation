@@ -103,18 +103,19 @@
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
                               <EmptySpace min="-2" pref="90" max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="1" attributes="0">
-                                  <Component id="ShowPassSignUp" min="-2" max="-2" attributes="0"/>
-                                  <Group type="103" groupAlignment="0" attributes="0">
-                                      <Component id="SignUpPassLabel" min="-2" max="-2" attributes="0"/>
-                                      <Group type="103" groupAlignment="1" attributes="0">
-                                          <Component id="SignUpPasswordField" min="-2" pref="422" max="-2" attributes="0"/>
-                                          <Group type="103" groupAlignment="0" attributes="0">
-                                              <Component id="SignUpUsernameLabel" min="-2" max="-2" attributes="0"/>
-                                              <Component id="SignUpUsernameField" min="-2" pref="422" max="-2" attributes="0"/>
-                                          </Group>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="SignUpUsernameLabel" min="-2" max="-2" attributes="0"/>
+                                  <Component id="SignUpUsernameField" min="-2" pref="422" max="-2" attributes="0"/>
+                                  <Component id="SignUpPassLabel" min="-2" max="-2" attributes="0"/>
+                                  <Component id="SignUpPasswordField" alignment="0" min="-2" pref="422" max="-2" attributes="0"/>
+                                  <Component id="ConfirmPasswordLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  <Component id="OTPField" alignment="0" min="-2" pref="204" max="-2" attributes="0"/>
+                                  <Group type="103" alignment="0" groupAlignment="1" max="-2" attributes="0">
+                                      <Group type="102" alignment="0" attributes="0">
+                                          <Component id="EnterOTPLabel" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace max="32767" attributes="0"/>
+                                          <Component id="ShowPassSignUp" min="-2" max="-2" attributes="0"/>
                                       </Group>
-                                      <Component id="ConfirmPasswordLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                                       <Component id="ConfirmPassField" alignment="0" min="-2" pref="422" max="-2" attributes="0"/>
                                   </Group>
                               </Group>
@@ -132,24 +133,29 @@
                       <EmptySpace min="-2" pref="30" max="-2" attributes="0"/>
                       <Component id="SignUpUsernameLabel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="SignUpUsernameField" min="-2" pref="60" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="24" max="-2" attributes="0"/>
-                      <Component id="SignUpPassLabel" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                      <Component id="SignUpPasswordField" min="-2" pref="60" max="-2" attributes="0"/>
-                      <EmptySpace type="separate" max="-2" attributes="0"/>
-                      <Component id="ConfirmPasswordLabel" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                      <Component id="ConfirmPassField" min="-2" pref="60" max="-2" attributes="0"/>
+                      <Component id="SignUpUsernameField" min="-2" pref="48" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="ShowPassSignUp" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="19" max="-2" attributes="0"/>
+                      <Component id="SignUpPassLabel" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="SignUpPasswordField" min="-2" pref="48" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="ConfirmPasswordLabel" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="ConfirmPassField" min="-2" pref="48" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="EnterOTPLabel" min="-2" max="-2" attributes="0"/>
+                          <Component id="ShowPassSignUp" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="OTPField" min="-2" pref="48" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="40" max="-2" attributes="0"/>
                       <Component id="SignUpButton" min="-2" pref="60" max="-2" attributes="0"/>
                       <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
                       <Component id="AccountReadyLabel" min="-2" pref="33" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="LogInRedirectButton" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="86" max="32767" attributes="0"/>
+                      <EmptySpace pref="76" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -233,6 +239,16 @@
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ShowPassSignUpActionPerformed"/>
               </Events>
+            </Component>
+            <Component class="javax.swing.JPasswordField" name="OTPField">
+            </Component>
+            <Component class="javax.swing.JLabel" name="EnterOTPLabel">
+              <Properties>
+                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                  <Font name="Arial" size="24" style="1"/>
+                </Property>
+                <Property name="text" type="java.lang.String" value="Enter OTP:"/>
+              </Properties>
             </Component>
           </SubComponents>
         </Container>
