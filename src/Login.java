@@ -1,9 +1,16 @@
+import java.awt.Color;
+import static java.awt.Color.blue;
+import java.awt.Cursor;
+import java.awt.Font;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JOptionPane;
+import javax.swing.border.Border;
 
 public class Login extends javax.swing.JFrame {
 
@@ -50,6 +57,19 @@ public class Login extends javax.swing.JFrame {
         setResizable(false);
         setLocationRelativeTo(null);
         getRootPane().setDefaultButton(LoginButton);
+        
+        this.icon2.setVisible(false);
+        this.LoginButton.setOpaque(false);
+        this.LoginButton.setContentAreaFilled(false); //to make the content area transparent
+        
+        this.SignUpButton.setOpaque(false);
+        this.SignUpButton.setContentAreaFilled(false); //to make the content area transparent
+        this.SignUpButton.setBorderPainted(true);
+        
+        String SignUp = "<HTML><U>SIGN UP</U></HTML>";
+        SignUpButton.setText(SignUp);
+        
+        
     }
 
     /**
@@ -62,14 +82,11 @@ public class Login extends javax.swing.JFrame {
     private void initComponents() {
 
         LoginLayeredPane = new javax.swing.JLayeredPane();
-        whitebg = new javax.swing.JPanel();
-        LoginLabel = new javax.swing.JLabel();
-        PasswordLabel = new javax.swing.JLabel();
-        UsernameLabel = new javax.swing.JLabel();
         UsernameField = new javax.swing.JTextField();
+        icon2 = new javax.swing.JLabel();
+        icon1 = new javax.swing.JLabel();
         PasswordField = new javax.swing.JPasswordField();
         LoginButton = new javax.swing.JButton();
-        ShowPassword = new javax.swing.JCheckBox();
         SignUpLabel = new javax.swing.JLabel();
         SignUpButton = new javax.swing.JButton();
         Loginbg = new javax.swing.JLabel();
@@ -79,106 +96,85 @@ public class Login extends javax.swing.JFrame {
         LoginLayeredPane.setMaximumSize(new java.awt.Dimension(1920, 1080));
         LoginLayeredPane.setMinimumSize(new java.awt.Dimension(1280, 720));
 
-        whitebg.setBackground(new java.awt.Color(255, 255, 255));
-        whitebg.setForeground(new java.awt.Color(255, 255, 255));
+        UsernameField.setBackground(new java.awt.Color(223, 223, 223));
+        UsernameField.setFont(new java.awt.Font("Calibri", 0, 18)); // NOI18N
+        UsernameField.setForeground(new java.awt.Color(102, 102, 102));
+        LoginLayeredPane.add(UsernameField);
+        UsernameField.setBounds(500, 300, 290, 50);
 
-        LoginLabel.setFont(new java.awt.Font("Tahoma", 1, 48)); // NOI18N
-        LoginLabel.setText("Jentaime Water Station");
+        icon2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/hide.png"))); // NOI18N
+        icon2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                icon2MousePressed(evt);
+            }
+        });
+        LoginLayeredPane.add(icon2);
+        icon2.setBounds(750, 404, 24, 20);
 
-        PasswordLabel.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
-        PasswordLabel.setText("Password");
+        icon1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/seen.png"))); // NOI18N
+        icon1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                icon1MousePressed(evt);
+            }
+        });
+        LoginLayeredPane.add(icon1);
+        icon1.setBounds(750, 400, 30, 30);
 
-        UsernameLabel.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
-        UsernameLabel.setText("Username");
+        PasswordField.setBackground(new java.awt.Color(223, 223, 223));
+        PasswordField.setFont(new java.awt.Font("Calibri", 0, 18)); // NOI18N
+        PasswordField.setForeground(new java.awt.Color(51, 51, 51));
+        LoginLayeredPane.add(PasswordField);
+        PasswordField.setBounds(500, 390, 290, 50);
 
+        LoginButton.setBackground(new java.awt.Color(0, 74, 173));
         LoginButton.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
-        LoginButton.setText("LOGIN");
+        LoginButton.setForeground(new java.awt.Color(250, 250, 250));
+        LoginButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/enter (2).png"))); // NOI18N
+        LoginButton.setBorder(null);
+        LoginButton.setBorderPainted(false);
+        LoginButton.setOpaque(true);
+        LoginButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                LoginButtonMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                LoginButtonMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                LoginButtonMouseExited(evt);
+            }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                LoginButtonMousePressed(evt);
+            }
+        });
         LoginButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 LoginButtonActionPerformed(evt);
             }
         });
+        LoginLayeredPane.add(LoginButton);
+        LoginButton.setBounds(610, 470, 60, 50);
 
-        ShowPassword.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
-        ShowPassword.setText("Show Password");
-        ShowPassword.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                ShowPasswordActionPerformed(evt);
-            }
-        });
-
-        SignUpLabel.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        SignUpLabel.setBackground(new java.awt.Color(223, 223, 223));
+        SignUpLabel.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+        SignUpLabel.setForeground(new java.awt.Color(223, 223, 223));
         SignUpLabel.setText("Don't have an account?");
+        LoginLayeredPane.add(SignUpLabel);
+        SignUpLabel.setBounds(504, 560, 200, 60);
 
-        SignUpButton.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        SignUpButton.setBackground(new java.awt.Color(51, 51, 51));
+        SignUpButton.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+        SignUpButton.setForeground(new java.awt.Color(255, 255, 255));
         SignUpButton.setText("SIGN UP");
         SignUpButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 SignUpButtonActionPerformed(evt);
             }
         });
+        LoginLayeredPane.add(SignUpButton);
+        SignUpButton.setBounds(670, 563, 120, 50);
 
-        javax.swing.GroupLayout whitebgLayout = new javax.swing.GroupLayout(whitebg);
-        whitebg.setLayout(whitebgLayout);
-        whitebgLayout.setHorizontalGroup(
-            whitebgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(whitebgLayout.createSequentialGroup()
-                .addGroup(whitebgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(whitebgLayout.createSequentialGroup()
-                        .addGap(108, 108, 108)
-                        .addGroup(whitebgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(PasswordLabel)
-                            .addGroup(whitebgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                .addComponent(PasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, 422, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGroup(whitebgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(UsernameLabel)
-                                    .addComponent(UsernameField, javax.swing.GroupLayout.PREFERRED_SIZE, 422, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addComponent(ShowPassword))))
-                    .addGroup(whitebgLayout.createSequentialGroup()
-                        .addGap(258, 258, 258)
-                        .addComponent(LoginButton, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, whitebgLayout.createSequentialGroup()
-                .addGap(0, 39, Short.MAX_VALUE)
-                .addGroup(whitebgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, whitebgLayout.createSequentialGroup()
-                        .addComponent(SignUpLabel)
-                        .addGap(216, 216, 216))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, whitebgLayout.createSequentialGroup()
-                        .addComponent(SignUpButton)
-                        .addGap(265, 265, 265))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, whitebgLayout.createSequentialGroup()
-                        .addComponent(LoginLabel)
-                        .addGap(29, 29, 29))))
-        );
-        whitebgLayout.setVerticalGroup(
-            whitebgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(whitebgLayout.createSequentialGroup()
-                .addGap(41, 41, 41)
-                .addComponent(LoginLabel)
-                .addGap(65, 65, 65)
-                .addComponent(UsernameLabel)
-                .addGap(18, 18, 18)
-                .addComponent(UsernameField, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(35, 35, 35)
-                .addComponent(PasswordLabel)
-                .addGap(18, 18, 18)
-                .addComponent(PasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(ShowPassword)
-                .addGap(29, 29, 29)
-                .addComponent(LoginButton, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(58, 58, 58)
-                .addComponent(SignUpLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(SignUpButton)
-                .addContainerGap(34, Short.MAX_VALUE))
-        );
-
-        LoginLayeredPane.add(whitebg);
-        whitebg.setBounds(310, 40, 640, 680);
-
-        Loginbg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/bg.PNG"))); // NOI18N
+        Loginbg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/LogBG1.png"))); // NOI18N
         LoginLayeredPane.add(Loginbg);
         Loginbg.setBounds(0, 0, 1280, 720);
 
@@ -197,7 +193,7 @@ public class Login extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void LoginButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LoginButtonActionPerformed
-         String username = UsernameField.getText();
+    String username = UsernameField.getText();
     String password = new String(PasswordField.getPassword()); // Assuming you use a JPasswordField for the password input
 
     // Establish a connection to the database
@@ -237,17 +233,41 @@ public class Login extends javax.swing.JFrame {
     }
     }//GEN-LAST:event_LoginButtonActionPerformed
 
-    private void ShowPasswordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ShowPasswordActionPerformed
-         if (ShowPassword.isSelected()) {
-            PasswordField.setEchoChar((char) 0); // Show password
-        } else {
-            PasswordField.setEchoChar('•'); // Hide password (default char, can be '*')
-        }
-    }//GEN-LAST:event_ShowPasswordActionPerformed
-
     private void SignUpButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SignUpButtonActionPerformed
        redirectToSignUpPage();
     }//GEN-LAST:event_SignUpButtonActionPerformed
+
+    private void icon1MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_icon1MousePressed
+        
+        icon2.setVisible(true);
+        icon1.setVisible(false);
+        PasswordField.setEchoChar((char) 0);
+        
+    }//GEN-LAST:event_icon1MousePressed
+
+    private void icon2MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_icon2MousePressed
+        
+        icon1.setVisible(true);
+        icon2.setVisible(false);
+        PasswordField.setEchoChar('*');
+    }//GEN-LAST:event_icon2MousePressed
+
+    private void LoginButtonMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_LoginButtonMouseEntered
+     
+    }//GEN-LAST:event_LoginButtonMouseEntered
+
+    private void LoginButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_LoginButtonMouseClicked
+     
+    }//GEN-LAST:event_LoginButtonMouseClicked
+
+    private void LoginButtonMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_LoginButtonMousePressed
+       
+        LoginButton.setBorder(BorderFactory.createLineBorder(blue, 2,true));
+    }//GEN-LAST:event_LoginButtonMousePressed
+
+    private void LoginButtonMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_LoginButtonMouseExited
+        LoginButton.setBorder(null);
+    }//GEN-LAST:event_LoginButtonMouseExited
     private void redirectToHomePage() {
         Home HomeForm = new Home();
         HomeForm.setVisible(true);
@@ -293,16 +313,13 @@ public class Login extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton LoginButton;
-    private javax.swing.JLabel LoginLabel;
     private javax.swing.JLayeredPane LoginLayeredPane;
     private javax.swing.JLabel Loginbg;
     private javax.swing.JPasswordField PasswordField;
-    private javax.swing.JLabel PasswordLabel;
-    private javax.swing.JCheckBox ShowPassword;
     private javax.swing.JButton SignUpButton;
     private javax.swing.JLabel SignUpLabel;
     private javax.swing.JTextField UsernameField;
-    private javax.swing.JLabel UsernameLabel;
-    private javax.swing.JPanel whitebg;
+    private javax.swing.JLabel icon1;
+    private javax.swing.JLabel icon2;
     // End of variables declaration//GEN-END:variables
 }

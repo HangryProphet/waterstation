@@ -408,7 +408,7 @@ public class Reports extends javax.swing.JPanel {
             String timestamp = dateFormat.format(new Date());
 
             // Specify the directory where you want to save the PDF
-            String filePath = "C:\\Users\\ADMIN\\Desktop\\Water Station Report " + timestamp + ".pdf";
+            String filePath = "C:\\Users\\pc bulacan\\Downloads\\Water Station Report " + timestamp + ".pdf";
 
             Document document = new Document();
             PdfWriter.getInstance(document, new FileOutputStream(filePath));
