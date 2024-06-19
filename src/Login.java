@@ -65,14 +65,20 @@ public class Login extends javax.swing.JFrame {
         this.icon2.setVisible(false);
         this.LoginButton.setOpaque(false);
         this.LoginButton.setContentAreaFilled(false); //to make the content area transparent
-
-        this.SignUpButton.setOpaque(false);
-        this.SignUpButton.setContentAreaFilled(false); //to make the content area transparent
-        this.SignUpButton.setBorderPainted(true);
-
-        String SignUp = "<HTML><U>SIGN UP</U></HTML>";
-        SignUpButton.setText(SignUp);
-
+              
+        this.ForgetPasswordButton.setOpaque(false);
+        this.ForgetPasswordButton.setContentAreaFilled(false); //to make the content area transparent
+        this.ForgetPasswordButton.setBorderPainted(true);
+                
+        String SignUp = "<HTML><U>Don't have an account? SIGN UP</U></HTML>";
+        SignUpLabel.setText(SignUp);
+        
+        String Forget = "<HTML><U>Forget Password?</U></HTML>";
+        ForgetPasswordButton.setText(Forget);
+        
+            
+        
+        
     }
 
     /**
@@ -87,12 +93,11 @@ public class Login extends javax.swing.JFrame {
         LoginLayeredPane = new javax.swing.JLayeredPane();
         ForgetPasswordButton = new javax.swing.JButton();
         UsernameField = new javax.swing.JTextField();
-        icon2 = new javax.swing.JLabel();
         icon1 = new javax.swing.JLabel();
+        icon2 = new javax.swing.JLabel();
         PasswordField = new javax.swing.JPasswordField();
         LoginButton = new javax.swing.JButton();
         SignUpLabel = new javax.swing.JLabel();
-        SignUpButton = new javax.swing.JButton();
         Loginbg = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -103,14 +108,14 @@ public class Login extends javax.swing.JFrame {
         ForgetPasswordButton.setBackground(new java.awt.Color(51, 51, 51));
         ForgetPasswordButton.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         ForgetPasswordButton.setForeground(new java.awt.Color(255, 255, 255));
-        ForgetPasswordButton.setText("Forget Password");
+        ForgetPasswordButton.setText("Forget Password?");
         ForgetPasswordButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 ForgetPasswordButtonActionPerformed(evt);
             }
         });
         LoginLayeredPane.add(ForgetPasswordButton);
-        ForgetPasswordButton.setBounds(500, 440, 130, 20);
+        ForgetPasswordButton.setBounds(480, 440, 150, 20);
 
         UsernameField.setBackground(new java.awt.Color(223, 223, 223));
         UsernameField.setFont(new java.awt.Font("Calibri", 0, 18)); // NOI18N
@@ -118,27 +123,32 @@ public class Login extends javax.swing.JFrame {
         LoginLayeredPane.add(UsernameField);
         UsernameField.setBounds(500, 300, 290, 50);
 
-        icon2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/hide.png"))); // NOI18N
-        icon2.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                icon2MousePressed(evt);
-            }
-        });
-        LoginLayeredPane.add(icon2);
-        icon2.setBounds(750, 404, 24, 20);
-
-        icon1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/seen.png"))); // NOI18N
+        icon1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/hide.png"))); // NOI18N
         icon1.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 icon1MousePressed(evt);
             }
         });
         LoginLayeredPane.add(icon1);
-        icon1.setBounds(750, 400, 30, 30);
+        icon1.setBounds(750, 400, 30, 24);
+
+        icon2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/seen.png"))); // NOI18N
+        icon2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                icon2MousePressed(evt);
+            }
+        });
+        LoginLayeredPane.add(icon2);
+        icon2.setBounds(750, 400, 24, 24);
 
         PasswordField.setBackground(new java.awt.Color(223, 223, 223));
         PasswordField.setFont(new java.awt.Font("Calibri", 0, 18)); // NOI18N
         PasswordField.setForeground(new java.awt.Color(51, 51, 51));
+        PasswordField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                PasswordFieldActionPerformed(evt);
+            }
+        });
         LoginLayeredPane.add(PasswordField);
         PasswordField.setBounds(500, 390, 290, 50);
 
@@ -174,21 +184,14 @@ public class Login extends javax.swing.JFrame {
         SignUpLabel.setBackground(new java.awt.Color(223, 223, 223));
         SignUpLabel.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         SignUpLabel.setForeground(new java.awt.Color(223, 223, 223));
-        SignUpLabel.setText("Don't have an account?");
-        LoginLayeredPane.add(SignUpLabel);
-        SignUpLabel.setBounds(504, 560, 200, 60);
-
-        SignUpButton.setBackground(new java.awt.Color(51, 51, 51));
-        SignUpButton.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
-        SignUpButton.setForeground(new java.awt.Color(255, 255, 255));
-        SignUpButton.setText("SIGN UP");
-        SignUpButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                SignUpButtonActionPerformed(evt);
+        SignUpLabel.setText("Don't have an account? SIGN UP");
+        SignUpLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                SignUpLabelMouseClicked(evt);
             }
         });
-        LoginLayeredPane.add(SignUpButton);
-        SignUpButton.setBounds(670, 563, 120, 50);
+        LoginLayeredPane.add(SignUpLabel);
+        SignUpLabel.setBounds(494, 540, 280, 100);
 
         Loginbg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/LogBG1.png"))); // NOI18N
         LoginLayeredPane.add(Loginbg);
@@ -248,19 +251,7 @@ public class Login extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Failed to connect to the database.");
         }
     }//GEN-LAST:event_LoginButtonActionPerformed
-
-    private void SignUpButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SignUpButtonActionPerformed
-        redirectToSignUpPage();
-    }//GEN-LAST:event_SignUpButtonActionPerformed
-
-    private void icon1MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_icon1MousePressed
-
-        icon2.setVisible(true);
-        icon1.setVisible(false);
-        PasswordField.setEchoChar((char) 0);
-
-    }//GEN-LAST:event_icon1MousePressed
-
+        
     private void LoginButtonMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_LoginButtonMouseEntered
 
     }//GEN-LAST:event_LoginButtonMouseEntered
@@ -281,13 +272,32 @@ public class Login extends javax.swing.JFrame {
     private void ForgetPasswordButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ForgetPasswordButtonActionPerformed
        redirectoForgetPassForm();
     }//GEN-LAST:event_ForgetPasswordButtonActionPerformed
+        
+    
+    private void PasswordFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PasswordFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_PasswordFieldActionPerformed
+
+    private void icon1MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_icon1MousePressed
+       
+        icon1.setVisible(false);
+        icon2.setVisible(true);
+        PasswordField.setEchoChar((char) 0);
+        
+    }//GEN-LAST:event_icon1MousePressed
 
     private void icon2MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_icon2MousePressed
-
-        icon1.setVisible(true);
+        
         icon2.setVisible(false);
-        PasswordField.setEchoChar('*');
+        icon1.setVisible(true);
+        PasswordField.setEchoChar('*');;
+        
     }//GEN-LAST:event_icon2MousePressed
+
+    private void SignUpLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_SignUpLabelMouseClicked
+        redirectToSignUpPage();
+        
+    }//GEN-LAST:event_SignUpLabelMouseClicked
 
     private void redirectoForgetPassForm() {
         ForgetPass ForgetPassForm = new ForgetPass();
@@ -346,7 +356,6 @@ public class Login extends javax.swing.JFrame {
     private javax.swing.JLayeredPane LoginLayeredPane;
     private javax.swing.JLabel Loginbg;
     private javax.swing.JPasswordField PasswordField;
-    private javax.swing.JButton SignUpButton;
     private javax.swing.JLabel SignUpLabel;
     private javax.swing.JTextField UsernameField;
     private javax.swing.JLabel icon1;

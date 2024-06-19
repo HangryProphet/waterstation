@@ -62,7 +62,6 @@ public class SignUp extends javax.swing.JFrame {
 
         SignUpLayeredPane = new javax.swing.JLayeredPane();
         whitebg = new javax.swing.JPanel();
-        LoginLabel = new javax.swing.JLabel();
         ConfirmPasswordLabel = new javax.swing.JLabel();
         SignUpUsernameLabel = new javax.swing.JLabel();
         SignUpUsernameField = new javax.swing.JTextField();
@@ -75,6 +74,7 @@ public class SignUp extends javax.swing.JFrame {
         ShowPassSignUp = new javax.swing.JCheckBox();
         OTPField = new javax.swing.JPasswordField();
         EnterOTPLabel = new javax.swing.JLabel();
+        LoginLabel = new javax.swing.JLabel();
         SignUpbg = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -90,9 +90,6 @@ public class SignUp extends javax.swing.JFrame {
         whitebg.setMaximumSize(new java.awt.Dimension(640, 1080));
         whitebg.setMinimumSize(new java.awt.Dimension(640, 720));
         whitebg.setPreferredSize(new java.awt.Dimension(640, 720));
-
-        LoginLabel.setFont(new java.awt.Font("Arial", 1, 48)); // NOI18N
-        LoginLabel.setText("Create Account");
 
         ConfirmPasswordLabel.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
         ConfirmPasswordLabel.setText("Confirm Password:");
@@ -140,9 +137,6 @@ public class SignUp extends javax.swing.JFrame {
             .addGroup(whitebgLayout.createSequentialGroup()
                 .addGroup(whitebgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(whitebgLayout.createSequentialGroup()
-                        .addGap(143, 143, 143)
-                        .addComponent(LoginLabel))
-                    .addGroup(whitebgLayout.createSequentialGroup()
                         .addGap(231, 231, 231)
                         .addComponent(SignUpButton, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(whitebgLayout.createSequentialGroup()
@@ -171,9 +165,7 @@ public class SignUp extends javax.swing.JFrame {
         whitebgLayout.setVerticalGroup(
             whitebgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(whitebgLayout.createSequentialGroup()
-                .addGap(24, 24, 24)
-                .addComponent(LoginLabel)
-                .addGap(30, 30, 30)
+                .addGap(110, 110, 110)
                 .addComponent(SignUpUsernameLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(SignUpUsernameField, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -201,9 +193,14 @@ public class SignUp extends javax.swing.JFrame {
         );
 
         SignUpLayeredPane.add(whitebg);
-        whitebg.setBounds(320, 40, 640, 680);
+        whitebg.setBounds(390, 40, 640, 680);
 
-        SignUpbg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/bg.PNG"))); // NOI18N
+        LoginLabel.setFont(new java.awt.Font("Arial", 1, 48)); // NOI18N
+        LoginLabel.setText("Create Account");
+        SignUpLayeredPane.add(LoginLabel);
+        LoginLabel.setBounds(40, 130, 353, 56);
+
+        SignUpbg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/LogBG1.png"))); // NOI18N
         SignUpLayeredPane.add(SignUpbg);
         SignUpbg.setBounds(0, 0, 1280, 720);
 
