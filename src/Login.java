@@ -1,4 +1,5 @@
 
+import com.formdev.flatlaf.FlatIntelliJLaf;
 import java.awt.Color;
 import static java.awt.Color.blue;
 import java.awt.Cursor;
@@ -70,7 +71,7 @@ public class Login extends javax.swing.JFrame {
         this.ForgetPasswordButton.setContentAreaFilled(false); //to make the content area transparent
         this.ForgetPasswordButton.setBorderPainted(true);
                 
-        String SignUp = "<HTML><U>Don't have an account? SIGN UP</U></HTML>";
+        String SignUp = "<HTML><U>Click here to SIGN UP.</U></HTML>";
         SignUpLabel.setText(SignUp);
         
         String Forget = "<HTML><U>Forget Password?</U></HTML>";
@@ -98,6 +99,8 @@ public class Login extends javax.swing.JFrame {
         PasswordField = new javax.swing.JPasswordField();
         LoginButton = new javax.swing.JButton();
         SignUpLabel = new javax.swing.JLabel();
+        SignUpUsernameLabel = new javax.swing.JLabel();
+        SignUpPassLabel = new javax.swing.JLabel();
         Loginbg = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -179,21 +182,33 @@ public class Login extends javax.swing.JFrame {
             }
         });
         LoginLayeredPane.add(LoginButton);
-        LoginButton.setBounds(610, 470, 60, 50);
+        LoginButton.setBounds(610, 480, 60, 50);
 
         SignUpLabel.setBackground(new java.awt.Color(223, 223, 223));
-        SignUpLabel.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+        SignUpLabel.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         SignUpLabel.setForeground(new java.awt.Color(223, 223, 223));
-        SignUpLabel.setText("Don't have an account? SIGN UP");
+        SignUpLabel.setText("Click here to SIGN UP.");
         SignUpLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 SignUpLabelMouseClicked(evt);
             }
         });
         LoginLayeredPane.add(SignUpLabel);
-        SignUpLabel.setBounds(494, 540, 280, 100);
+        SignUpLabel.setBounds(550, 560, 200, 50);
 
-        Loginbg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/LogBG1.png"))); // NOI18N
+        SignUpUsernameLabel.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        SignUpUsernameLabel.setForeground(new java.awt.Color(255, 255, 255));
+        SignUpUsernameLabel.setText("Username");
+        LoginLayeredPane.add(SignUpUsernameLabel);
+        SignUpUsernameLabel.setBounds(500, 270, 100, 22);
+
+        SignUpPassLabel.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        SignUpPassLabel.setForeground(new java.awt.Color(255, 255, 255));
+        SignUpPassLabel.setText("Password");
+        LoginLayeredPane.add(SignUpPassLabel);
+        SignUpPassLabel.setBounds(500, 360, 100, 28);
+
+        Loginbg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/LoginBG1.png"))); // NOI18N
         LoginLayeredPane.add(Loginbg);
         Loginbg.setBounds(0, 0, 1280, 720);
 
@@ -319,30 +334,8 @@ public class Login extends javax.swing.JFrame {
     }
 
     public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Login.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Login.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Login.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Login.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
+        FlatIntelliJLaf.registerCustomDefaultsSource("<default package>");
+        FlatIntelliJLaf.setup();
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new Login().setVisible(true);
@@ -357,6 +350,8 @@ public class Login extends javax.swing.JFrame {
     private javax.swing.JLabel Loginbg;
     private javax.swing.JPasswordField PasswordField;
     private javax.swing.JLabel SignUpLabel;
+    private javax.swing.JLabel SignUpPassLabel;
+    private javax.swing.JLabel SignUpUsernameLabel;
     private javax.swing.JTextField UsernameField;
     private javax.swing.JLabel icon1;
     private javax.swing.JLabel icon2;

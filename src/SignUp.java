@@ -1,3 +1,6 @@
+import com.formdev.flatlaf.FlatDarkLaf;
+import com.formdev.flatlaf.FlatLightLaf;
+import com.formdev.flatlaf.IntelliJTheme;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -6,6 +9,8 @@ import javax.swing.JOptionPane;
 
 
 public class SignUp extends javax.swing.JFrame {
+    
+    
 
     public class DatabaseConnection {
     // Database URL, username, and password
@@ -61,20 +66,17 @@ public class SignUp extends javax.swing.JFrame {
     private void initComponents() {
 
         SignUpLayeredPane = new javax.swing.JLayeredPane();
-        whitebg = new javax.swing.JPanel();
-        ConfirmPasswordLabel = new javax.swing.JLabel();
         SignUpUsernameLabel = new javax.swing.JLabel();
         SignUpUsernameField = new javax.swing.JTextField();
-        SignUpPasswordField = new javax.swing.JPasswordField();
-        SignUpButton = new javax.swing.JButton();
         SignUpPassLabel = new javax.swing.JLabel();
+        SignUpPasswordField = new javax.swing.JPasswordField();
+        ConfirmPasswordLabel = new javax.swing.JLabel();
         ConfirmPassField = new javax.swing.JPasswordField();
-        AccountReadyLabel = new javax.swing.JLabel();
-        LogInRedirectButton = new javax.swing.JButton();
+        EnterOTPLabel = new javax.swing.JLabel();
         ShowPassSignUp = new javax.swing.JCheckBox();
         OTPField = new javax.swing.JPasswordField();
-        EnterOTPLabel = new javax.swing.JLabel();
-        LoginLabel = new javax.swing.JLabel();
+        SignUpButton = new javax.swing.JButton();
+        AccountReadyLabel = new javax.swing.JLabel();
         SignUpbg = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -85,122 +87,88 @@ public class SignUp extends javax.swing.JFrame {
         SignUpLayeredPane.setMaximumSize(new java.awt.Dimension(1920, 1080));
         SignUpLayeredPane.setMinimumSize(new java.awt.Dimension(1280, 720));
 
-        whitebg.setBackground(new java.awt.Color(255, 255, 255));
-        whitebg.setForeground(new java.awt.Color(255, 255, 255));
-        whitebg.setMaximumSize(new java.awt.Dimension(640, 1080));
-        whitebg.setMinimumSize(new java.awt.Dimension(640, 720));
-        whitebg.setPreferredSize(new java.awt.Dimension(640, 720));
-
-        ConfirmPasswordLabel.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
-        ConfirmPasswordLabel.setText("Confirm Password:");
-
-        SignUpUsernameLabel.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
+        SignUpUsernameLabel.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        SignUpUsernameLabel.setForeground(new java.awt.Color(255, 255, 255));
         SignUpUsernameLabel.setText("Enter Username:");
+        SignUpLayeredPane.add(SignUpUsernameLabel);
+        SignUpUsernameLabel.setBounds(480, 230, 149, 22);
 
-        SignUpButton.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
-        SignUpButton.setText("SIGN UP");
-        SignUpButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                SignUpButtonActionPerformed(evt);
-            }
-        });
+        SignUpUsernameField.setBackground(new java.awt.Color(223, 223, 223));
+        SignUpUsernameField.setFont(new java.awt.Font("Calibri", 0, 18)); // NOI18N
+        SignUpUsernameField.setForeground(new java.awt.Color(102, 102, 102));
+        SignUpLayeredPane.add(SignUpUsernameField);
+        SignUpUsernameField.setBounds(520, 260, 240, 40);
 
-        SignUpPassLabel.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
+        SignUpPassLabel.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        SignUpPassLabel.setForeground(new java.awt.Color(255, 255, 255));
         SignUpPassLabel.setText("Enter Password:");
+        SignUpLayeredPane.add(SignUpPassLabel);
+        SignUpPassLabel.setBounds(480, 310, 188, 28);
 
-        AccountReadyLabel.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
-        AccountReadyLabel.setText("Have an account?");
+        SignUpPasswordField.setBackground(new java.awt.Color(223, 223, 223));
+        SignUpPasswordField.setFont(new java.awt.Font("Calibri", 0, 18)); // NOI18N
+        SignUpPasswordField.setForeground(new java.awt.Color(102, 102, 102));
+        SignUpLayeredPane.add(SignUpPasswordField);
+        SignUpPasswordField.setBounds(520, 340, 240, 40);
 
-        LogInRedirectButton.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
-        LogInRedirectButton.setText("LOGIN");
-        LogInRedirectButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                LogInRedirectButtonActionPerformed(evt);
-            }
-        });
+        ConfirmPasswordLabel.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        ConfirmPasswordLabel.setForeground(new java.awt.Color(255, 255, 255));
+        ConfirmPasswordLabel.setText("Confirm Password:");
+        SignUpLayeredPane.add(ConfirmPasswordLabel);
+        ConfirmPasswordLabel.setBounds(480, 390, 219, 28);
+
+        ConfirmPassField.setBackground(new java.awt.Color(223, 223, 223));
+        ConfirmPassField.setFont(new java.awt.Font("Calibri", 0, 18)); // NOI18N
+        ConfirmPassField.setForeground(new java.awt.Color(102, 102, 102));
+        SignUpLayeredPane.add(ConfirmPassField);
+        ConfirmPassField.setBounds(520, 420, 240, 40);
+
+        EnterOTPLabel.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        EnterOTPLabel.setForeground(new java.awt.Color(255, 255, 255));
+        EnterOTPLabel.setText("Enter OTP:");
+        SignUpLayeredPane.add(EnterOTPLabel);
+        EnterOTPLabel.setBounds(480, 470, 96, 22);
 
         ShowPassSignUp.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        ShowPassSignUp.setForeground(new java.awt.Color(255, 255, 255));
         ShowPassSignUp.setText("Show Password");
         ShowPassSignUp.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 ShowPassSignUpActionPerformed(evt);
             }
         });
+        SignUpLayeredPane.add(ShowPassSignUp);
+        ShowPassSignUp.setBounds(630, 460, 115, 19);
 
-        EnterOTPLabel.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
-        EnterOTPLabel.setText("Enter OTP:");
+        OTPField.setBackground(new java.awt.Color(223, 223, 223));
+        OTPField.setFont(new java.awt.Font("Calibri", 0, 18)); // NOI18N
+        OTPField.setForeground(new java.awt.Color(102, 102, 102));
+        SignUpLayeredPane.add(OTPField);
+        OTPField.setBounds(520, 500, 240, 40);
 
-        javax.swing.GroupLayout whitebgLayout = new javax.swing.GroupLayout(whitebg);
-        whitebg.setLayout(whitebgLayout);
-        whitebgLayout.setHorizontalGroup(
-            whitebgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(whitebgLayout.createSequentialGroup()
-                .addGroup(whitebgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(whitebgLayout.createSequentialGroup()
-                        .addGap(231, 231, 231)
-                        .addComponent(SignUpButton, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(whitebgLayout.createSequentialGroup()
-                        .addGap(222, 222, 222)
-                        .addComponent(AccountReadyLabel))
-                    .addGroup(whitebgLayout.createSequentialGroup()
-                        .addGap(259, 259, 259)
-                        .addComponent(LogInRedirectButton))
-                    .addGroup(whitebgLayout.createSequentialGroup()
-                        .addGap(90, 90, 90)
-                        .addGroup(whitebgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(SignUpUsernameLabel)
-                            .addComponent(SignUpUsernameField, javax.swing.GroupLayout.PREFERRED_SIZE, 422, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(SignUpPassLabel)
-                            .addComponent(SignUpPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, 422, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(ConfirmPasswordLabel)
-                            .addComponent(OTPField, javax.swing.GroupLayout.PREFERRED_SIZE, 204, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(whitebgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, whitebgLayout.createSequentialGroup()
-                                    .addComponent(EnterOTPLabel)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(ShowPassSignUp))
-                                .addComponent(ConfirmPassField, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 422, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                .addContainerGap(128, Short.MAX_VALUE))
-        );
-        whitebgLayout.setVerticalGroup(
-            whitebgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(whitebgLayout.createSequentialGroup()
-                .addGap(110, 110, 110)
-                .addComponent(SignUpUsernameLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(SignUpUsernameField, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(SignUpPassLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(SignUpPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(ConfirmPasswordLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(ConfirmPassField, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(whitebgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(EnterOTPLabel)
-                    .addComponent(ShowPassSignUp))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(OTPField, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(40, 40, 40)
-                .addComponent(SignUpButton, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(16, 16, 16)
-                .addComponent(AccountReadyLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(LogInRedirectButton)
-                .addContainerGap(76, Short.MAX_VALUE))
-        );
+        SignUpButton.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        SignUpButton.setForeground(new java.awt.Color(255, 255, 255));
+        SignUpButton.setText("SIGN UP");
+        SignUpButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                SignUpButtonActionPerformed(evt);
+            }
+        });
+        SignUpLayeredPane.add(SignUpButton);
+        SignUpButton.setBounds(565, 550, 150, 30);
 
-        SignUpLayeredPane.add(whitebg);
-        whitebg.setBounds(390, 40, 640, 680);
+        AccountReadyLabel.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        AccountReadyLabel.setForeground(new java.awt.Color(255, 255, 255));
+        AccountReadyLabel.setText("Have an account? LOG IN");
+        AccountReadyLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                AccountReadyLabelMouseClicked(evt);
+            }
+        });
+        SignUpLayeredPane.add(AccountReadyLabel);
+        AccountReadyLabel.setBounds(525, 590, 230, 33);
 
-        LoginLabel.setFont(new java.awt.Font("Arial", 1, 48)); // NOI18N
-        LoginLabel.setText("Create Account");
-        SignUpLayeredPane.add(LoginLabel);
-        LoginLabel.setBounds(40, 130, 353, 56);
-
-        SignUpbg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/LogBG1.png"))); // NOI18N
+        SignUpbg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/SignupBG.png"))); // NOI18N
         SignUpLayeredPane.add(SignUpbg);
         SignUpbg.setBounds(0, 0, 1280, 720);
 
@@ -256,9 +224,9 @@ public class SignUp extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_ShowPassSignUpActionPerformed
 
-    private void LogInRedirectButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LogInRedirectButtonActionPerformed
+    private void AccountReadyLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_AccountReadyLabelMouseClicked
         redirectToLogInPage();
-    }//GEN-LAST:event_LogInRedirectButtonActionPerformed
+    }//GEN-LAST:event_AccountReadyLabelMouseClicked
     private void redirectToLogInPage() {
         Login LoginForm = new Login();
         LoginForm.setVisible(true);
@@ -269,34 +237,9 @@ public class SignUp extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(SignUp.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(SignUp.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(SignUp.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(SignUp.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-
-        /* Create and display the form */
+        IntelliJTheme.setup(SignUp.class.getResourceAsStream("/template.theme.json"));
         java.awt.EventQueue.invokeLater(new Runnable() {
+            
             public void run() {
                 new SignUp().setVisible(true);
             }
@@ -308,8 +251,6 @@ public class SignUp extends javax.swing.JFrame {
     private javax.swing.JPasswordField ConfirmPassField;
     private javax.swing.JLabel ConfirmPasswordLabel;
     private javax.swing.JLabel EnterOTPLabel;
-    private javax.swing.JButton LogInRedirectButton;
-    private javax.swing.JLabel LoginLabel;
     private javax.swing.JPasswordField OTPField;
     private javax.swing.JCheckBox ShowPassSignUp;
     private javax.swing.JButton SignUpButton;
@@ -319,6 +260,5 @@ public class SignUp extends javax.swing.JFrame {
     private javax.swing.JTextField SignUpUsernameField;
     private javax.swing.JLabel SignUpUsernameLabel;
     private javax.swing.JLabel SignUpbg;
-    private javax.swing.JPanel whitebg;
     // End of variables declaration//GEN-END:variables
 }

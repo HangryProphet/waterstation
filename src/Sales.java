@@ -1,4 +1,6 @@
 
+
+import com.formdev.flatlaf.IntelliJTheme;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -25,6 +27,7 @@ import javax.swing.text.DocumentFilter;
  * @author ADMIN
  */
 public class Sales extends javax.swing.JPanel {
+
 
     
 
@@ -1157,7 +1160,7 @@ public class Sales extends javax.swing.JPanel {
         updateTotalAndDiscountedPrice();
 
     }//GEN-LAST:event_DiscountTextFieldKeyReleased
-
+    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton AddToCartButton;
