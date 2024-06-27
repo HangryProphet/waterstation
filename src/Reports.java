@@ -194,11 +194,11 @@ public class Reports extends javax.swing.JPanel {
 
             },
             new String [] {
-                "Receipt Number", "Product", "Total Quantity", "Discount (%)", "Total Price", "Date/Time", "Customer", "Fullfillment Method"
+                "Receipt Number", "Product", "Total Quantity", "Discount (%)", "Total Price", "Date/Time", "Fullfillment Method"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false
+                false, false, false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -329,11 +329,10 @@ public class Reports extends javax.swing.JPanel {
                     int discount = resultSet.getInt("discount");
                     double price = resultSet.getInt("price");
                     String date = resultSet.getString("date");
-                    String customer = resultSet.getString("customer");
                     String methods = resultSet.getString("method");
 
                     // Add the fetched data to the table model
-                    reportTableModel.addRow(new Object[]{receiptId, productName, qty, discount, price, date, customer, methods});
+                    reportTableModel.addRow(new Object[]{receiptId, productName, qty, discount, price, date, methods});
                 }
             } else {
                 System.out.println("Failed to establish database connection.");
@@ -464,10 +463,9 @@ public class Reports extends javax.swing.JPanel {
                 String qty = resultSet.getString("qty");
                 int discount = resultSet.getInt("discount");
                 String price = resultSet.getString("price");
-                String date = resultSet.getString("date");
-                String customer = resultSet.getString("customer");
+                String date = resultSet.getString("date"); 
                 String methods = resultSet.getString("method");
-                model.addRow(new Object[]{id, name, qty, discount, price, date, customer, methods});
+                model.addRow(new Object[]{id, name, qty, discount, price, date, methods});
             }
             updateTotalPrice(ReportTable, 4, TotalPriceValue);
         } catch (SQLException e) {

@@ -266,8 +266,6 @@ public class Sales extends javax.swing.JPanel {
         ClearCartButton = new javax.swing.JButton();
         jPanel4 = new javax.swing.JPanel();
         jPanel6 = new javax.swing.JPanel();
-        SelectCustomerComboBox = new javax.swing.JComboBox<>();
-        CustomerLabel = new javax.swing.JLabel();
         MethodComboBox = new javax.swing.JComboBox<>();
         MethodLabel = new javax.swing.JLabel();
         jPanel7 = new javax.swing.JPanel();
@@ -370,17 +368,6 @@ public class Sales extends javax.swing.JPanel {
 
         jPanel6.setBackground(new java.awt.Color(153, 153, 153));
 
-        SelectCustomerComboBox.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        SelectCustomerComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Test", "TEST", "test", " " }));
-        SelectCustomerComboBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                SelectCustomerComboBoxActionPerformed(evt);
-            }
-        });
-
-        CustomerLabel.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
-        CustomerLabel.setText("Select Customer");
-
         MethodComboBox.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         MethodComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Delivery", "Pick-up" }));
 
@@ -394,31 +381,21 @@ public class Sales extends javax.swing.JPanel {
             .addGroup(jPanel6Layout.createSequentialGroup()
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel6Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(SelectCustomerComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 231, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel6Layout.createSequentialGroup()
-                        .addGap(46, 46, 46)
-                        .addComponent(CustomerLabel))
-                    .addGroup(jPanel6Layout.createSequentialGroup()
-                        .addGap(34, 34, 34)
+                        .addGap(37, 37, 37)
                         .addComponent(MethodLabel))
                     .addGroup(jPanel6Layout.createSequentialGroup()
-                        .addGap(59, 59, 59)
+                        .addGap(60, 60, 60)
                         .addComponent(MethodComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(15, Short.MAX_VALUE))
+                .addContainerGap(39, Short.MAX_VALUE))
         );
         jPanel6Layout.setVerticalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(CustomerLabel)
-                .addGap(18, 18, 18)
-                .addComponent(SelectCustomerComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(29, 29, 29)
+                .addGap(27, 27, 27)
                 .addComponent(MethodLabel)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(MethodComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(21, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jPanel7.setBackground(new java.awt.Color(153, 153, 153));
@@ -444,7 +421,7 @@ public class Sales extends javax.swing.JPanel {
         jPanel7Layout.setVerticalGroup(
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel7Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap(91, Short.MAX_VALUE)
                 .addComponent(AddToCartButton, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(80, 80, 80))
         );
@@ -762,7 +739,7 @@ public class Sales extends javax.swing.JPanel {
                 deleteStatement.executeUpdate();
 
                 // Insert new cart items into the database
-                String insertQuery = "INSERT INTO reports (receiptid, productname, qty, discount, price, date, customer, method) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                String insertQuery = "INSERT INTO reports (receiptid, productname, qty, discount, price, date, method) VALUES (?, ?, ?, ?, ?, ?, ?)";
                 insertStatement = connection.prepareStatement(insertQuery);
 
                 // Get current date and format it
@@ -787,7 +764,7 @@ public class Sales extends javax.swing.JPanel {
                 String methods = MethodComboBox.getSelectedItem().toString();
 
                 // Get selected customer from the combo box
-                String selectedCustomer = (String) SelectCustomerComboBox.getSelectedItem();
+                
 
                 // Set parameters for the prepared statement
                 insertStatement.setInt(1, generateReceiptId());
@@ -796,8 +773,8 @@ public class Sales extends javax.swing.JPanel {
                 insertStatement.setInt(4, discount); // Store the discount value in the database
                 insertStatement.setDouble(5, totalPrice);
                 insertStatement.setString(6, currentDate);
-                insertStatement.setString(7, selectedCustomer); // Set selected customer
-                insertStatement.setString(8, methods);
+                
+                insertStatement.setString(7, methods);
 
                 // Execute the insertion query
                 insertStatement.executeUpdate();
@@ -944,10 +921,6 @@ public class Sales extends javax.swing.JPanel {
         }
      }//GEN-LAST:event_RemoveFromCartButtonActionPerformed
 
-    private void SelectCustomerComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SelectCustomerComboBoxActionPerformed
-        String selectedCustomer = (String) SelectCustomerComboBox.getSelectedItem();
-    }//GEN-LAST:event_SelectCustomerComboBoxActionPerformed
-
     private void populateCustomerComboBox() {
         DefaultComboBoxModel<String> comboBoxModel = new DefaultComboBoxModel<>();
         Connection conn = null;
@@ -965,7 +938,7 @@ public class Sales extends javax.swing.JPanel {
             }
 
             // Set the updated model to the combo box
-            SelectCustomerComboBox.setModel(comboBoxModel);
+            
 
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Failed to populate customer names: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -1164,7 +1137,6 @@ public class Sales extends javax.swing.JPanel {
     private javax.swing.JTable CartTable;
     private javax.swing.JButton CheckOutButton1;
     private javax.swing.JButton ClearCartButton;
-    private javax.swing.JLabel CustomerLabel;
     private javax.swing.JLabel DiscountLabel;
     private javax.swing.JTextField DiscountTextField;
     private javax.swing.JLabel DiscountedPrice;
@@ -1173,7 +1145,6 @@ public class Sales extends javax.swing.JPanel {
     private javax.swing.JLabel MethodLabel;
     private javax.swing.JTable ProductTable;
     private javax.swing.JButton RemoveFromCartButton;
-    private javax.swing.JComboBox<String> SelectCustomerComboBox;
     private javax.swing.JLabel TotalPrice;
     private javax.swing.JLabel TotalPriceLabel;
     private javax.swing.JLabel jLabel1;

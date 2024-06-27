@@ -1,0 +1,177 @@
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.DocumentFilter;
+
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
+ */
+
+/**
+ *
+ * @author pc bulacan
+ */
+public class Accounts extends javax.swing.JPanel {
+
+    public class DatabaseConnection {
+        // Database URL, username, and password
+
+        private static final String URL = "jdbc:mysql://localhost:3306/waterstation";
+        private static final String USER = "root";
+        private static final String PASSWORD = "";
+
+        // Single instance of the connection
+        private static Connection connection = null;
+
+        // Method to establish a connection to the database
+        public static Connection getConnection() {
+            if (connection == null) {
+                try {
+                    // Register the JDBC driver
+                    Class.forName("com.mysql.cj.jdbc.Driver");
+                    // Open a connection
+                    connection = DriverManager.getConnection(URL, USER, PASSWORD);
+                    System.out.println("Database connected successfully.");
+                } catch (ClassNotFoundException e) {
+                    System.out.println("MySQL JDBC Driver not found.");
+                    e.printStackTrace();
+                } catch (SQLException e) {
+                    System.out.println("Failed to connect to the database.");
+                    e.printStackTrace();
+                }
+            }
+            return connection;
+        }
+
+        // Method to close the connection (if needed)
+        public static void closeConnection() {
+            if (connection != null) {
+                try {
+                    connection.close();
+                    connection = null;
+                    System.out.println("Database connection closed.");
+                } catch (SQLException e) {
+                    System.out.println("Failed to close the database connection.");
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        // Method to manually reconnect if needed
+        public static void reconnect() {
+            closeConnection();
+            getConnection();
+        }
+    }
+
+    
+
+    public static class NumberOnlyFilter extends DocumentFilter {
+
+        @Override
+        public void insertString(DocumentFilter.FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
+            if (string == null) {
+                return;
+            }
+            String newValue = getNewValue(fb, offset, string, attr);
+            if (isNumericAndInRange(newValue)) {
+                super.insertString(fb, offset, string, attr);
+            }
+        }
+
+        @Override
+        public void replace(DocumentFilter.FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
+            if (text == null) {
+                return;
+            }
+            String newValue = getNewValue(fb, offset, text, attrs);
+            if (isNumericAndInRange(newValue)) {
+                super.replace(fb, offset, length, text, attrs);
+            }
+        }
+
+        @Override
+        public void remove(DocumentFilter.FilterBypass fb, int offset, int length) throws BadLocationException {
+            super.remove(fb, offset, length);
+            Document doc = fb.getDocument();
+            if (doc.getLength() == 0) {
+                fb.insertString(0, "0", null); // Set to 0 if the field is empty
+            }
+        }
+
+        private boolean isNumericAndInRange(String text) {
+            if (text.isEmpty()) {
+                return true;
+            }
+            try {
+                int value = Integer.parseInt(text);
+                return value >= 0 && value <= 100;
+            } catch (NumberFormatException e) {
+                return false;
+            }
+        }
+
+        private String getNewValue(DocumentFilter.FilterBypass fb, int offset, String text, AttributeSet attr) throws BadLocationException {
+            Document doc = fb.getDocument();
+            StringBuilder sb = new StringBuilder();
+            sb.append(doc.getText(0, doc.getLength()));
+            sb.insert(offset, text);
+            return sb.toString();
+        }
+    }
+    public Accounts() {
+        initComponents();
+    }
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jTabbedPane1 = new javax.swing.JTabbedPane();
+        jPanel2 = new javax.swing.JPanel();
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 1094, Short.MAX_VALUE)
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 694, Short.MAX_VALUE)
+        );
+
+        jTabbedPane1.addTab("Accounts", jPanel2);
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+        this.setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jTabbedPane1)
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jTabbedPane1)
+        );
+    }// </editor-fold>//GEN-END:initComponents
+
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JTabbedPane jTabbedPane1;
+    // End of variables declaration//GEN-END:variables
+}
